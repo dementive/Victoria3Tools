@@ -1,0 +1,8 @@
+<snippet>
+	<description>Intrinsics</description>
+	<content>
+		<![CDATA[ddy_coarse(${1:/* value */})]]>
+	</content>
+	<tabTrigger>ddy_coarse</tabTrigger>
+	<scope>source.hlsl</scope>
+</snippet>

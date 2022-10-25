@@ -1,0 +1,8 @@
+<snippet>
+	<description>Intrinsics</description>
+	<content>
+		<![CDATA[firstbithigh(${1:/* value */})]]>
+	</content>
+	<tabTrigger>firstbithigh</tabTrigger>
+	<scope>source.hlsl</scope>
+</snippet>

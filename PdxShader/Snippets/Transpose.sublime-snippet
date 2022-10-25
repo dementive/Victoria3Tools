@@ -1,0 +1,8 @@
+<snippet>
+	<description>Intrinsics</description>
+	<content>
+		<![CDATA[transpose(${1:/* x */})]]>
+	</content>
+	<tabTrigger>transpose</tabTrigger>
+	<scope>source.hlsl</scope>
+</snippet>

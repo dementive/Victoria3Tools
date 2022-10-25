@@ -1,0 +1,8 @@
+<snippet>
+	<description>Intrinsics</description>
+	<content>
+		<![CDATA[degrees(${1:/* x */})]]>
+	</content>
+	<tabTrigger>degrees</tabTrigger>
+	<scope>source.hlsl</scope>
+</snippet>

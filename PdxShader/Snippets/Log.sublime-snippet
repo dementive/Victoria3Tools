@@ -1,0 +1,8 @@
+<snippet>
+	<description>Intrinsics</description>
+	<content>
+		<![CDATA[log(${1:/* x */})]]>
+	</content>
+	<tabTrigger>log</tabTrigger>
+	<scope>source.hlsl</scope>
+</snippet>

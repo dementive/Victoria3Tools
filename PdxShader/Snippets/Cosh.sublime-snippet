@@ -1,0 +1,8 @@
+<snippet>
+	<description>Intrinsics</description>
+	<content>
+		<![CDATA[cosh(${1:/* x */})]]>
+	</content>
+	<tabTrigger>cosh</tabTrigger>
+	<scope>source.hlsl</scope>
+</snippet>

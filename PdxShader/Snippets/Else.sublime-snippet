@@ -1,0 +1,11 @@
+<snippet>
+	<description>Conditionals</description>
+	<content>
+<![CDATA[else
+{
+	${0:/* code */}
+}]]>
+	</content>
+	<tabTrigger>else</tabTrigger>
+	<scope>source.hlsl</scope>
+</snippet>

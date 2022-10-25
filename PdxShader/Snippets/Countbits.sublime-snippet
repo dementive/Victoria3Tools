@@ -1,0 +1,8 @@
+<snippet>
+	<description>Intrinsics</description>
+	<content>
+		<![CDATA[countbits(${1:/* value */})]]>
+	</content>
+	<tabTrigger>countbits</tabTrigger>
+	<scope>source.hlsl</scope>
+</snippet>

@@ -1,0 +1,8 @@
+<snippet>
+	<description>Intrinsics</description>
+	<content>
+		<![CDATA[f16tof32(${1:/* value */})]]>
+	</content>
+	<tabTrigger>f16tof32</tabTrigger>
+	<scope>source.hlsl</scope>
+</snippet>

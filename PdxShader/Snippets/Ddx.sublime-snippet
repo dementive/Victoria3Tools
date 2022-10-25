@@ -1,0 +1,8 @@
+<snippet>
+	<description>Intrinsics</description>
+	<content>
+		<![CDATA[ddx(${1:/* x */})]]>
+	</content>
+	<tabTrigger>ddx</tabTrigger>
+	<scope>source.hlsl</scope>
+</snippet>

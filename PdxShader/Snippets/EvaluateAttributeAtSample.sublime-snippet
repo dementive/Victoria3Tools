@@ -1,0 +1,8 @@
+<snippet>
+	<description>Intrinsics</description>
+	<content>
+		<![CDATA[EvaluateAttributeAtSample(${1:/* value */}, ${2:/* sampleIndex */})]]>
+	</content>
+	<tabTrigger>EvaluateAttributeAtSample</tabTrigger>
+	<scope>source.hlsl</scope>
+</snippet>

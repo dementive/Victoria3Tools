@@ -1,0 +1,8 @@
+<snippet>
+	<description>Intrinsics</description>
+	<content>
+		<![CDATA[round(${1:/* x */})]]>
+	</content>
+	<tabTrigger>round</tabTrigger>
+	<scope>source.hlsl</scope>
+</snippet>

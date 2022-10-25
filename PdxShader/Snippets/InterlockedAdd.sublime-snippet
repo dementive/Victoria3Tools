@@ -1,0 +1,8 @@
+<snippet>
+	<description>Intrinsics</description>
+	<content>
+		<![CDATA[InterlockedAdd(${1:/* dest */}, ${2:/* value */}, ${3:/* out original_value */});]]>
+	</content>
+	<tabTrigger>InterlockedAdd</tabTrigger>
+	<scope>meta.function.hlsl, meta.preprocessor.hlsl</scope>
+</snippet>

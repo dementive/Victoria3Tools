@@ -1,0 +1,8 @@
+<snippet>
+	<description>Intrinsics</description>
+	<content>
+		<![CDATA[reflect(${1:/* i */}, ${2:/* n */})]]>
+	</content>
+	<tabTrigger>reflect</tabTrigger>
+	<scope>source.hlsl</scope>
+</snippet>

@@ -1,0 +1,43 @@
+<snippet>
+    <content><![CDATA[
+${1:NAMESPACE}.${2:NUM} = {
+    type = country_event
+    placement = root
+    title = ${1:NAMESPACE}.${2:NUM}.t
+    desc = ${1:NAMESPACE}.${2:NUM}.d
+    flavor = ${1:NAMESPACE}.${2:NUM}.f
+    
+    duration = 3
+
+    event_image = {
+        video = "gfx/event_pictures/unspecific_gears_pistons.bk2"
+    }
+
+    icon = "gfx/interface/icons/event_icons/event_industry.dds"
+
+    on_created_soundeffect = "event:/SFX/UI/Alerts/event_appear"
+    on_opened_soundeffect = "event:/SFX/Events/unspecific/gears_pistons"
+
+    trigger = {
+    
+    }
+
+    immediate = {
+
+    }
+
+    option = {      
+        name = ${1:NAMESPACE}.${2:NUM}.a
+        default_option = yes
+    }
+    option = {      
+        name = ${1:NAMESPACE}.${2:NUM}.b
+    }
+}
+]]></content>
+<!-- ${1:Selection Field 1}.${2:Selection Field 2} -->
+
+<tabTrigger>Template - country_event</tabTrigger>
+<scope>text.vic</scope>
+<description>Create a country event</description>
+</snippet>

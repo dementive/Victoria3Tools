@@ -1,0 +1,68 @@
+%YAML 1.2
+---
+name: Victoria Gui
+file_extensions: [gui]
+scope: text.vic.gui
+
+variables:
+  valid_variable: '[A-Za-z_][A-Za-z_0-9]*'
+
+contexts:
+  main:
+    - include: comments
+    - include: bracket-zone
+    - include: at-symbol
+    - include: at-symbol-expanded
+
+    # Parameters
+    - match: \b(?i)(set_parent_size_to_minimum|max_width|yes|no|width|fontweight|layoutstretchfactor_vertical|layoutstretchfactor_horizontal|wheelstep|tintcolor|scrollbarpolicy_vertical|setitemsizefromcell|autoresizeviewport|modality|fontcolor|from|droptarget|tooltip_type|tooltip_widgetanchor|intersectionmask|movable|resizable|to|tabfocusroot|focuspolicy|cursorcolor|selectioncolor|maxcharacters|autoresizescrollarea|spriteborder_bottom|spriteborder_right|spriteborder_top|spriteborder_left|plotpoints|scissor|uphoverframe|uppressedframe|downhoverframe|downpressedframe|disableframe|fontsize|filter_mouse|step|font|ignore_unset_buttons|page|addcolumn|addrow|fittype|scrollbarpolicy_horizontal|scale|translate_uv|position_x|position_y|shortcut|mirror|fontsize_max|fontsize_min|layoutpolicy_horizontal|layoutpolicy_vertical|margin_right|margin_left|righttoleft|maximumsize|frame|margin_top|value|flipdirection|datamodel_wrap|spacing|ignoreinvisible|state|blend_mode|spriteType|spriteborder|resizeparent|margin|margin_bottom|minimumsize|multiline|elide|color|layer|allow_outside|parentanchor|size|widgetanchor|position|direction|autoresize|align|alwaystransparent|effectname|upframe|overframe|downframe|framesize|alpha)(?-i)\b
+      scope: storage.type
+    # Defaults
+    - match: \b(?i)(axis|axis_label|scrollbar_vertical|scrollbar_horizontal|editor_editbox|checkbutton|scrollbar|margin_widget|piechart|pieslice|treemapslice|dropDown|progresspie|slider|minimap|minimap_window|fixedgridbox|scrollwidget|scrollarea|default_format|template|vbox|hbox|progressbar|tooltipwidget|overlappingitembox|modify_texture|background|item|dynamicgridbox|widget|container|using|flowcontainer|textbox|button)(?-i)\b
+      scope: entity.name
+    # Effects
+    - match: \b(?i)(oncreate|onpressed|on_keyframe_move|onreleased|onvaluechanged|ontextchanged|onreturnpressed|oneditingfinished|onselectionchanged|on_finish|on_start|start_sound|blockoverride|block|onrightclick|onmousehierarchyenter|onmousehierarchyleave|onclick)(?-i)\b
+      scope: keyword
+    # Triggers
+    - match: \b(?i)(checked|tooltip_enabled|button_trigger|trigger_on_create|datamodel|datacontext|visible|enabled)(?-i)\b
+      scope: string
+    # Essential Functions and Textures
+    - match: \b(?i)(raw_tooltip|raw_text|mask|next|types|type|duration|progresstexture|noprogresstexture|texture_density|shaderfile|name|tooltip|text|icon|texture|gfxtype)(?-i)\b
+      scope: constant.numeric
+    # Math/Sound/Video
+    - match: \b(?i)(min|max|soundeffect)(?-i)\b
+      scope: variable.language
+
+
+
+  comments:
+    - match: (#).*$\n?
+      scope: comment
+
+  at-symbol:
+    - match: (@)({{valid_variable}})
+      scope: keyword.numeric.at.symbol
+      push:
+        - match: (\[|\]|=|\s)
+          scope: punctuation.definition.end
+          pop: true
+
+  at-symbol-expanded:
+    - match: (@)\[
+      scope: keyword.numeric.at.symbol
+      push:
+        - meta_content_scope: variable.language.at.parameter
+        - match: \]
+          scope: keyword.numeric.at.symbol
+          pop: true
+
+  bracket-zone:
+    - match: '\['
+      scope: punctuation.bracket-zone.begin.gui
+      push:
+        - meta_content_scope: punctuation.bracket-zone
+        - match: '\b(?i)(And|Not|Or)(?-i)\b'
+          scope: storage.type.logical.operator.gui
+        - match: '\]'
+          scope: punctuation.bracket-zone.end.gui
+          pop: true

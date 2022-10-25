@@ -1,0 +1,8 @@
+<snippet>
+	<description>Intrinsics</description>
+	<content>
+		<![CDATA[rcp(${1:/* x */})]]>
+	</content>
+	<tabTrigger>rcp</tabTrigger>
+	<scope>source.hlsl</scope>
+</snippet>

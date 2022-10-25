@@ -1,0 +1,8 @@
+<snippet>
+	<description>Intrinsics</description>
+	<content>
+		<![CDATA[tan(${1:/* x */})]]>
+	</content>
+	<tabTrigger>tan</tabTrigger>
+	<scope>source.hlsl</scope>
+</snippet>

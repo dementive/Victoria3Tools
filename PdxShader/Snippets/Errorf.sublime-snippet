@@ -1,0 +1,8 @@
+<snippet>
+	<description>Intrinsics</description>
+	<content>
+		<![CDATA[errorf(${1:/* format */}, ${2:/* ... */});]]>
+	</content>
+	<tabTrigger>errorf</tabTrigger>
+	<scope>source.hlsl</scope>
+</snippet>

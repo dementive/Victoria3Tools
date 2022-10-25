@@ -1,0 +1,8 @@
+<snippet>
+	<description>Intrinsics</description>
+	<content>
+		<![CDATA[sincos(${1:/* x */}, ${2:/* out s */}, ${3:/* out c */});]]>
+	</content>
+	<tabTrigger>sincos</tabTrigger>
+	<scope>source.hlsl</scope>
+</snippet>

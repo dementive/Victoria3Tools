@@ -1,0 +1,8 @@
+<snippet>
+	<description>Intrinsics</description>
+	<content>
+		<![CDATA[firstbitlow(${1:/* value */})]]>
+	</content>
+	<tabTrigger>firstbitlow</tabTrigger>
+	<scope>source.hlsl</scope>
+</snippet>

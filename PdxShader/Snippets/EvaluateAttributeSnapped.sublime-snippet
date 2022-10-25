@@ -1,0 +1,8 @@
+<snippet>
+	<description>Intrinsics</description>
+	<content>
+		<![CDATA[EvaluateAttributeSnapped(${1:/* value */}, ${2:/* offset */})]]>
+	</content>
+	<tabTrigger>EvaluateAttributeSnapped</tabTrigger>
+	<scope>source.hlsl</scope>
+</snippet>

@@ -1,0 +1,11 @@
+<snippet>
+	<description>Types</description>
+	<content>
+<![CDATA[class ${1:${TM_FILENAME/(.+)\..+|.*/$/:name}}
+{
+	$0
+};]]>
+	</content>
+	<tabTrigger>class</tabTrigger>
+	<scope>source.hlsl</scope>
+</snippet>

@@ -1,0 +1,11 @@
+<snippet>
+	<description>Conditionals</description>
+	<content>
+<![CDATA[else if (${1:/* condition */})
+{
+	${0:/* code */}
+}]]>
+	</content>
+	<tabTrigger>elif</tabTrigger>
+	<scope>source.hlsl</scope>
+</snippet>
