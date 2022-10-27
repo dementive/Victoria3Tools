@@ -1077,7 +1077,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 				return
 
 			if view.match_selector(point, "keyword.effect"):
-				show_hover_docs(view, point, "keyword.effect", EffectList)
+				show_hover_docs(view, point, "keyword.effect", EffectsList)
 
 			if view.match_selector(point, "string.trigger"):
 				show_hover_docs(view, point, "string.trigger", TriggersList)
