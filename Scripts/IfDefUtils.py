@@ -20,7 +20,8 @@ class IfDefMatchListener(sublime_plugin.EventListener):
 	def on_hover(sef, view, point, hover_zone):
 		if sublime.load_settings("Victoria Syntax.sublime-settings").get("IfDefMatchEnabled", True) == False:
 			return
-
+		if not view:
+			return
 		def on_navigate(href):
 			view.window().open_file(
 				href,

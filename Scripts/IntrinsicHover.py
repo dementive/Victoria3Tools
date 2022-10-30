@@ -440,7 +440,8 @@ class IntrinsicHoverListener(sublime_plugin.EventListener):
 	def on_hover(sef, view, point, hover_zone):
 		if sublime.load_settings("Victoria Syntax.sublime-settings").get("IntrinsicHoverEnabled", True) == False:
 			return
-			
+		if not view:
+			return
 		scopesStr = view.scope_name(point)
 		scopeList = scopesStr.split(' ')
 		for scope in scopeList:

@@ -4,14 +4,14 @@
 
 Run the following script in the Sublime Text terminal ```(ctrl+` )``` which utilizes git clone for easy installation:
 ```
-import os; path=sublime.packages_path(); (os.makedirs(path) if not os.path.exists(path) else None); window.run_command('exec', {'cmd': ['git', 'clone', 'https://github.com/dementive/VicTools', 'VicTools'], 'working_dir': path})
+import os; path=sublime.packages_path(); (os.makedirs(path) if not os.path.exists(path) else None); window.run_command('exec', {'cmd': ['git', 'clone', 'https://github.com/dementive/Victoria3Tools', 'Victoria3Tools'], 'working_dir': path})
 ```
 This will only work with git installed on your system.
 
-Alternatively you can download the zip file from github and put the VicTools folder in the packages folder. This is not reccomended because you will not receive updates unless you redownload it manually.
+Alternatively you can download the zip file from github and put the Victoria3Tools folder in the packages folder. This is not reccomended because you will not receive updates unless you redownload it manually.
 The packages folder can easily be found by going to ```preferences``` in the main menu and selecting ```Browse Packages```.
 ```
-C:\Users\YOURUSERNAME\AppData\Roaming\Sublime Text 3\Packages\VicTools
+C:\Users\YOURUSERNAME\AppData\Roaming\Sublime Text 3\Packages\Victoria3Tools
 ```
 
 ## Features
