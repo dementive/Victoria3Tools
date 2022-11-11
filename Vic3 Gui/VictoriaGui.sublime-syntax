@@ -13,12 +13,13 @@ contexts:
     - include: bracket-zone
     - include: at-symbol
     - include: at-symbol-expanded
+    - include: template-usage
 
     # Parameters
-    - match: \b(?i)(set_parent_size_to_minimum|max_width|yes|no|width|fontweight|layoutstretchfactor_vertical|layoutstretchfactor_horizontal|wheelstep|tintcolor|scrollbarpolicy_vertical|setitemsizefromcell|autoresizeviewport|modality|fontcolor|from|droptarget|tooltip_type|tooltip_widgetanchor|intersectionmask|movable|resizable|to|tabfocusroot|focuspolicy|cursorcolor|selectioncolor|maxcharacters|autoresizescrollarea|spriteborder_bottom|spriteborder_right|spriteborder_top|spriteborder_left|plotpoints|scissor|uphoverframe|uppressedframe|downhoverframe|downpressedframe|disableframe|fontsize|filter_mouse|step|font|ignore_unset_buttons|page|addcolumn|addrow|fittype|scrollbarpolicy_horizontal|scale|translate_uv|position_x|position_y|shortcut|mirror|fontsize_max|fontsize_min|layoutpolicy_horizontal|layoutpolicy_vertical|margin_right|margin_left|righttoleft|maximumsize|frame|margin_top|value|flipdirection|datamodel_wrap|spacing|ignoreinvisible|state|blend_mode|spriteType|spriteborder|resizeparent|margin|margin_bottom|minimumsize|multiline|elide|color|layer|allow_outside|parentanchor|size|widgetanchor|position|direction|autoresize|align|alwaystransparent|effectname|upframe|overframe|downframe|framesize|alpha)(?-i)\b
+    - match: \b(?i)(texture_density|focus_on_visible|set_parent_size_to_minimum|max_width|yes|no|width|fontweight|layoutstretchfactor_vertical|layoutstretchfactor_horizontal|wheelstep|tintcolor|scrollbarpolicy_vertical|setitemsizefromcell|autoresizeviewport|modality|fontcolor|from|droptarget|tooltip_type|tooltip_widgetanchor|intersectionmask|movable|resizable|to|tabfocusroot|focuspolicy|cursorcolor|selectioncolor|maxcharacters|autoresizescrollarea|spriteborder_bottom|spriteborder_right|spriteborder_top|spriteborder_left|plotpoints|scissor|uphoverframe|uppressedframe|downhoverframe|downpressedframe|disableframe|fontsize|filter_mouse|step|font|ignore_unset_buttons|page|addcolumn|addrow|fittype|scrollbarpolicy_horizontal|scale|translate_uv|position_x|position_y|shortcut|mirror|fontsize_max|fontsize_min|layoutpolicy_horizontal|layoutpolicy_vertical|margin_right|margin_left|righttoleft|maximumsize|frame|margin_top|value|flipdirection|datamodel_wrap|spacing|ignoreinvisible|state|blend_mode|spriteType|spriteborder|resizeparent|margin|margin_bottom|minimumsize|multiline|elide|color|layer|allow_outside|parentanchor|size|widgetanchor|position|direction|autoresize|align|alwaystransparent|effectname|upframe|overframe|downframe|framesize|alpha)(?-i)\b
       scope: storage.type
     # Defaults
-    - match: \b(?i)(axis|axis_label|scrollbar_vertical|scrollbar_horizontal|editor_editbox|checkbutton|scrollbar|margin_widget|piechart|pieslice|treemapslice|dropDown|progresspie|slider|minimap|minimap_window|fixedgridbox|scrollwidget|scrollarea|default_format|template|vbox|hbox|progressbar|tooltipwidget|overlappingitembox|modify_texture|background|item|dynamicgridbox|widget|container|using|flowcontainer|textbox|button)(?-i)\b
+    - match: \b(?i)(axis|editbox|axis_label|scrollbar_vertical|scrollbar_horizontal|editor_editbox|checkbutton|scrollbar|margin_widget|piechart|pieslice|treemapslice|dropDown|progresspie|slider|minimap|minimap_window|fixedgridbox|scrollwidget|scrollarea|default_format|template|vbox|hbox|progressbar|tooltipwidget|overlappingitembox|modify_texture|background|item|dynamicgridbox|widget|container|flowcontainer|textbox|button)(?-i)\b
       scope: entity.name
     # Effects
     - match: \b(?i)(oncreate|onpressed|on_keyframe_move|onreleased|onvaluechanged|ontextchanged|onreturnpressed|oneditingfinished|onselectionchanged|on_finish|on_start|start_sound|blockoverride|block|onrightclick|onmousehierarchyenter|onmousehierarchyleave|onclick)(?-i)\b
@@ -57,12 +58,27 @@ contexts:
           pop: true
 
   bracket-zone:
-    - match: '\['
-      scope: punctuation.bracket-zone.begin.gui
+    - match: GetVariableSystem
+      scope: entity.name.variable.system
+    - match: '\b(?i)(SetOrToggle|Set|ClearIf|Clear|Toggle)(?-i)\b'
+      scope: keyword.variable.system.effect
+    - match: '\b(?i)(Exists|HasValue)(?-i)\b'
+      scope: string.variable.system.trigger
+    - match: '\b(?i)(And|Not|Or)(?-i)\b'
+      scope: storage.type.logical.operator.gui
+
+  template-usage:
+    - match: using
+      scope: entity.name.template
       push:
-        - meta_content_scope: punctuation.bracket-zone
-        - match: '\b(?i)(And|Not|Or)(?-i)\b'
-          scope: storage.type.logical.operator.gui
-        - match: '\]'
-          scope: punctuation.bracket-zone.end.gui
-          pop: true
+        - include: line_ending
+        - match: =
+          scope: punctuation.template.usage
+          push:
+            - meta_content_scope: variable.language.at.parameter
+            - match: ({{valid_variable}})
+              scope: variable.language.at.parameter
+              pop: true
+  line_ending:
+    - match: $\n
+      pop: true
