@@ -235,12 +235,24 @@ contexts:
           scope: keyword.arg.start
           pop: true
 
+  scripted-effect-zone:
+    - match: \$
+      scope: keyword.dolla
+      push:
+        - include: line_ending
+        - match: ({{valid_variable}})
+          scope: variable.language.at.parameter
+        - match: \$
+          scope: keyword.dolla
+          pop: 3
+
   one-line-var:
     - match: save_scope_as|remove_(local_|global_)?variable
       scope: keyword.variable.declaration
       push:
         - match: =
           push:
+            - include: scripted-effect-zone
             - match: ({{valid_variable}})
               scope: variable.language.at.parameter
               pop: 2
@@ -251,6 +263,7 @@ contexts:
       push:
         - match: ':'
           push:
+            - include: scripted-effect-zone
             - match: ({{valid_variable}})
               scope: variable.language.at.parameter
               pop: 2
@@ -272,17 +285,10 @@ contexts:
                 - match: ({{valid_variable}})
                   scope: variable.language.at.parameter
                   pop: 2
-                - match: \$
-                  scope: keyword.dolla
-                  push:
-                    - include: line_ending
-                    - match: ({{valid_variable}})
-                      scope: variable.language.at.parameter
-                    - match: \$
-                      scope: keyword.dolla
-                      pop: 3
+                - include: scripted-effect-zone
         - match: =
           push:
+            - include: scripted-effect-zone
             - match: ({{valid_variable}})
               scope: variable.language
               pop: 2
