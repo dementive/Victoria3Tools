@@ -22,7 +22,7 @@ contexts:
     - match: \b(?i)(axis|editbox|axis_label|scrollbar_vertical|scrollbar_horizontal|editor_editbox|checkbutton|scrollbar|margin_widget|piechart|pieslice|treemapslice|dropDown|progresspie|slider|minimap|minimap_window|fixedgridbox|scrollwidget|scrollarea|default_format|template|vbox|hbox|progressbar|tooltipwidget|overlappingitembox|modify_texture|background|item|dynamicgridbox|widget|container|flowcontainer|textbox|button)(?-i)\b
       scope: entity.name
     # Effects
-    - match: \b(?i)(oncreate|onpressed|on_keyframe_move|onreleased|onvaluechanged|ontextchanged|onreturnpressed|oneditingfinished|onselectionchanged|on_finish|on_start|start_sound|blockoverride|block|onrightclick|onmousehierarchyenter|onmousehierarchyleave|onclick)(?-i)\b
+    - match: \b(?i)(rightclick_modifiers|ondefault|onshift|oncreate|onpressed|on_keyframe_move|onreleased|onvaluechanged|ontextchanged|onreturnpressed|oneditingfinished|onselectionchanged|on_finish|on_start|start_sound|blockoverride|block|onrightclick|onmousehierarchyenter|onmousehierarchyleave|onclick)(?-i)\b
       scope: keyword
     # Triggers
     - match: \b(?i)(checked|tooltip_enabled|button_trigger|trigger_on_create|datamodel|datacontext|visible|enabled)(?-i)\b

@@ -13,14 +13,196 @@ contexts:
     - include: at-symbol
     - include: at-symbol-expanded
     - include: scripted-effect-arg
-    - include: variable-name-simple
     - include: variable-name-complex
     - include: one-line-var
+    - include: one-line-var-trigger
     - include: scope-usage
+    - include: trigger-block-start
+    - include: effect-block-start
+    - include: modifier-block-start
+    - include: value-block-start
+    - include: ai-block-start
+    - include: manually-entered-content
+    - include: auto-generated-content
 
+  comments:
+    - match: (#).*$\n?
+      scope: comment
+
+  scripted-effect-arg:
+    - match: \$
+      scope: keyword.arg.start
+      push:
+        - include: line_ending
+        - match: ({{valid_variable}})
+          scope: variable.language.arg
+        - match: \$
+          scope: keyword.arg.start
+          pop: true
+
+  scripted-effect-zone:
+    - match: \$
+      scope: keyword.dolla
+      push:
+        - include: line_ending
+        - match: ({{valid_variable}})
+          scope: variable.language.at.parameter
+        - match: \$
+          scope: keyword.dolla
+          pop: 3
+
+
+  scope-usage:
+    - match: \bscope\b|\bvar\b|\blocal_var\b|\bglobal_var\b
+      scope: storage.type.scope
+      push:
+        - include: line_ending_space
+        - match: ':'
+          push:
+            - match: \n|\s
+              pop: 2
+            - include: scripted-effect-zone
+            - match: ({{valid_variable}})
+              scope: variable.language.at.parameter
+              pop: 2
+
+  one-line-var:
+    - match: save_scope_as|remove_(local_|global_)?variable
+      scope: keyword.effect
+      push:
+        - match: =
+          push:
+            - include: scripted-effect-zone
+            - match: ({{valid_variable}})
+              scope: variable.language.at.parameter
+              pop: 2
+
+  one-line-var-trigger:
+    - match: has_variable
+      scope: string.trigger
+      push:
+        - match: =
+          push:
+            - include: scripted-effect-zone
+            - match: ({{valid_variable}})
+              scope: variable.language.at.parameter
+              pop: 2
+
+  trigger-block-start:
+    - match: \b(?i)(should_auto_expand|country_type_change_alternatives|can_change_subject_type_from|valid_overlord_country_types|valid_subject_country_types|valid_overlord_ranks|valid_subject_ranks|can_change_subject_type_from|valid_overlord_country_types|unlocking_laws|valid_for_country|available_for_interest_group|is_visible|disallowing_laws|possible_political_movements|change_allowed_trigger|invalid|fail|is_shown_when_inactive|complete|pop_potential|ideologies|enable|will_propose|selectable_in_lens|will_break|additional_involvement_trigger|is_about_to_auto_break|should_auto_break|should_invalidate|potential|trigger|limit|possible|happened|valid|unlocking_technologies|production_method_groups|is_shown)(?-i)\b
+      scope: string.trigger.block.start
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.trigger.bracket
+          pop: true
+
+  effect-block-start:
+    - match: \b(?i)(effect|on_activate|on_timeout|on_fail|on_complete|on_character_ig_membership|on_enable|on_disable|weekly_effect|break_effect|accept_effect|when_taken|immediate|option)(?-i)\b
+      scope: keyword.effect.block.start
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.effect.bracket
+          pop: true
+
+  modifier-block-start:
+    - match: \b(?i)(state_modifiers|country_modifiers|building_modifiers|timed_modifiers|modifiers|modifier)(?-i)\b
+      scope: string.modifier.block.start
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.modifier.bracket
+          pop: true
+  value-block-start:
+    - match: \b(?i)(value|weight)(?-i)\b
+      scope: storage.type.value.block.start
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.value.bracket
+          pop: true
+  ai-block-start:
+    - match: \b(?i)(ai_will_do|ai_chance|ai_weight)(?-i)\b
+      scope: string.ai.block.start
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.ai.bracket
+          pop: true
+
+  variable-name-complex:
+    - match: (set|change|round|clamp)_(local_|global_)?variable
+      scope: keyword.effect
+      push:
+        - include: line_ending
+        - match: = \{\n?+
+          push:
+            - include: line_ending
+            - match: name
+              scope: constant.numeric
+              push:
+                - match: \n
+                  pop: 2
+                - match: ({{valid_variable}})
+                  scope: variable.language.at.parameter
+                  pop: 2
+                - include: scripted-effect-zone
+        - match: =
+          push:
+            - include: scripted-effect-zone
+            - match: ({{valid_variable}})
+              scope: variable.language
+              pop: 2
+
+  at-symbol:
+    - match: (@)({{valid_variable}})
+      scope: keyword.numeric.at.symbol
+      push:
+        - match: (\[|\]|=|\s)
+          scope: punctuation.definition.end
+          pop: true
+
+  at-symbol-expanded:
+    - match: (@)\[
+      scope: keyword.numeric.at.symbol
+      push:
+        - meta_content_scope: variable.language
+        - match: \]
+          scope: keyword.numeric.at.symbol
+          pop: true
+
+  line_ending:
+    - match: $\n
+      pop: true
+
+  line_ending_space:
+    - match: $\n|\s
+      pop: 2
+
+  manually-entered-content:
+    # Essential Scipt Functions
+    - match: \b(?i)(parent_group|default_building|chance|mode|adjective|default|popup_name|male_ruler|female_ruler|male_heir|female_heir|ethnicities|ai_weight|group|building_group|entity_not_constructed|city_gfx_interactions|entity_under_construction|entity_constructed|gui_window|left_icon|base|progress|status_desc|progress_desc|how_tutorial|why_tutorial|timeout|weight|first_name|last_name|texture|icon|placement|title|desc|flavor|event_image|duration|name|default_option|months|days|years|hidden|id|text|log_loc_errors|namespace|country_type|tier|flag_definition|allow_overlord_canton|order_by|qualifications_growth_desc)(?-i)\b
+      scope: constant.numeric
+    # Math/Sound/Video
+    - match: \b(?i)(range|factor|percent|nearest|multiplier|amount|add|subtract|max|min|round|ceiling|floor|divide|modulo|multiply|divide|video|on_created_soundeffect|on_opened_soundeffect|integer_range|clicksound)(?-i)\b
+      scope: variable.language
+    # Effects
+    - match: \b(?i)(on_character_ig_membership|weekly_effect|commander_usage|break_effect|accept_effect|on_start|on_enable|on_disable|on_war_begins|on_enact|on_activate|on_deactivate|add_war_goal|activate_production_methods|set_secret_goal|on_created|on_yearly_pulse|on_weekly_pulse|on_fail|on_invalid|on_timeout|on_monthly_pulse|on_complete|effect|immediate|option|after|when_taken)(?-i)\b
+      scope: keyword.effect
+    # Triggers
+    - match: \b(?i)(clear_size_area|inheritable_construction|is_military|is_subsistence|hires_unemployed_only|subsidized|stateregion_max_level|created_by_trade_routes|land_usage|always_possible|capped_by_resources|economy_of_scale|auto_place_buildings|discoverable_resource|depletable_resource|pays_taxes|fired_pops_become_radical|can_use_slaves|timed_modifiers|fail|valid_country_types|general_modifier|admiral_modifier|role|earliest_usage_date|latest_usage_date|country_trigger|happened|filter|dna|enable_switch_sides|allow_negotiated_peace|initiator_can_add_war_goals|target_can_add_war_goals|is_alliance|additional_involvement_trigger|show_effect_in_tooltip|recipient_gets_income_transfer|income_transfer_based_on_recipient|check_acceptance_for_will_break|will_propose|actor_can_break|target_can_break|should_notify_third_parties|target_requires_approval_to_break|has_junior_participant|recipient_pays_maintenance|is_customs_union|subject_type|check_acceptance_for_will_propose|transfer_pact|reverse_pact|will_break|is_about_to_auto_break|should_auto_break|should_invalidate|requires_approval|can_use_obligations|mapmode|special_selection|special_selection|textured_emblem|technology_cost|era|capital_province|graphical_culture|ai_is_valid|is_valid|state_modifiers|country_modifiers|unlocking_production_methods|building_modifiers|ai_selection|production_methods|entry|notification_type|ideologies|pop_potential|enable|transfer_of_power|fixed_price|tradeable|category|war_goal|requires_interest_marker|mirror_war_goal|selectable_in_lens|modifier|valid|cost|male_common_first_names|female_common_first_names|common_last_names|male_noble_first_names|female_noble_first_names|noble_last_names|male_regal_first_names|female_regal_first_names|regal_last_names|valid_for_country|available_for_interest_group|can_enact|religious_acceptance_rule|tariff_modifier_very_low|tariff_modifier_low|tariff_modifier_medium|tariff_modifier_high|tariff_modifier_very_high|cultural_acceptance_rule|build_from_investment_pool|tax_modifier_very_low|tax_modifier_low|tax_modifier_medium|tax_modifier_high|tax_modifier_very_high|unlocking_laws|disallowing_laws|possible_political_movements|institution_modifier|recruits_combat_unit|has_max_level|canal|terrain_manipulator|should_auto_expand|city_type|levels_per_mesh|buildable|expandable|downsizeable|unique|locator|production_method_groups|unlocking_technologies|required_construction|can_build|character_modifier|command_modifier|country_modifier|interest_group_modifier|state_type|building_type|production_method|is_general|is_admiral|use_culture_states|required_num_states|birth_date|tag|origin|ai_will_do|ai_chance|weight_multiplier|technology|popup|highlighted_option|localization_key|first_valid|random_valid|can_deactivate|should_be_pinned_by_default|inheritable|progressbar|invalid|is_shown_when_inactive|trigger|limit|complete|ig_leader|owned_provinces|ideology|traits|potential|law|is_shown|possible|cultures|coa|subject_canton|coa_with_overlord_canton|colored_emblem|sub|fallback|qualifications)(?-i)\b
+      scope: string.trigger
+    # Scopes
+    - match: \b(?i)(hiring_rate|proportionality_limit|urbanization|infrastructure_usage_per_level|cash_reserves_max|throughput_scaled|opinion|decay|tile_size|nr_of_tiles|multiplier|is_decaying|consumption_tax_cost|convoy_cost_multiplier|traded_quantity|accept_break_score|attitude|income_transfer|ai|relations_progress_per_day|relations_improvement_max|propose_score|propose_break_score|use_obligation_chance|owe_obligation_chance|accept_score|junior_accept_score|who|country|target_state|target_country|color4|color5|map_color|mask|saved_scopes|ai_value|unscaled|workforce_scaled|level_scaled|max_weight|min_weight|obsession_chance|trade_route_revenue_multiplier|convoy_shipping_multiplier|prestige_factor|count|join_weight|show_in_list|leader_weight|leader_ideology|pop_support|residence_points_per_level|enable_air_connection|override_centerpiece_mesh|lens|replace|min_raise_to_hire|severity|direction|holder|reserves|secret_goal|states|provinces|setting|color1|current_value|goal_add_value|female|noble|color2|size|color3|pattern|color|priority|overlord_canton_offset|overlord_canton_scale|instance|scale|position|offset|parent|suffix)(?-i)\b
+      scope: storage.type
+    # Other Stuff
+    - match: \b(?i)(dynamic_country_name|triggered_desc|events|random_events|R G B)(?-i)\b
+      scope: entity.name
+
+  auto-generated-content:
     - match: \b(?i)(nand|nor|not|or|and)(?-i)\b
       scope: storage.type.scope
-    # Generated
 
     # Scopes
     - match: \b(?i)(religion|region|building|commander|morale|mg|participants|trade_center|interest_group|num_battalions|num_mobilized_battalions|num_units|num_units_not_in_battle|opposing_commander|popularity|battle|province|front|actor_market|exporter|importer|target_market|average_defense|average_offense|front_length|num_defending_battalions|num_enemy_units|num_total_battalions|num_provinces|state|active_diplomatic_play|array_define|c|cd|compare_value|cu|define|flag|g|global_gdp|global_var|infamy_threshold|is_setup|je_tutorial|law_type|local_var|named_script_value|no|p|player|pop_type|prev|rank_value|rel|relations_threshold|root|s|scope|sr|tension_threshold|this|value|var|yes|modifier|combat_width|land_hq|naval_hq|active_law|ai_army_comparison|ai_gdp_comparison|ai_ideological_opinion|ai_navy_comparison|army_size|building_levels|capital|civil_war_origin_country|colonial_growth_per_colony|country_definition|credit|currently_enacting_law|decree_cost|government_size|heir|ig|income|infamy|institution|je|legitimacy|market_capital|navy_size|num_active_declared_interests|num_active_interests|num_active_natural_interests|num_active_plays|num_admirals|num_alliances|num_alliances_and_defensive_pacts_with_allies|num_alliances_and_defensive_pacts_with_rivals|num_characters|num_colony_projects|num_commanders|num_convoys_available|num_convoys_required|num_declared_interests|num_defensive_pacts|num_generals|num_income_transfer_pacts|num_incorporated_states|num_interests|num_mutual_trade_route_levels_with_country|num_natural_interests|num_obligations_earned|num_politicians|num_positive_relations|num_queued_constructions|num_rivals|num_ruling_igs|num_states|num_trade_routes|num_treaty_ports|num_unincorporated_states|overlord|py|relations|ruler|technology_being_researched|techs_researched|tension|top_overlord|pop_weight_modifier_scale|workplace|target|level|investment|investment_max|player_owed_obligation_days_left|scope_relations|scope_tension|attacker_side|defender_side|market|owner|attacker_warleader|defender_warleader|slaves_role|desired_law|leader|party|type|goods|momentum|b|nf|state_region|num_export_trade_routes|num_import_trade_routes|region_state|goal_value|num_garrison_units|controller|average_expected_sol|average_sol|gdp|initiator|war|culture|)(?-i)\b
@@ -196,120 +378,3 @@ contexts:
     # Modifiers
     - match: \b(?i)(character_command_limit_combat_unit_flotilla_add|building_coffee_plantation_throughput_mult|building_tea_plantation_throughput_mult|building_tobacco_plantation_throughput_mult|building_sugar_plantation_throughput_mult|building_banana_plantation_throughput_mult|building_barracks_throughput_mult|building_conscription_center_throughput_mult|building_naval_base_throughput_mult|building_skyscraper_throughput_mult|building_eiffel_tower_throughput_mult|building_angkor_wat_throughput_mult|building_big_ben_throughput_mult|building_forbidden_city_throughput_mult|building_hagia_sophia_throughput_mult|building_mosque_of_djenne_throughput_mult|building_saint_basils_cathedral_throughput_mult|building_statue_of_liberty_throughput_mult|building_taj_mahal_throughput_mult|building_vatican_city_throughput_mult|building_white_house_throughput_mult|building_machu_picchu_throughput_mult|building_argebam_throughput_mult|building_chichen_itza_throughput_mult|building_easter_island_heads_throughput_mult|building_eye_of_sahara_throughput_mult|building_giza_necropolis_throughput_mult|building_khaju_bridge_throughput_mult|building_petra_throughput_mult|building_capitol_hill_throughput_mult|building_central_park_throughput_mult|building_logging_camp_throughput_mult|building_fishing_wharf_throughput_mult|building_oil_rig_throughput_mult|building_suez_canal_throughput_mult|building_panama_canal_throughput_mult|building_trade_center_throughput_mult|building_subsistence_farms_throughput_mult|building_subsistence_orchards_throughput_mult|building_subsistence_pastures_throughput_mult|)(?-i)\b
       scope: string.modifier
-
-    # ----------------------------------
-    # -         Manually Added         -
-    # ----------------------------------
-
-    # Essential Scipt Functions
-    - match: \b(?i)(chance|mode|adjective|default|popup_name|male_ruler|female_ruler|male_heir|female_heir|ethnicities|ai_weight|group|building_group|entity_not_constructed|city_gfx_interactions|entity_under_construction|entity_constructed|gui_window|left_icon|base|progress|status_desc|progress_desc|how_tutorial|why_tutorial|timeout|weight|first_name|last_name|texture|icon|placement|title|desc|flavor|event_image|duration|name|default_option|months|days|years|hidden|id|text|log_loc_errors|namespace|country_type|tier|flag_definition|allow_overlord_canton|order_by|qualifications_growth_desc)(?-i)\b
-      scope: constant.numeric
-    # Math/Sound/Video
-    - match: \b(?i)(range|factor|percent|nearest|multiplier|amount|add|subtract|max|min|round|ceiling|floor|divide|modulo|multiply|divide|video|on_created_soundeffect|on_opened_soundeffect|integer_range|clicksound)(?-i)\b
-      scope: variable.language
-    # Effects
-    - match: \b(?i)(break_effect|accept_effect|on_start|on_enable|on_disable|on_war_begins|on_enact|on_activate|on_deactivate|add_war_goal|activate_production_methods|set_secret_goal|on_created|on_yearly_pulse|on_weekly_pulse|on_fail|on_invalid|fail|on_timeout|on_monthly_pulse|on_complete|effect|immediate|option|after|when_taken)(?-i)\b
-      scope: keyword.effect
-    # Triggers
-    - match: \b(?i)(filter|dna|enable_switch_sides|allow_negotiated_peace|initiator_can_add_war_goals|target_can_add_war_goals|is_alliance|additional_involvement_trigger|show_effect_in_tooltip|recipient_gets_income_transfer|income_transfer_based_on_recipient|check_acceptance_for_will_break|will_propose|actor_can_break|target_can_break|should_notify_third_parties|target_requires_approval_to_break|has_junior_participant|recipient_pays_maintenance|is_customs_union|subject_type|check_acceptance_for_will_propose|transfer_pact|reverse_pact|will_break|is_about_to_auto_break|should_auto_break|should_invalidate|requires_approval|can_use_obligations|mapmode|special_selection|special_selection|textured_emblem|technology_cost|era|capital_province|graphical_culture|ai_is_valid|is_valid|state_modifiers|country_modifiers|unlocking_production_methods|building_modifiers|ai_selection|production_methods|entry|notification_type|ideologies|pop_potential|enable|transfer_of_power|fixed_price|tradeable|category|war_goal|requires_interest_marker|mirror_war_goal|selectable_in_lens|modifier|valid|cost|male_common_first_names|female_common_first_names|common_last_names|male_noble_first_names|female_noble_first_names|noble_last_names|male_regal_first_names|female_regal_first_names|regal_last_names|valid_for_country|available_for_interest_group|can_enact|religious_acceptance_rule|tariff_modifier_very_low|tariff_modifier_low|tariff_modifier_medium|tariff_modifier_high|tariff_modifier_very_high|cultural_acceptance_rule|build_from_investment_pool|tax_modifier_very_low|tax_modifier_low|tax_modifier_medium|tax_modifier_high|tax_modifier_very_high|unlocking_laws|disallowing_laws|possible_political_movements|institution_modifier|recruits_combat_unit|has_max_level|canal|terrain_manipulator|should_auto_expand|city_type|levels_per_mesh|buildable|expandable|downsizeable|unique|locator|production_method_groups|unlocking_technologies|required_construction|can_build|character_modifier|command_modifier|country_modifier|interest_group_modifier|state_type|building_type|production_method|is_general|is_admiral|use_culture_states|required_num_states|birth_date|tag|origin|ai_will_do|ai_chance|weight_multiplier|technology|popup|highlighted_option|localization_key|first_valid|random_valid|can_deactivate|should_be_pinned_by_default|inheritable|progressbar|invalid|is_shown_when_inactive|trigger|limit|complete|ig_leader|owned_provinces|ideology|traits|potential|law|is_shown|possible|cultures|coa|subject_canton|coa_with_overlord_canton|colored_emblem|sub|fallback|qualifications)(?-i)\b
-      scope: string.trigger
-    # Scopes
-    - match: \b(?i)(multiplier|is_decaying|consumption_tax_cost|convoy_cost_multiplier|traded_quantity|accept_break_score|attitude|income_transfer|ai|relations_progress_per_day|relations_improvement_max|propose_score|propose_break_score|use_obligation_chance|owe_obligation_chance|accept_score|junior_accept_score|who|country|target_state|target_country|color4|color5|map_color|mask|saved_scopes|ai_value|unscaled|workforce_scaled|level_scaled|max_weight|min_weight|obsession_chance|trade_route_revenue_multiplier|convoy_shipping_multiplier|prestige_factor|count|join_weight|show_in_list|leader_weight|leader_ideology|pop_support|residence_points_per_level|enable_air_connection|override_centerpiece_mesh|lens|replace|min_raise_to_hire|severity|direction|holder|reserves|secret_goal|states|provinces|setting|color1|current_value|goal_add_value|female|noble|color2|size|color3|pattern|color|priority|overlord_canton_offset|overlord_canton_scale|instance|scale|position|offset|parent|suffix)(?-i)\b
-      scope: storage.type
-    # Other Stuff
-    - match: \b(?i)(dynamic_country_name|triggered_desc|events|random_events|R G B)(?-i)\b
-      scope: entity.name
-
-  comments:
-    - match: (#).*$\n?
-      scope: comment
-
-  scripted-effect-arg:
-    - match: \$
-      scope: keyword.arg.start
-      push:
-        - include: line_ending
-        - match: ({{valid_variable}})
-          scope: variable.language.arg
-        - match: \$
-          scope: keyword.arg.start
-          pop: true
-
-  scripted-effect-zone:
-    - match: \$
-      scope: keyword.dolla
-      push:
-        - include: line_ending
-        - match: ({{valid_variable}})
-          scope: variable.language.at.parameter
-        - match: \$
-          scope: keyword.dolla
-          pop: 3
-
-  one-line-var:
-    - match: save_scope_as|remove_(local_|global_)?variable
-      scope: keyword.variable.declaration
-      push:
-        - match: =
-          push:
-            - include: scripted-effect-zone
-            - match: ({{valid_variable}})
-              scope: variable.language.at.parameter
-              pop: 2
-
-  scope-usage:
-    - match: scope
-      scope: storage.type.scope
-      push:
-        - match: ':'
-          push:
-            - include: scripted-effect-zone
-            - match: ({{valid_variable}})
-              scope: variable.language.at.parameter
-              pop: 2
-
-  variable-name-complex:
-    - match: (set|change|round|clamp)_(local_|global_)?variable
-      scope: keyword.variable.declaration
-      push:
-        - include: line_ending
-        - match: = \{\n?+
-          push:
-            - include: line_ending
-            - match: name
-              scope: constant.numeric
-              push:
-                - match: \n
-                  scope: invalid
-                  pop: 2
-                - match: ({{valid_variable}})
-                  scope: variable.language.at.parameter
-                  pop: 2
-                - include: scripted-effect-zone
-        - match: =
-          push:
-            - include: scripted-effect-zone
-            - match: ({{valid_variable}})
-              scope: variable.language
-              pop: 2
-
-  at-symbol:
-    - match: (@)({{valid_variable}})
-      scope: keyword.numeric.at.symbol
-      push:
-        - match: (\[|\]|=|\s)
-          scope: punctuation.definition.end
-          pop: true
-
-  at-symbol-expanded:
-    - match: (@)\[
-      scope: keyword.numeric.at.symbol
-      push:
-        - meta_content_scope: variable.language
-        - match: \]
-          scope: keyword.numeric.at.symbol
-          pop: true
-
-  line_ending:
-    - match: $\n
-      pop: true

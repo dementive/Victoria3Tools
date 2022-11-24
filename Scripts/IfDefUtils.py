@@ -22,6 +22,9 @@ class IfDefMatchListener(sublime_plugin.EventListener):
 			return
 		if not view:
 			return
+
+		if view.syntax().name != "PdxShader":
+			return
 		def on_navigate(href):
 			view.window().open_file(
 				href,

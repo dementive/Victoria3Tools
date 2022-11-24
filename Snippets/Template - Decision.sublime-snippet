@@ -1,13 +1,23 @@
 <snippet>
     <content><![CDATA[
-${1:NAMESPACE}.${2:NUM}
+${1:NAMESPACE} = {
+    is_shown = {
+
+    }
+    possible = {
+
+    }
+    when_taken = {
+
+    }
+}
 ]]></content>
     <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
     <!-- <tabTrigger>hello</tabTrigger> -->
     <!-- Optional: Set a scope to limit where the snippet will trigger -->
     <!-- <scope>source.python</scope> -->
 
-<tabTrigger>Template - country_event</tabTrigger>
+<tabTrigger>Template - Decision</tabTrigger>
 <scope>text.vic</scope>
-<description>Create a country event</description>
+<description>Create a Decision</description>
 </snippet>
