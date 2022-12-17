@@ -1,0 +1,9 @@
+[
+	{
+		"caption": "Victoria 3 - Localize Current File",
+		"command": "localize_current_file",
+		"args": {
+
+		},
+	}
+]

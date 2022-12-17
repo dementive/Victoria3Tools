@@ -984,6 +984,11 @@ ScopesList = {
 	"culture": "Scope to pop's or character's culture<br>Input Scopes: pop, character, combat_unit<br>Output Scopes: culture",
 }
 
+# Manually added scripted trigger descriptions
+CustomTriggersList = {
+	"MFE_has_building" : "Check if scoped object has a building that satisfies the provided triggers.<br>MFE_has_building = {<br>&nbsp;&nbsp;&nbsp;&nbsp;S = 1(country)/2(state)/3(building)<br>&nbsp;&nbsp;&nbsp;&nbsp;T = \"Trigger\"<br>&nbsp;&nbsp;&nbsp;&nbsp;K = 1(poor)/2(rich)/3(any)<br>}"
+}
+
 def show_hover_docs(view, point, scope, collection):
 	style = sublime.load_settings("Victoria Syntax.sublime-settings").get("DocsPopupStyle")
 	if style == "dark":
@@ -1080,6 +1085,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 				show_hover_docs(view, point, "keyword.effect", EffectsList)
 
 			if view.match_selector(point, "string.trigger"):
+				TriggersList.update(CustomTriggersList)
 				show_hover_docs(view, point, "string.trigger", TriggersList)
 
 			if view.match_selector(point, "storage.type.scope"):
