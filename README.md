@@ -18,7 +18,10 @@ C:\Users\YOURUSERNAME\AppData\Roaming\Sublime Text 3\Packages\Victoria3Tools
 
 #### All script (.txt) files have the following features:
 - Autocomplete for all terms that are in triggers.log, effects.log, event_targets.log, and modifiers.log. All autocomplete items have a short description showing what input/output scope the term supports.
+- Snippets to generate common boiler plate text like country events, decisions, journals, and more.
 - Documentation on hover for all terms in the log. Simply hovering over an effect/trigger/scope will show it's full documentation in a popup.
+- Status Bar automatically updates to show when cursor is inside a Trigger or Effect block.
+- A 'Localize' command that will automatically create localization entries from a script file.
 - Full syntax highlighting of all relevent terms you may come across in Vic3 modding.
 	- Effects = red
 	- Triggers = yellow
