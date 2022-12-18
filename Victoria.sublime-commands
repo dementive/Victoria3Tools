@@ -5,5 +5,12 @@
 		"args": {
 
 		},
+	},
+	{
+		"caption": "Victoria 3 - Fold Objects",
+		"command": "fold_all_objects",
+		"args": {
+
+		},
 	}
 ]

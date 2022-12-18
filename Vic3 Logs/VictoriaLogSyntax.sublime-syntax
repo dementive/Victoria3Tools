@@ -1,0 +1,31 @@
+%YAML 1.2
+---
+name: Victoria Log Synax
+file_extensions: [log]
+scope: text.log
+
+contexts:
+  main:
+    #Blue
+    - match: \b(?i)(Map object locator|Duplicated event ID|jomini_eventmanager.cpp:|onaction.cpp|Categories|PostValidate of effect|PostValidate of trigger|Input Scopes)(?-i)\b
+      scope: keyword.type.name
+    #Purple
+    - match: \b(?i)(character_setup.cpp|Requires Data|Supported Scopes|Supported Targets|Traits|Tag|Missing Icon for Modifier|gamestate.cpp)(?-i)\b
+      scope: constant.numeric.example-c
+    #Yellow
+    - match: \b(?i)(triggers|Inconsistent trigger scopes|Unknown trigger type)(?-i)\b
+      scope: string
+    #Red
+    - match: \b(?i)(Overriding entry|no pixels|effects|Unexpected token|Unknown effect|Unrecognized loc key|Inconsistent effect scopes|Output Scopes|From Code)(?-i)\b
+      scope: keyword
+    - match:  \b(?i)(Could not find locator|Expected Scope|yes/no|should be in utf8-bom encoding)(?-i)\b
+      scope: storage.type
+    # Math/Sound
+    - match: \b(?i)(Illegal use of operator)(?-i)\b
+      scope: keyword.type
+    # GUI DEFAULTS
+    - match: \b(?i)(Global Link|Wild Card|pdx_gui_factory.cpp|pdx_gui_datatypes_reader.cpp|mission_progress.cpp)(?-i)\b
+      scope: entity.name
+    # MANUALLY ADDED SCOPES
+    - match:  \b(?i)(area|province|character|subunit|pop|country|family|treasure|deity|culture|legion|governorship|war|poptype|color|region|unit|state)(?-i)\b
+      scope: storage.type

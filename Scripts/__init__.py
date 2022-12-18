@@ -3,7 +3,7 @@ from .IntrinsicHover import IntrinsicHoverListener
 from .OpenIncludedFile import HeaderHoverListener, OpenPdxShaderHeaderCommand
 from .DocsHover import ScriptHoverListener
 from .ScopeFinder import SimpleScopeMatchListener
-from .LocalizeFile import LocalizeCurrentFileCommand
+from .Commands import LocalizeCurrentFileCommand, FoldAllObjectsCommand
 import os, imp
 
 def reload_package(package):
@@ -20,7 +20,7 @@ def plugin_loaded():
 	reload_package(OpenIncludedFile)
 	reload_package(DocsHover)
 	reload_package(ScopeFinder)
-	reload_package(LocalizeFile)
+	reload_package(Commands)
 
 def plugin_unloaded():
 	reload_package(IfDefUtils)
@@ -28,4 +28,4 @@ def plugin_unloaded():
 	reload_package(OpenIncludedFile)
 	reload_package(DocsHover)
 	reload_package(ScopeFinder)
-	reload_package(LocalizeFile)
+	reload_package(Commands)

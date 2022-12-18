@@ -986,7 +986,7 @@ ScopesList = {
 
 # Manually added scripted trigger descriptions
 CustomTriggersList = {
-	"MFE_has_building" : "Check if scoped object has a building that satisfies the provided triggers.<br>MFE_has_building = {<br>&nbsp;&nbsp;&nbsp;&nbsp;S = 1(country)/2(state)/3(building)<br>&nbsp;&nbsp;&nbsp;&nbsp;T = \"Trigger\"<br>&nbsp;&nbsp;&nbsp;&nbsp;K = 1(poor)/2(rich)/3(any)<br>}"
+	"MFE_has_building" : "Check if scoped object has a building that satisfies the provided triggers.<br>MFE_has_building = {<br>&nbsp;&nbsp;&nbsp;&nbsp;S(scope) = 1(country)/2(state)/3(building)<br>&nbsp;&nbsp;&nbsp;&nbsp;T(trigger) = \"Trigger\"<br>&nbsp;&nbsp;&nbsp;&nbsp;K(kind) = 1(poor)/2(rich)/3(any)<br>}"
 }
 
 def show_hover_docs(view, point, scope, collection):
@@ -1078,7 +1078,10 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 			return
 			
 		if view:
-			if view.syntax().name != "Victoria Script":
+			try:
+				if view.syntax().name != "Victoria Script":
+					return
+			except AttributeError:
 				return
 
 			if view.match_selector(point, "keyword.effect"):

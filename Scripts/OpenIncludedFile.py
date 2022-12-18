@@ -130,8 +130,12 @@ class HeaderHoverListener(sublime_plugin.EventListener):
 		if sublime.load_settings("Victoria Syntax.sublime-settings").get("OpenHeaderEnabled") == False:
 			return
 			
-		if view.syntax().name != "PdxShader":
+		try:
+			if view.syntax().name != "PdxShader":
+				return
+		except AttributeError:
 			return
+			
 		out_point = point
 		out_view = view
 		scopesStr = view.scope_name(point)

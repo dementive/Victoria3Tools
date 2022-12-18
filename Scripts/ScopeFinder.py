@@ -27,10 +27,13 @@ class SimpleScopeMatchListener(sublime_plugin.EventListener):
 		if recently_saved:
 		    return
 
-		if not view:
+		if view:
 			return
 
-		if view.syntax().name != "Victoria Script":
+		try:
+			if view.syntax().name != "Victoria Script":
+				return
+		except AttributeError:
 			return
 		
 		view_region = sublime.Region(0, view.size())

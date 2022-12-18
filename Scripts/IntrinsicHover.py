@@ -442,6 +442,12 @@ class IntrinsicHoverListener(sublime_plugin.EventListener):
 			return
 		if not view:
 			return
+		try:
+			if view.syntax().name != "PdxShader":
+				return
+		except AttributeError:
+			return
+
 		scopesStr = view.scope_name(point)
 		scopeList = scopesStr.split(' ')
 		for scope in scopeList:
