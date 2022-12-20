@@ -27,7 +27,7 @@ class SimpleScopeMatchListener(sublime_plugin.EventListener):
 		if recently_saved:
 		    return
 
-		if view:
+		if not view:
 			return
 
 		try:
@@ -49,16 +49,6 @@ class SimpleScopeMatchListener(sublime_plugin.EventListener):
 		effect_regions = []
 		for br in start_effect_brackets:
 			effect_regions.append(sublime.Region(br.a, self.getIndex(view_str, br.a)))
-
-		# start_mod_brackets = view.find_by_selector("meta.modifier.bracket")
-		# mod_regions = []
-		# for br in start_mod_brackets:
-		# 	mod_regions.append(sublime.Region(br.a, self.getIndex(view_str, br.a)))
-
-		# start_value_brackets = view.find_by_selector("meta.value.bracket")
-		# value_regions = []
-		# for br in start_value_brackets:
-		# 	value_regions.append(sublime.Region(br.a, self.getIndex(view_str, br.a)))
 
 		start_ai_brackets = view.find_by_selector("meta.ai.bracket")
 		ai_regions = []
@@ -86,8 +76,6 @@ class SimpleScopeMatchListener(sublime_plugin.EventListener):
 			else:
 				view.erase_status("effect")
 
-		#self.show_status(selection[0].a, mod_regions, "modifier", view)
-		#self.show_status(selection[0].a, value_regions, "value", view)
 		self.show_status(selection[0].a, ai_regions, "ai control", view)
 		recently_saved = True
 		# 1 second delay so its not annoying when typing

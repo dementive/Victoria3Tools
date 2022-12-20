@@ -480,10 +480,6 @@ TriggersList = {
 	"is_tutorial_lesson_step_completed": "Has the tutorial lesson step been finished?<br>is_tutorial_lesson_step_completed = lesson_key:step_key<br>An interface trigger, can only be used in specific places<br>Supported Scopes: none",
 	"list_size": "Checks the size of a list<br>list_size = { name = X value >= Y }<br>Where X is the name of the list<br>Where Y is a script value<br>Traits: <, <=, =, !=, >, >=<br>Supported Scopes: none",
 	"local_variable_list_size": "Checks the size of a variable list<br>variable_list_size = { name = X target >= Y }<br>Where X is the name of the variable<br>Where Y is a script value or number<br>Supported Scopes: none",
-	"nand": "a negated AND trigger<br>Supported Scopes: none",
-	"nor": "a negated OR trigger<br>Supported Scopes: none",
-	"not": "negates content of trigger<br>Supported Scopes: none",
-	"or": "at least one entry inside trigger must be true<br>Supported Scopes: none",
 	"save_temporary_scope_as": "Saves a temporary target for use during the trigger execution<br>Supported Scopes: none",
 	"save_temporary_scope_value_as": "Saves a numerical or bool value as an arbitrarily-named temporary target to be referenced later in the same effect<br>save_temporary_scope_value_as = { name = <string> value = x }<br>Supported Scopes: none",
 	"should_show_nudity": "can nudity be shown?<br>should_show_nudity = yes/no<br>An interface trigger, can only be used in specific places<br>Traits: yes/no <br>Supported Scopes: none",
@@ -989,6 +985,17 @@ CustomTriggersList = {
 	"MFE_has_building" : "Check if scoped object has a building that satisfies the provided triggers.<br>MFE_has_building = {<br>&nbsp;&nbsp;&nbsp;&nbsp;S(scope) = 1(country)/2(state)/3(building)<br>&nbsp;&nbsp;&nbsp;&nbsp;T(trigger) = \"Trigger\"<br>&nbsp;&nbsp;&nbsp;&nbsp;K(kind) = 1(poor)/2(rich)/3(any)<br>}"
 }
 
+CustomScopesList = {
+	"nand": "a negated AND trigger<br>Supported Scopes: none",
+	"nor": "a negated OR trigger<br>Supported Scopes: none",
+	"not": "negates content of trigger<br>Supported Scopes: none",
+	"or": "at least one entry inside trigger must be true<br>Supported Scopes: none",
+	"NAND": "a negated AND trigger<br>Supported Scopes: none",
+	"NOR": "a negated OR trigger<br>Supported Scopes: none",
+	"NOT": "negates content of trigger<br>Supported Scopes: none",
+	"OR": "at least one entry inside trigger must be true<br>Supported Scopes: none",
+}
+
 def show_hover_docs(view, point, scope, collection):
 	style = sublime.load_settings("Victoria Syntax.sublime-settings").get("DocsPopupStyle")
 	if style == "dark":
@@ -1092,4 +1099,5 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 				show_hover_docs(view, point, "string.trigger", TriggersList)
 
 			if view.match_selector(point, "storage.type.scope"):
+				ScopesList.update(CustomScopesList)
 				show_hover_docs(view, point, "storage.type.scope", ScopesList)

@@ -21,7 +21,10 @@ C:\Users\YOURUSERNAME\AppData\Roaming\Sublime Text 3\Packages\Victoria3Tools
 - Snippets to generate common boiler plate text like country events, decisions, journals, and more.
 - Documentation on hover for all terms in the log. Simply hovering over an effect/trigger/scope will show it's full documentation in a popup.
 - Status Bar automatically updates to show when cursor is inside a Trigger or Effect block.
-- A 'Localize' command that will automatically create localization entries from a script file.
+- Localize command that will automatically create localization entries from a script file. Accessed from the command palette, opened with `ctrl+shift+p` and then type in `Victoria 3`.
+- Fold objects command that will toggle folding of all top level objects, for example all events or all decisions in a file can be folded. `ctrl+alt+f` is the keybinding to toggle fold objects or it can be accessed from the command palette
+- Goto Definition for saved scopes and saved variables, if your mod and game folders are part of a active sublime project this will work across multiple files.
+- Simple validator that will check for common easy to find errors and alert you when they happen when a script file is saved. These include: Mismatched brackets, mismatched quotes, and encoding errors.
 - Full syntax highlighting of all relevent terms you may come across in Vic3 modding.
 	- Effects = red
 	- Triggers = yellow

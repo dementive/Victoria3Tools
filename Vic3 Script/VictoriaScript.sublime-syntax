@@ -13,8 +13,10 @@ contexts:
     - include: at-symbol
     - include: at-symbol-expanded
     - include: scripted-effect-arg
-    - include: variable-name-complex
-    - include: one-line-var
+    - include: variable-usage-complex
+    - include: variable-definition-complex
+    - include: save-scope
+    - include: remove-var
     - include: one-line-var-trigger
     - include: scope-usage
     - include: trigger-block-start
@@ -61,18 +63,33 @@ contexts:
               pop: 2
             - include: scripted-effect-zone
             - match: ({{valid_variable}})
-              scope: variable.language.at.parameter
+              scope: variable.parameter.scope.usage
               pop: 2
 
-  one-line-var:
-    - match: save_scope_as|remove_(local_|global_)?variable
+  remove-var:
+    - match: remove_(local_|global_)?variable
       scope: keyword.effect
       push:
         - match: =
           push:
+            - match: \n
+              pop: 2
             - include: scripted-effect-zone
             - match: ({{valid_variable}})
-              scope: variable.language.at.parameter
+              scope: variable.parameter.remove.var
+              pop: 2
+
+  save-scope:
+    - match: save_scope_as
+      scope: keyword.effect
+      push:
+        - match: =
+          push:
+            - match: \n
+              pop: 2
+            - include: scripted-effect-zone
+            - match: ({{valid_variable}})
+              scope: entity.name.function.vic
               pop: 2
 
   one-line-var-trigger:
@@ -81,9 +98,11 @@ contexts:
       push:
         - match: =
           push:
+            - match: \n
+              pop: 2
             - include: scripted-effect-zone
             - match: ({{valid_variable}})
-              scope: variable.language.at.parameter
+              scope: variable.parameter.trigger.usage
               pop: 2
 
   trigger-block-start:
@@ -113,8 +132,8 @@ contexts:
           scope: meta.ai.bracket
           pop: true
 
-  variable-name-complex:
-    - match: (set|change|round|clamp)_(local_|global_)?variable
+  variable-definition-complex:
+    - match: set_(local_|global_)?variable
       scope: keyword.effect
       push:
         - include: line_ending
@@ -125,17 +144,37 @@ contexts:
               scope: constant.numeric
               push:
                 - match: \n
-                  pop: 2
+                  pop: 3
                 - match: ({{valid_variable}})
-                  scope: variable.language.at.parameter
+                  scope: entity.name.function.var.declaration
                   pop: 2
                 - include: scripted-effect-zone
         - match: =
           push:
+            - match: \n
+              pop: 2
             - include: scripted-effect-zone
             - match: ({{valid_variable}})
-              scope: variable.language
+              scope: entity.name.function.var.declaration
               pop: 2
+
+  variable-usage-complex:
+    - match: (change|round|clamp)_(local_|global_)?variable
+      scope: keyword.effect
+      push:
+        - include: line_ending
+        - match: = \{\n?+
+          push:
+            - include: line_ending
+            - match: name
+              scope: constant.numeric
+              push:
+                - match: \n
+                  pop: 3
+                - match: ({{valid_variable}})
+                  scope: variable.parameter.var.usage
+                  pop: 2
+                - include: scripted-effect-zone
 
   at-symbol:
     - match: (@)({{valid_variable}})

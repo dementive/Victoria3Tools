@@ -1,0 +1,11 @@
+%YAML 1.2
+---
+name: Error Panel Syntax
+scope: text.error
+hidden: true
+
+contexts:
+  main:
+    #Red
+    - match: \b(?i)(BracketError|EncodingError|QuoteError|ScopeError)(?-i)\b
+      scope: keyword.error.type

@@ -4,6 +4,7 @@ from .OpenIncludedFile import HeaderHoverListener, OpenPdxShaderHeaderCommand
 from .DocsHover import ScriptHoverListener
 from .ScopeFinder import SimpleScopeMatchListener
 from .Commands import LocalizeCurrentFileCommand, FoldAllObjectsCommand
+from .Validator import ValidatorOnSaveListener
 import os, imp
 
 def reload_package(package):
