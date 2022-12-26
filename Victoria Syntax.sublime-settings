@@ -5,10 +5,11 @@
 
 	// The path to your mods files. Should be a mod, not the mod folder (must use double \\)
 	// This is necessary for several features to work
+	// Note that this has to be a valid system path 
 	"PathsToModFiles":
 	[
-		//"C:\\Users\\USERNAME\\Documents\\Paradox Interactive\\Victoria 3\\mod\\MOD1",
-		//"C:\\Users\\USERNAME\\Documents\\Paradox Interactive\\Victoria 3\\mod\\MOD2"
+		//"C:\\Users\\ADDYOURUSERNAMEHERE\\Documents\\Paradox Interactive\\Victoria 3\\mod\\MOD1",
+		//"C:\\Users\\ADDYOURUSERNAMEHERE\\Documents\\Paradox Interactive\\Victoria 3\\mod\\MOD2"
 	],
 
 	// Will add dynamic content from mods and vanilla to VictoriaScript.sublime-syntax when plugin is loaded
