@@ -12,5 +12,19 @@
 		"args": {
 
 		},
+	},
+	{
+		"caption": "Victoria 3 - Browse Videos",
+		"command": "browse_bink_videos",
+		"args": {
+
+		},
+	},
+	{
+		"caption": "Victoria 3 - Browse Event Sounds",
+		"command": "browse_event_sound",
+		"args": {
+
+		},
 	}
 ]

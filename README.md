@@ -54,7 +54,7 @@ C:\Users\YOURUSERNAME\AppData\Roaming\Sublime Text 3\Packages\Victoria3Tools
 
 ![Shader Screenshot](/images/shader.png)
 
-There are also multiple settings that can be accessed via the package settings menu to disable some features or change the style of popups.
+There are also multiple settings that can be accessed via the package settings menu to disable some features or change the style of popups. Settings can be accessed from `main menu -> Preferences -> Package Setting -> Victoria 3 Settings -> Settings`
 
 ## How to Enable Syntax
 

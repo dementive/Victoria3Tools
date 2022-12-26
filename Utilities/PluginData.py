@@ -1,4 +1,20 @@
-import sublime, sublime_plugin
+# Manually added lists, add custom stuff here
+CustomTriggersList = {
+	"MFE_has_building" : "Check if scoped object has a building that satisfies the provided triggers.<br>MFE_has_building = {<br>&nbsp;&nbsp;&nbsp;&nbsp;S(scope) = 1(country)/2(state)/3(building)<br>&nbsp;&nbsp;&nbsp;&nbsp;T(trigger) = \"Trigger\"<br>&nbsp;&nbsp;&nbsp;&nbsp;K(kind) = 1(poor)/2(rich)/3(any)<br>}"
+}
+
+CustomScopesList = {
+	"nand": "a negated AND trigger<br>Supported Scopes: none",
+	"nor": "a negated OR trigger<br>Supported Scopes: none",
+	"not": "negates content of trigger<br>Supported Scopes: none",
+	"or": "at least one entry inside trigger must be true<br>Supported Scopes: none",
+	"NAND": "a negated AND trigger<br>Supported Scopes: none",
+	"NOR": "a negated OR trigger<br>Supported Scopes: none",
+	"NOT": "negates content of trigger<br>Supported Scopes: none",
+	"OR": "at least one entry inside trigger must be true<br>Supported Scopes: none",
+}
+
+# Generated Lists, only change with scripts. 
 
 EffectsList = {
 	"set_subsidized": "Sets whether a building is subsidized<br>set_subsidized = yes/no<br>Supported Scopes: building",
@@ -980,124 +996,973 @@ ScopesList = {
 	"culture": "Scope to pop's or character's culture<br>Input Scopes: pop, character, combat_unit<br>Output Scopes: culture",
 }
 
-# Manually added scripted trigger descriptions
-CustomTriggersList = {
-	"MFE_has_building" : "Check if scoped object has a building that satisfies the provided triggers.<br>MFE_has_building = {<br>&nbsp;&nbsp;&nbsp;&nbsp;S(scope) = 1(country)/2(state)/3(building)<br>&nbsp;&nbsp;&nbsp;&nbsp;T(trigger) = \"Trigger\"<br>&nbsp;&nbsp;&nbsp;&nbsp;K(kind) = 1(poor)/2(rich)/3(any)<br>}"
+EventSoundsList = {
+	"event:/SFX/Events/africa/animism",
+	"event:/SFX/Events/africa/city_center",
+	"event:/SFX/Events/africa/construction_colony",
+	"event:/SFX/Events/africa/desert_expedition",
+	"event:/SFX/Events/africa/diplomats_negotiating",
+	"event:/SFX/Events/africa/leader_arguing",
+	"event:/SFX/Events/africa/prosperous_farm",
+	"event:/SFX/Events/africa/public_protest",
+	"event:/SFX/Events/africa/soldiers_breaking_protest",
+	"event:/SFX/Events/asia/buddhism",
+	"event:/SFX/Events/asia/confucianism_shinto",
+	"event:/SFX/Events/asia/dead_cattle_poor_harvest",
+	"event:/SFX/Events/asia/factory_accident",
+	"event:/SFX/Events/asia/farmers_market",
+	"event:/SFX/Events/asia/hinduism_sikhism",
+	"event:/SFX/Events/asia/politician_parliament_motion",
+	"event:/SFX/Events/asia/poor_people_moving",
+	"event:/SFX/Events/asia/sepoy_mutiny",
+	"event:/SFX/Events/asia/union_leader",
+	"event:/SFX/Events/europenorthamerica/american_civil_war",
+	"event:/SFX/Events/europenorthamerica/before_the_battle",
+	"event:/SFX/Events/europenorthamerica/capitalists_meeting",
+	"event:/SFX/Events/europenorthamerica/gold_prospectors",
+	"event:/SFX/Events/europenorthamerica/judaism",
+	"event:/SFX/Events/europenorthamerica/london_center",
+	"event:/SFX/Events/europenorthamerica/native_american",
+	"event:/SFX/Events/europenorthamerica/opium_smoker",
+	"event:/SFX/Events/europenorthamerica/political_extremism",
+	"event:/SFX/Events/europenorthamerica/rich_and_poor",
+	"event:/SFX/Events/europenorthamerica/russian_serfs",
+	"event:/SFX/Events/europenorthamerica/slaves_breaking_their_chains",
+	"event:/SFX/Events/europenorthamerica/springtime_of_nation",
+	"event:/SFX/Events/europenorthamerica/sufferage",
+	"event:/SFX/Events/middleeast/battlefield_trenches",
+	"event:/SFX/Events/middleeast/courtroom_upheaval",
+	"event:/SFX/Events/middleeast/engineer_blueprint",
+	"event:/SFX/Events/middleeast/islam",
+	"event:/SFX/Events/middleeast/jungle_expedition",
+	"event:/SFX/Events/middleeast/middleclass_cafe",
+	"event:/SFX/Events/middleeast/oil_derricks",
+	"event:/SFX/Events/middleeast/police_breaking_door",
+	"event:/SFX/Events/middleeast/upperclass_party",
+	"event:/SFX/Events/misc/1Character_Banner",
+	"event:/SFX/Events/misc/2Characters",
+	"event:/SFX/Events/southamerica/aristocrats",
+	"event:/SFX/Events/southamerica/child_labor",
+	"event:/SFX/Events/southamerica/christianity",
+	"event:/SFX/Events/southamerica/election",
+	"event:/SFX/Events/southamerica/factory_opening",
+	"event:/SFX/Events/southamerica/public_figure_assassination",
+	"event:/SFX/Events/southamerica/slaves_night",
+	"event:/SFX/Events/southamerica/war_civilians",
+	"event:/SFX/Events/unspecific/airplane",
+	"event:/SFX/Events/unspecific/airship",
+	"event:/SFX/Events/unspecific/arctic",
+	"event:/SFX/Events/unspecific/armored_train",
+	"event:/SFX/Events/unspecific/art_gallery",
+	"event:/SFX/Events/unspecific/automobile",
+	"event:/SFX/Events/unspecific/destruction",
+	"event:/SFX/Events/unspecific/devastation",
+	"event:/SFX/Events/unspecific/factory_closed",
+	"event:/SFX/Events/unspecific/gears_pistons",
+	"event:/SFX/Events/unspecific/iceberg_in_the_antartica",
+	"event:/SFX/Events/unspecific/leader_speaking_to_a_group_of_people",
+	"event:/SFX/Events/unspecific/military_parade",
+	"event:/SFX/Events/unspecific/naval_battle",
+	"event:/SFX/Events/unspecific/sick_people_in_a_field_hospital",
+	"event:/SFX/Events/unspecific/signed_contract",
+	"event:/SFX/Events/unspecific/steam_ship",
+	"event:/SFX/Events/unspecific/temperance_movement",
+	"event:/SFX/Events/unspecific/trains",
+	"event:/SFX/Events/unspecific/vandalized_storefront",
+	"event:/SFX/Events/unspecific/whaling",
+	"event:/SFX/Events/unspecific/world_fair"
 }
 
-CustomScopesList = {
-	"nand": "a negated AND trigger<br>Supported Scopes: none",
-	"nor": "a negated OR trigger<br>Supported Scopes: none",
-	"not": "negates content of trigger<br>Supported Scopes: none",
-	"or": "at least one entry inside trigger must be true<br>Supported Scopes: none",
-	"NAND": "a negated AND trigger<br>Supported Scopes: none",
-	"NOR": "a negated OR trigger<br>Supported Scopes: none",
-	"NOT": "negates content of trigger<br>Supported Scopes: none",
-	"OR": "at least one entry inside trigger must be true<br>Supported Scopes: none",
+EventVideos = [
+	"gfx/event_pictures/africa_animism.bk2",
+	"gfx/event_pictures/africa_city_center.bk2",
+	"gfx/event_pictures/africa_construction_colony.bk2",
+	"gfx/event_pictures/africa_desert_expedition.bk2",
+	"gfx/event_pictures/africa_diplomats_negotiating.bk2",
+	"gfx/event_pictures/africa_leader_arguing.bk2",
+	"gfx/event_pictures/africa_prosperous_farm.bk2",
+	"gfx/event_pictures/africa_public_protest.bk2",
+	"gfx/event_pictures/africa_soldiers_breaking_protest.bk2",
+	"gfx/event_pictures/asia_buddhism.bk2",
+	"gfx/event_pictures/asia_confucianism_shinto.bk2",
+	"gfx/event_pictures/asia_dead_cattle_poor_harvest.bk2",
+	"gfx/event_pictures/asia_factory_accident.bk2",
+	"gfx/event_pictures/asia_farmers_market.bk2",
+	"gfx/event_pictures/asia_hinduism_sikhism.bk2",
+	"gfx/event_pictures/asia_politician_parliament_motion.bk2",
+	"gfx/event_pictures/asia_poor_people_moving.bk2",
+	"gfx/event_pictures/asia_sepoy_mutiny.bk2",
+	"gfx/event_pictures/asia_union_leader.bk2",
+	"gfx/event_pictures/asia_westerners_arriving.bk2",
+	"gfx/event_pictures/europenorthamerica_american_civil_war.bk2",
+	"gfx/event_pictures/europenorthamerica_antarctica.bk2",
+	"gfx/event_pictures/europenorthamerica_art_gallery.bk2",
+	"gfx/event_pictures/europenorthamerica_before_the_battle.bk2",
+	"gfx/event_pictures/europenorthamerica_capitalists_meeting.bk2",
+	"gfx/event_pictures/europenorthamerica_gold_prospectors.bk2",
+	"gfx/event_pictures/europenorthamerica_judaism.bk2",
+	"gfx/event_pictures/europenorthamerica_london_center.bk2",
+	"gfx/event_pictures/europenorthamerica_native_american.bk2",
+	"gfx/event_pictures/europenorthamerica_opium_smoker.bk2",
+	"gfx/event_pictures/europenorthamerica_political_extremism.bk2",
+	"gfx/event_pictures/europenorthamerica_rich_and_poor.bk2",
+	"gfx/event_pictures/europenorthamerica_russian_serfs.bk2",
+	"gfx/event_pictures/europenorthamerica_springtime_of_nations.bk2",
+	"gfx/event_pictures/europenorthamerica_sufferage.bk2",
+	"gfx/event_pictures/middleeast_battlefield_trenches.bk2",
+	"gfx/event_pictures/middleeast_courtroom_upheaval.bk2",
+	"gfx/event_pictures/middleeast_engineer_blueprint.bk2",
+	"gfx/event_pictures/middleeast_islam.bk2",
+	"gfx/event_pictures/middleeast_jungle_expedition.bk2",
+	"gfx/event_pictures/middleeast_middleclass_cafe.bk2",
+	"gfx/event_pictures/middleeast_oil_derricks.bk2",
+	"gfx/event_pictures/middleeast_police_breaking_door.bk2",
+	"gfx/event_pictures/middleeast_upperclass_party.bk2",
+	"gfx/event_pictures/public_assasination_test.bk2",
+	"gfx/event_pictures/southamerica_aristocrats.bk2",
+	"gfx/event_pictures/southamerica_child_labor.bk2",
+	"gfx/event_pictures/southamerica_christianity.bk2",
+	"gfx/event_pictures/southamerica_election.bk2",
+	"gfx/event_pictures/southamerica_factory_opening.bk2",
+	"gfx/event_pictures/southamerica_public_figure_assassination.bk2",
+	"gfx/event_pictures/southamerica_slave_chains.bk2",
+	"gfx/event_pictures/southamerica_slaves_night.bk2",
+	"gfx/event_pictures/southamerica_war_civilians.bk2",
+	"gfx/event_pictures/unspecific_airPlane.bk2",
+	"gfx/event_pictures/unspecific_armored_train.bk2",
+	"gfx/event_pictures/unspecific_automobile.bk2",
+	"gfx/event_pictures/unspecific_devastation.bk2",
+	"gfx/event_pictures/unspecific_factory_closed.bk2",
+	"gfx/event_pictures/unspecific_fire.bk2",
+	"gfx/event_pictures/unspecific_gears_pistons.bk2",
+	"gfx/event_pictures/unspecific_iceberg.bk2",
+	"gfx/event_pictures/unspecific_military_parade.bk2",
+	"gfx/event_pictures/unspecific_naval_battle.bk2",
+	"gfx/event_pictures/unspecific_politicians_arguing.bk2",
+	"gfx/event_pictures/unspecific_ruler_speaking_to_people.bk2",
+	"gfx/event_pictures/unspecific_sick_in_hospital.bk2",
+	"gfx/event_pictures/unspecific_signed_contract.bk2",
+	"gfx/event_pictures/unspecific_steam_ship.bk2",
+	"gfx/event_pictures/unspecific_temperance_movement.bk2",
+	"gfx/event_pictures/unspecific_trains.bk2",
+	"gfx/event_pictures/unspecific_vandalized_storefront.bk2",
+	"gfx/event_pictures/unspecific_whaling.bk2",
+	"gfx/event_pictures/unspecific_world_fair.bk2",
+	"gfx/event_pictures/unspecififc_airship.bk2"
+]
+
+ScriptedEffectsList = [
+	"add_large_peril_effect",
+	"add_medium_peril_effect",
+	"add_plague_modifier_effect",
+	"add_small_peril_effect",
+	"assert",
+	"central_africa_location_effect",
+	"check_the_next_wave",
+	"congo_river_expedition_location",
+	"debug_fail",
+	"debug_success",
+	"effect_native_conscription_1",
+	"effect_native_conscription_10",
+	"effect_native_conscription_11",
+	"effect_native_conscription_12",
+	"effect_native_conscription_2",
+	"effect_native_conscription_3",
+	"effect_native_conscription_4",
+	"effect_native_conscription_5",
+	"effect_native_conscription_6",
+	"effect_native_conscription_7",
+	"effect_native_conscription_8",
+	"effect_native_conscription_9",
+	"effect_reset_wealth_if_slave",
+	"effect_set_limited_non_hostile_mutual_secret_goal",
+	"effect_set_non_hostile_mutual_secret_goal",
+	"effect_set_non_hostile_mutual_secret_goal_power_difference",
+	"effect_starting_politics_conservative",
+	"effect_starting_politics_liberal",
+	"effect_starting_politics_reactionary",
+	"effect_starting_politics_traditional",
+	"effect_starting_pop_literacy_baseline",
+	"effect_starting_pop_literacy_high",
+	"effect_starting_pop_literacy_low",
+	"effect_starting_pop_literacy_middling",
+	"effect_starting_pop_literacy_very_high",
+	"effect_starting_pop_literacy_very_low",
+	"effect_starting_pop_wealth_high",
+	"effect_starting_pop_wealth_low",
+	"effect_starting_pop_wealth_medium",
+	"effect_starting_pop_wealth_very_high",
+	"effect_starting_technology_tier_1_tech",
+	"effect_starting_technology_tier_2_tech",
+	"effect_starting_technology_tier_3_tech",
+	"effect_starting_technology_tier_4_tech",
+	"effect_starting_technology_tier_5_tech",
+	"effect_starting_technology_tier_6_tech",
+	"effect_starting_technology_tier_7_tech",
+	"expedition_great_progress_effect",
+	"expedition_lose_progress_effect",
+	"expedition_minor_progress_effect",
+	"expedition_moderate_progress_effect",
+	"expedition_peril_decrease_medium_effect",
+	"expedition_peril_decrease_small_effect",
+	"krakatoa_tsunami_effect",
+	"liberate_slaves",
+	"niger_river_expedition_location",
+	"randomize_plague_level_effect",
+	"remove_expedition_events_effect",
+	"save_industrialized_pm_building_and_state",
+	"save_neighbor_with_state",
+	"scripted_effect_parties_disappearence",
+	"scripted_effect_parties_emergence",
+	"set_all_colony",
+	"set_radical_leader",
+	"strike_end_effect",
+	"strike_state_add_modifier_effect_strong",
+	"strike_state_add_modifier_effect_weak",
+	"warlord_setup_effect",
+	"west_america_expedition_location"
+]
+ScriptedTriggersList = [
+	"academics_clothes_pop_trigger",
+	"african_clothes_pop_trigger",
+	"african_clothes_trigger",
+	"african_diaspora_clothes_trigger",
+	"african_diaspora_pop_clothes_trigger",
+	"american_clothes_pop_trigger",
+	"american_clothes_trigger",
+	"arabic_clothes_pop_trigger",
+	"arabic_clothes_trigger",
+	"arabic_fez_trigger",
+	"arabic_military_fez_pop_trigger",
+	"aristocrats_clothes_pop_trigger",
+	"armed_forces_clothes_trigger",
+	"assert",
+	"british_empire_clothes_p_trigger",
+	"british_empire_clothes_pop_trigger",
+	"british_empire_clothes_trigger",
+	"british_treaty_ports",
+	"buddhist_clothes_pop_trigger",
+	"bureaucrats_clothes_pop_trigger",
+	"can_reach_target_country",
+	"can_reach_target_state",
+	"central_asian_clothes_pop_trigger",
+	"chinese_court_clothes_pop_trigger",
+	"chinese_court_clothes_trigger",
+	"chinese_imperial_clothes_trigger",
+	"chinese_manchu_queue_hairstyle_character_trigger",
+	"chinese_manchu_queue_hairstyle_pops_trigger",
+	"christian_clothes_pop_trigger",
+	"christian_clothes_trigger",
+	"circumpolar_clothes_pop_trigger",
+	"clergy_clothes_pop_trigger",
+	"clerks_clothes_pop_trigger",
+	"coa_SWE_karl_johan_is_king_trigger",
+	"coa_SWE_use_norway_canton_trigger",
+	"coa_SWE_use_union_mark_canton_trigger",
+	"coa_SWE_use_union_mark_flag_trigger",
+	"coa_absolute_monarchy_trigger",
+	"coa_anarchy_trigger",
+	"coa_autocracy_trigger",
+	"coa_communist_trigger",
+	"coa_controls_part_of_france",
+	"coa_controls_part_of_ireland",
+	"coa_def_absolute_monarchy_flag_trigger",
+	"coa_def_african_trigger",
+	"coa_def_american_ensign_trigger",
+	"coa_def_anarchy_flag_trigger",
+	"coa_def_austrian_ensign_trigger",
+	"coa_def_autocracy_flag_trigger",
+	"coa_def_brazilian_ensign_trigger",
+	"coa_def_british_ensign_trigger",
+	"coa_def_british_india_trigger",
+	"coa_def_buddhist_trigger",
+	"coa_def_catholic_trigger",
+	"coa_def_chinese_ensign_trigger",
+	"coa_def_colonial_ensign_trigger",
+	"coa_def_communist_flag_trigger",
+	"coa_def_controls_part_of_france",
+	"coa_def_controls_part_of_ireland",
+	"coa_def_crescent_trigger",
+	"coa_def_cross_trigger",
+	"coa_def_danish_ensign_trigger",
+	"coa_def_dictatorship_flag_trigger",
+	"coa_def_dominant_scotland_trigger",
+	"coa_def_egalitarian_flag_trigger",
+	"coa_def_ensign_trigger",
+	"coa_def_fascist_flag_trigger",
+	"coa_def_finnish_ensign_trigger",
+	"coa_def_french_ensign_trigger",
+	"coa_def_german_ensign_trigger",
+	"coa_def_german_trigger",
+	"coa_def_hispanic_american_trigger",
+	"coa_def_iberian_trigger",
+	"coa_def_independent_trigger",
+	"coa_def_italian_trigger",
+	"coa_def_kalmar_flag_trigger",
+	"coa_def_lesser_subject_trigger",
+	"coa_def_mexican_ensign_trigger",
+	"coa_def_military_junta_flag_trigger",
+	"coa_def_monarchy_flag_trigger",
+	"coa_def_multicultural_trigger",
+	"coa_def_native_american_trigger",
+	"coa_def_netherlands_ensign_trigger",
+	"coa_def_nordic_cross_trigger",
+	"coa_def_oceanic_trigger",
+	"coa_def_oligarchy_flag_trigger",
+	"coa_def_prussian_ensign_trigger",
+	"coa_def_republic_flag_trigger",
+	"coa_def_russian_ensign_trigger",
+	"coa_def_secessionist_country_trigger",
+	"coa_def_secessionist_or_revolutionary_trigger",
+	"coa_def_siam_ensign_trigger",
+	"coa_def_spanish_ensign_trigger",
+	"coa_def_state_religion_flag_trigger",
+	"coa_def_swedish_ensign_trigger",
+	"coa_def_theocracy_flag_trigger",
+	"coa_def_turkic_trigger",
+	"coa_def_turkish_ensign_trigger",
+	"coa_def_undemocratic_monarchy_flag_trigger",
+	"coa_def_war_trigger",
+	"coa_def_west_african_trigger",
+	"coa_dictatorship_trigger",
+	"coa_fascist_trigger",
+	"coa_military_trigger",
+	"coa_monarchy_trigger",
+	"coa_multicultural_trigger",
+	"coa_oligarchy_trigger",
+	"coa_republic_trigger",
+	"coa_secessionist_or_revolutionary_trigger",
+	"coa_theocracy_trigger",
+	"coa_undemocratic_monarchy_trigger",
+	"cold_clothes_pop_trigger",
+	"countries_are_valid_rivals",
+	"country_has_education_system",
+	"country_has_voting_franchise",
+	"country_is_in_africa",
+	"country_is_in_central_america",
+	"country_is_in_central_asia",
+	"country_is_in_east_asia",
+	"country_is_in_europe",
+	"country_is_in_india",
+	"country_is_in_middle_east",
+	"country_is_in_north_america",
+	"country_is_in_south_america",
+	"country_is_in_southeast_asia",
+	"default_auto_expand_rule",
+	"devout_clothes_trigger",
+	"east_asian_clothes_pop_trigger",
+	"engineers_clothes_pop_trigger",
+	"ethiopian_clothes_trigger",
+	"european_clothes_pop_trigger",
+	"european_clothes_trigger",
+	"european_colonies_central_africa",
+	"european_colonies_east_africa",
+	"european_colonies_nile_basin",
+	"european_colonies_north_africa",
+	"european_colonies_south_africa",
+	"european_colonies_west_africa",
+	"farmers_clothes_pop_trigger",
+	"french_empire_clothes_pop_trigger",
+	"french_empire_clothes_trigger",
+	"french_treaty_ports",
+	"german_clothes_pop_trigger",
+	"german_clothes_trigger",
+	"german_treaty_ports",
+	"harsh_ai_behavior_trigger",
+	"has_addiction",
+	"has_american_buildings_dlc_trigger",
+	"has_colonial_growth",
+	"has_distillery",
+	"has_farm_building",
+	"has_government_building",
+	"has_heavy_industry_building",
+	"has_industrialized_pm",
+	"has_industry_building",
+	"has_military_building",
+	"has_paternalist_ideology",
+	"has_subsistence_building",
+	"has_v2_soundtrack_dlc_trigger",
+	"hindu_clothes_pop_trigger",
+	"iberian_treaty_ports",
+	"in_earthquake_zone",
+	"in_volcanic_zone",
+	"indian_clothes_pop_trigger",
+	"indian_clothes_trigger",
+	"indigenous_oceanic_clothes_trigger",
+	"integrated_south_american_natives_pop_trigger",
+	"is_arabic_farmland",
+	"is_arid_region",
+	"is_asian_farmland",
+	"is_being_incorporated",
+	"is_commander",
+	"is_distillery",
+	"is_economic_objective_building",
+	"is_farm_building",
+	"is_heavy_industry_building",
+	"is_in_civil_war",
+	"is_industry_building",
+	"is_non_customs_union_subject",
+	"is_on_front",
+	"is_peasant_under_serfdom",
+	"is_plantation_building",
+	"is_production_building",
+	"is_raw_industries_building",
+	"is_still_learning",
+	"is_subtropic_farmland",
+	"italian_treaty_ports",
+	"japanese_clothes_pop_trigger",
+	"japanese_clothes_trigger",
+	"japanese_imperial_clothes_trigger",
+	"jewish_clothes_pop_trigger",
+	"laborers_clothes_pop_trigger",
+	"language_accepted",
+	"law_can_hurt_minorities",
+	"lenient_ai_behavior_trigger",
+	"machinists_clothes_pop_trigger",
+	"middle_clothes_pop_trigger",
+	"military_clothes_trigger",
+	"monarchy_clothes_trigger",
+	"muslim_clothes_pop_trigger",
+	"native_american_clothes_pop_trigger",
+	"native_american_clothes_trigger",
+	"native_north_american_clothes_trigger",
+	"officers_clothes_pop_trigger",
+	"on_river",
+	"overweight_pop_trigger",
+	"overweight_trigger",
+	"owned_andes_region_states",
+	"owned_central_asia_region_states",
+	"owned_gran_colombia_region_states",
+	"owned_great_plains_region_states",
+	"owned_la_plata_region_states",
+	"owned_pacific_coast_region_states",
+	"peasants_clothes_pop_trigger",
+	"politician_clothes_trigger",
+	"poor_clothes_pop_trigger",
+	"recognized_country_pop_trigger",
+	"recognized_country_trigger",
+	"republic_clothes_trigger",
+	"ruler_clothes_trigger",
+	"sami_clothes_pop_trigger",
+	"shopkeepers_clothes_pop_trigger",
+	"should_be_fully_naked_portrait_trigger",
+	"should_be_naked_trigger",
+	"siamese_clothes_trigger",
+	"slaves_clothes_pop_trigger",
+	"slavic_clothes_pop_trigger",
+	"slightly_overweight_pop_trigger",
+	"slightly_underweight_pop_trigger",
+	"soldier_clothes_pop_trigger",
+	"south_american_clothes_character_trigger",
+	"south_american_clothes_pop_trigger",
+	"south_east_asia_clothes_pop_trigger",
+	"state_has_strike_modifier_trigger",
+	"state_in_africa",
+	"state_is_in_africa",
+	"state_is_in_americas",
+	"state_is_in_central_america",
+	"state_is_in_central_asia",
+	"state_is_in_china",
+	"state_is_in_east_asia",
+	"state_is_in_europe",
+	"state_is_in_india",
+	"state_is_in_middle_east",
+	"state_is_in_north_america",
+	"state_is_in_south_america",
+	"state_is_in_southeast_asia",
+	"strike_goal_complete_trigger",
+	"struggling_pop_trigger",
+	"underweight_pop_trigger",
+	"upper_clothes_pop_trigger",
+	"using_watertube_boiler",
+	"very_overweight_pop_trigger",
+	"very_underweight_pop_trigger",
+	"violate_sovereignty_war_check",
+	"will_be_accepted_culture"
+]
+ScriptValuesList = [
+	"battle_unit_casualty_weight",
+	"country_and_subjects_population",
+	"country_and_subjects_population_global_share",
+	"front_battle_province_weight",
+	"front_commander_pick_weight",
+	"front_country_troop_weight",
+	"global_population",
+	"grand_exhibition_points",
+	"land_battle_size",
+	"land_battle_unit_selection_weight",
+	"money_amount_multiplier_large",
+	"money_amount_multiplier_large_state",
+	"money_amount_multiplier_medium",
+	"money_amount_multiplier_small",
+	"money_amount_multiplier_very_large",
+	"money_amount_multiplier_very_small",
+	"naval_battle_size",
+	"naval_battle_unit_selection_weight",
+	"state_infrastructure_balance"
+]
+
+SimpleScriptValuesDict = {
+	"construction_cost_canal": 2000,
+	"construction_cost_monument": 1000,
+	"construction_cost_very_high": 600,
+	"construction_cost_high": 450,
+	"construction_cost_medium": 300,
+	"construction_cost_low": 150,
+	"construction_cost_very_low": 50,
+	"max_autoexpand_queue_weeks": 26,
+	"small_radicals": 0.02,
+	"medium_radicals": 0.05,
+	"large_radicals": 0.1,
+	"very_large_radicals": 0.2,
+	"momentum_small": 0.1,
+	"momentum_medium": 0.2,
+	"momentum_large": 0.3,
+	"momentum_very_large": 0.5,
+	"momentum_small_decrease": -0.1,
+	"momentum_medium_decrease": -0.2,
+	"momentum_large_decrease": -0.3,
+	"momentum_very_large_decrease": -0.5,
+	"election_event_cooldown_months": 3,
+	"day_until_next_expedition_event": 30,
+	"expedition_peril_amount_small": 1.2,
+	"expedition_peril_amount_medium": 2.2,
+	"expedition_peril_amount_large": 5,
+	"expedition_peril_decrease_small": -1,
+	"expedition_peril_decrease_medium": -2,
+	"expedition_progress_amount_small": 1,
+	"expedition_progress_amount_medium": 2,
+	"expedition_progress_amount_large": 5,
+	"short_modifier_time": 31,
+	"normal_modifier_time": 61,
+	"long_modifier_time": 121,
+	"very_long_modifier_time": 241,
+	"stupidly_long_modifier_time": 600,
+	"poor": 0,
+	"middle": 1,
+	"rich": 2,
+	"none": 0,
+	"minimal": 1,
+	"partial": 2,
+	"full": 3
 }
 
-def show_hover_docs(view, point, scope, collection):
-	style = sublime.load_settings("Victoria Syntax.sublime-settings").get("DocsPopupStyle")
-	if style == "dark":
-		style = """
-					body {
-						font-family: system;
-						margin: 0;
-						padding: 0.35rem;
-						border: 0.2rem solid rgb(46, 46, 46);
-						background-color: rgb(5, 5, 5);
-					}
-					p {
-						font-size: 1.0rem;
-						margin: 0;
-					}
-				"""
-	elif style == "none":
-		style = """
-					body {
-						font-family: system;
-					}
-		 			p {
-						font-size: 1.0rem;
-						margin: 0;
-					}
-				"""
-	elif style == "dynamic":
-		if scope == "keyword.effect":
-			style = """
-						body {
-							font-family: system;
-							margin: 0;
-							padding: 0.35rem;
-							border: 0.15rem solid rgb(128, 26, 0);
-							background-color: rgb(10, 10, 10);
-						}
-						p {
-							font-size: 1.0rem;
-							margin: 0;
-						}
-					"""
-		elif scope == "string.trigger":
-			style = """
-						body {
-							font-family: system;
-							margin: 0;
-							padding: 0.35rem;
-							border: 0.15rem solid rgb(123, 123, 0);
-							background-color: rgb(10, 10, 10);
-						}
-						p {
-							font-size: 1.0rem;
-							margin: 0;
-						}
-					"""
-		elif scope == "storage.type.scope":
-			style = """
-						body {
-							font-family: system;
-							margin: 0;
-							padding: 0.35rem;
-							border: 0.15rem solid rgb(0, 122, 153);
-							background-color: rgb(10, 10, 10);
-						}
-						p {
-							font-size: 1.0rem;
-							margin: 0;
-						}
-					"""
-	item = view.substr(view.word(point))
-	if item in collection:
-		desc = collection[item]
-		hoverBody = """
-			<body id="vic-body">
-				<style>%s</style>
-				<p>%s</p>
-			</body>
-		""" %(style, desc)
-
-		view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY |sublime.COOPERATE_WITH_AUTO_COMPLETE |sublime.HIDE_ON_CHARACTER_EVENT),
-						location=point, max_width=1024)
-		return
-
-class ScriptHoverListener(sublime_plugin.EventListener):
-	def on_hover(self, view, point, hover_zone):
-		if sublime.load_settings("Victoria Syntax.sublime-settings").get("DocsHoverEnabled") == False:
-			return
-			
-		if view:
-			try:
-				if view.syntax().name != "Victoria Script":
-					return
-			except AttributeError:
-				return
-
-			if view.match_selector(point, "keyword.effect"):
-				show_hover_docs(view, point, "keyword.effect", EffectsList)
-
-			if view.match_selector(point, "string.trigger"):
-				TriggersList.update(CustomTriggersList)
-				show_hover_docs(view, point, "string.trigger", TriggersList)
-
-			if view.match_selector(point, "storage.type.scope"):
-				ScopesList.update(CustomScopesList)
-				show_hover_docs(view, point, "storage.type.scope", ScopesList)
+IntrinsicList = {
+	"abort": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/abort",
+		"Terminates the current draw or dispatch call being executed."),
+	"abs": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-abs",
+		"Absolute value (per component)."),
+	"acos": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-acos",
+		"Returns the arccosine of each component of x."),
+	"all": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-all",
+		"Test if all components of x are nonzero."),
+	"AllMemoryBarrier": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/allmemorybarrier",
+		"Blocks execution of all threads in a group until all memory accesses have been completed."),
+	"AllMemoryBarrierWithGroupSync": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/allmemorybarrierwithgroupsync",
+		"Blocks execution of all threads in a group until all memory accesses have been completed and all threads in the group have reached this call."),
+	"any": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-any",
+		"Test if any component of x is nonzero."),
+	"asdouble": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/asdouble",
+		"Reinterprets a cast value into a double."),
+	"asfloat": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-asfloat",
+		"Convert the input type to a float."),
+	"asin": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-asin",
+		"Returns the arcsine of each component of x."),
+	"asint": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-asint",
+		"Convert the input type to an integer."),
+	"asuint": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-asuint",
+		"Convert the input type to an unsigned integer."),
+	"atan": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-atan",
+		"Returns the arctangent of x."),
+	"atan2": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-atan2",
+		"Returns the arctangent of of two values (x,y)."),
+	"ceil": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-ceil",
+		"Returns the smallest integer which is greater than or equal to x."),
+	"CheckAccessFullyMapped": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/checkaccessfullymapped",
+		"Determines whether all values from a Sample or Load operation accessed mapped tiles in a tiled resource."),
+	"clamp": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-clamp",
+		"Clamps x to the range [min, max]."),
+	"clip": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-clip",
+		"Discards the current pixel, if any component of x is less than zero."),
+	"cos": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-cos",
+		"Returns the cosine of x."),
+	"cosh": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-cosh",
+		"Returns the hyperbolic cosine of x."),
+	"countbits": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/countbits",
+		"Counts the number of bits (per component) in the input integer."),
+	"cross": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-cross",
+		"Returns the cross product of two 3D vectors."),
+	"D3DCOLORtoUBYTE4": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-d3dcolortoubyte4",
+		"Swizzles and scales components of the 4D vector x to compensate for the lack of UBYTE4 support in some hardware."),
+	"ddx": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-ddx",
+		"Returns the partial derivative of x with respect to the screen-space x-coordinate."),
+	"ddx_coarse": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/ddx-coarse",
+		"Computes a low precision partial derivative with respect to the screen-space x-coordinate."),
+	"ddx_fine": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/ddx-fine",
+		"Computes a high precision partial derivative with respect to the screen-space x-coordinate."),
+	"ddy": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-ddy",
+		"Returns the partial derivative of x with respect to the screen-space y-coordinate."),
+	"ddy_coarse": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/ddy-coarse",
+		"Computes a low precision partial derivative with respect to the screen-space y-coordinate."),
+	"ddy_fine": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/ddy-fine",
+		"Computes a high precision partial derivative with respect to the screen-space y-coordinate."),
+	"degrees": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-degrees",
+		"Converts x from radians to degrees."),
+	"determinant": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-determinant",
+		"Returns the determinant of the square matrix m."),
+	"DeviceMemoryBarrier": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/devicememorybarrier",
+		"Blocks execution of all threads in a group until all device memory accesses have been completed."),
+	"DeviceMemoryBarrierWithGroupSync": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/devicememorybarrierwithgroupsync",
+		"Blocks execution of all threads in a group until all device memory accesses have been completed and all threads in the group have reached this call."),
+	"distance": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-distance",
+		"Returns the distance between two points."),
+	"dot": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-dot",
+		"Returns the dot product of two vectors."),
+	"dst": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dst",
+		"Calculates a distance vector."),
+	"errorf": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/errorf",
+		"Submits an error message to the information queue."),
+	"EvaluateAttributeAtCentroid": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/evaluateattributeatcentroid",
+		"Evaluates at the pixel centroid."),
+	"EvaluateAttributeAtSample": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/evaluateattributeatsample",
+		"Evaluates at the indexed sample location."),
+	"EvaluateAttributeSnapped": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/evaluateattributesnapped",
+		"Evaluates at the pixel centroid with an offset."),
+	"exp": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-exp",
+		"Returns the base-e exponent."),
+	"exp2": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-exp2",
+		"Base 2 exponent (per component)."),
+	"f16tof32": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/f16tof32",
+		"Converts the float16 stored in the low-half of the uint to a float."),
+	"f32tof16": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/f32tof16",
+		"Converts an input into a float16 type."),
+	"faceforward": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-faceforward",
+		"Returns -n * sign(dot(i, ng))."),
+	"firstbithigh": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/firstbithigh",
+		"Gets the location of the first set bit starting from the highest order bit and working downward, per component."),
+	"firstbitlow": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/firstbitlow",
+		"Returns the location of the first set bit starting from the lowest order bit and working upward, per component."),
+	"floor": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-floor",
+		"Returns the greatest integer which is less than or equal to x."),
+	"fma": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-fma",
+		"Returns the double-precision fused multiply-addition of a * b + c."),
+	"fmod": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-fmod",
+		"Returns the floating point remainder of x/y."),
+	"frac": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-frac",
+		"Returns the fractional part of x."),
+	"frexp": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-frexp",
+		"Returns the mantissa and exponent of x."),
+	"fwidth": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-fwidth",
+		"Returns abs(ddx(x)) + abs(ddy(x))."),
+	"GetRenderTargetSampleCount": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-getrendertargetsamplecount",
+		"Returns the number of render-target samples."),
+	"GetRenderTargetSamplePosition": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-getrendertargetsampleposition",
+		"Returns a sample position (x,y) for a given sample index."),
+	"GroupMemoryBarrier": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/groupmemorybarrier",
+		"Blocks execution of all threads in a group until all group shared accesses have been completed."),
+	"GroupMemoryBarrierWithGroupSync": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/groupmemorybarrierwithgroupsync",
+		"Blocks execution of all threads in a group until all group shared accesses have been completed and all threads in the group have reached this call."),
+	"InterlockedAdd": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/interlockedadd",
+		"Performs a guaranteed atomic add of value to the dest resource variable."),
+	"InterlockedAnd": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/interlockedand",
+		"Performs a guaranteed atomic and."),
+	"InerlockedCompareExchange": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/interlockedcompareexchange",
+		"Atomically compares the input to the comparison value and exchanges the result."),
+	"InterlockedCompareStore": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/interlockedcomparestore",
+		"Atomically compares the input to the comparison value."),
+	"InterlockedExchange": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/interlockedexchange",
+		"Assigns value to dest and returns the original value."),
+	"InterlockedMax": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/interlockedmax",
+		"Performs a guaranteed atomic max."),
+	"InterlockedMin": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/interlockedmin",
+		"Performs a guaranteed atomic min."),
+	"InterlockedOr": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/interlockedor",
+		"Performs a guaranteed atomic or."),
+	"InterlockedXor": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/interlockedxor",
+		"Performs a guaranteed atomic xor."),
+	"isfinite": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-isfinite",
+		"Returns true if x is finite, false otherwise."),
+	"isinf": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-isinf",
+		"Returns true if x is +INF or -INF, false otherwise."),
+	"isnan": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-isnan",
+		"Returns true if x is NAN or QNAN, false otherwise."),
+	"ldexp": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-ldexp",
+		"Returns x * 2exp."),
+	"length": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-length",
+		"Returns the length of the vector v."),
+	"lerp": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-lerp",
+		"Returns x + s(y - x)."),
+	"lit": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-lit",
+		"Returns a lighting vector (ambient, diffuse, specular, 1)."),
+	"log": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-log",
+		"Returns the base-e logarithm of x."),
+	"log10": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-log10",
+		"Returns the base-10 logarithm of x."),
+	"log2": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-log2",
+		"Returns the base-2 logarithm of x."),
+	"mad": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/mad",
+		"Performs an arithmetic multiply/add operation on three values."),
+	"max": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-max",
+		"Selects the greater of x and y."),
+	"min": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-min",
+		"Selects the lesser of x and y."),
+	"modf": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-modf",
+		"Splits the value x into fractional and integer parts."),
+	"msad4": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-msad4",
+		"Compares a 4-byte reference value and an 8-byte source value and accumulates a vector of 4 sums."),
+	"mul": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-mul",
+		"Performs matrix multiplication using x and y."),
+	"noise": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-noise",
+		"Generates a random value using the Perlin-noise algorithm."),
+	"normalize": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-normalize",
+		"Returns a normalized vector."),
+	"pow": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-pow",
+		"Returns x^y."),
+	"printf": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/printf",
+		"Submits a custom shader message to the information queue."),
+	"Process2DQuadTessFactorsAvg": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/process2dquadtessfactorsavg",
+		"Generates the corrected tessellation factors for a quad patch."),
+	"Process2DQuadTessFactorsMax": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/process2dquadtessfactorsmax",
+		"Generates the corrected tessellation factors for a quad patch."),
+	"Process2DQuadTessFactorsMin": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/process2dquadtessfactorsmin",
+		"Generates the corrected tessellation factors for a quad patch."),
+	"ProcessIsolineTessFactors": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/processisolinetessfactors",
+		"Generates the rounded tessellation factors for an isoline."),
+	"ProcessQuadTessFactorsAvg": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/processquadtessfactorsavg",
+		"Generates the corrected tessellation factors for a quad patch."),
+	"ProcessQuadTessFactorsMax": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/processquadtessfactorsmax",
+		"Generates the corrected tessellation factors for a quad patch."),
+	"ProcessQuadTessFactorsMin": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/processquadtessfactorsmin",
+		"Generates the corrected tessellation factors for a quad patch."),
+	"ProcessTriTessFactorsAvg": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/processtritessfactorsavg",
+		"Generates the corrected tessellation factors for a tri patch."),
+	"ProcessTriTessFactorsMax": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/processtritessfactorsmax",
+		"Generates the corrected tessellation factors for a tri patch."),
+	"ProcessTriTessFactorsMin": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/processtritessfactorsmin",
+		"Generates the corrected tessellation factors for a tri patch."),
+	"QuadReadAcrossDiagonal": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/quadreadaccrossdiagonal",
+		"Returns the specified local value which is read from the diagonally opposite lane in this quad."),
+	"QuadReadLaneAt": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/quadreadlaneat",
+		"Returns the specified source value from the lane identified by the lane ID within the current quad."),
+	"QuadReadAcrossX": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/quadswapx",
+		"Returns the specified local value read from the other lane in this quad in the X direction."),
+	"QuadReadAcrossY": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/quadswapy",
+		"Returns the specified source value read from the other lane in this quad in the Y direction."),
+	"radians": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-radians",
+		"Converts x from degrees to radians."),
+	"rcp": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/rcp",
+		"Calculates a fast, approximate, per-component reciprocal."),
+	"reflect": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-reflect",
+		"Returns a reflection vector."),
+	"refract": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-refract",
+		"Returns the refraction vector."),
+	"reversebits": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/reversebits",
+		"Reverses the order of the bits, per component."),
+	"round": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-round",
+		"Rounds x to the nearest integer."),
+	"rsqrt": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-rsqrt",
+		"Returns 1 / sqrt(x)."),
+	"saturate": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-saturate",
+		"Clamps x to the range [0, 1]."),
+	"sign": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-sign",
+		"Computes the sign of x."),
+	"sin": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-sin",
+		"Returns the sine of x."),
+	"sincos": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-sincos",
+		"Returns the sine and cosine of x."),
+	"sinh": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-sinh",
+		"Returns the hyperbolic sine of x."),
+	"smoothstep": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-smoothstep",
+		"Returns a smooth Hermite interpolation between 0 and 1."),
+	"sqrt": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-sqrt",
+		"Square root (per component)."),
+	"step": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-step",
+		"Returns (x >= a) ? 1 : 0."),
+	"tan": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-tan",
+		"Returns the tangent of x."),
+	"tanh": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-tanh",
+		"Returns the hyperbolic tangent of x."),
+	"transpose": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-transpose",
+		"Returns the transpose of the matrix m."),
+	"trunc": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/dx-graphics-hlsl-trunc",
+		"Truncates floating-point value(s) to integer value(s)."),
+	"WaveActiveAllEqual": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/waveactiveallequal",
+		"Returns true if the expression is the same for every active lane in the current wave (and thus uniform across it)."),
+	"WaveActiveBitAnd": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/waveallbitand",
+		"Returns the bitwise AND of all the values of the expression across all active lanes in the current wave and replicates it back to all active lanes."),
+	"WaveActiveBitOr": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/waveallbitor",
+		"Returns the bitwise OR of all the values of the expression across all active lanes in the current wave and replicates it back to all active lanes."),
+	"WaveActiveBitXor": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/waveallbitxor",
+		"Returns the bitwise XOR of all the values of the expression across all active lanes in the current wave and replicates it back to all active lanes."),
+	"WaveActiveCountBits": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/waveactivecountbits",
+		"Counts the number of boolean variables which evaluate to true across all active lanes in the current wave, and replicates the result to all lanes in the wave."),
+	"WaveActiveMax": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/waveallmax",
+		"Returns the maximum value of the expression across all active lanes in the current wave and replicates it back to all active lanes."),
+	"WaveActiveMin": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/waveallmin",
+		"Returns the minimum value of the expression across all active lanes in the current wave replicates it back to all active lanes."),
+	"WaveActiveProduct": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/waveallproduct",
+		"Multiplies the values of the expression together across all active lanes in the current wave and replicates it back to all active lanes."),
+	"WaveActiveSum": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/waveallsum",
+		"Sums up the value of the expression across all active lanes in the current wave and replicates it to all lanes in the current wave."),
+	"WaveActiveAllTrue": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/wavealltrue",
+		"Returns true if the expression is true in all active lanes in the current wave."),
+	"WaveActiveAnyTrue": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/waveanytrue",
+		"Returns true if the expression is true in any of the active lanes in the current wave."),
+	"WaveActiveBallot": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/waveballot",
+		"Returns a 4-bit unsigned integer bitmask of the evaluation of the Boolean expression for all active lanes in the specified wave."),
+	"WaveGetLaneCount": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/wavegetlanecount",
+		"Returns the number of lanes in a wave on this architecture."),
+	"WaveGetLaneIndex": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/wavegetlaneindex",
+		"Returns the index of the current lane within the current wave."),
+	"WaveIsFirstLane": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/waveisfirstlane",
+		"Returns true only for the active lane in the current wave with the smallest index."),
+	"WavePrefixCountBits": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/waveprefixcountbytes",
+		"Returns the sum of all the specified boolean variables set to true across all active lanes with indices smaller than the current lane."),
+	"WavePrefixProduct": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/waveprefixproduct",
+		"Returns the product of all of the values in the active lanes in this wave with indices less than this lane."),
+	"WavePrefixSum": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/waveprefixsum",
+		"Returns the sum of all of the values in the active lanes with smaller indices than this one."),
+	"WaveReadLaneFirst": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/wavereadfirstlane",
+		"Returns the value of the expression for the active lane of the current wave with the smallest index."),
+	"WaveReadLaneAt": (
+		"https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/wavereadlaneat",
+		"Returns the value of the expression for the given lane index within the specified wave.")
+}

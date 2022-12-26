@@ -1,6 +1,47 @@
-// THESE ARE THE SETTINGS DEFAULT - ONLY EDIT THE USER SETTINGS
 {
+	// The path to the Victoria 3 Game files, update if it is not correct. (must use double \\)
+	// This is necessary for several features to work
+	"Victoria3FilesPath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Victoria 3\\game",
+
+	// The path to your mods files. Should be a mod, not the mod folder (must use double \\)
+	// This is necessary for several features to work
+	"PathsToModFiles":
+	[
+		//"C:\\Users\\USERNAME\\Documents\\Paradox Interactive\\Victoria 3\\mod\\MOD1",
+		//"C:\\Users\\USERNAME\\Documents\\Paradox Interactive\\Victoria 3\\mod\\MOD2"
+	],
+
+	// Will add dynamic content from mods and vanilla to VictoriaScript.sublime-syntax when plugin is loaded
+	// This will enhance the syntax by providing highlighting for script values, scripted effects, and scripted triggers
+	// Note that newly added content requires sublime to restart to be added to the syntax
+	"AddDynamicContentToSyntax": true,
+
+	// What will trigger dynamic content to be added to syntax? Only valid when AddDynamicContentToSyntax = true
+	// on_save = Saving a vic3 file will recalc dynamic content for files where script values, scripted effects, and scripted triggers are defined
+	// on_start = Dynamic content will only be calculated when application is started
+	"DynamicContentAddTrigger": "on_save",
+
+	// Should documentation show up on hover for script files?
+	// true = will show docs
+	// false = won't show docs
 	"DocsHoverEnabled": true,
+
+	// Should .bk2 videos show options for playing, browsing, and replacing when hovering over them in events?
+	// NOTE: Requires RadTools Bink Video Player to actually play the videos
+	// true = will show the video player hover popups
+	// false = no popups for .bk2 videos
+	"BinkVideoHover": true,
+
+	// Should hovering over a gfx file show a popup that will allow the file to be opened?
+	// Will open the file in it's default program
+	"TextureOpenPopup": true,
+
+	// Should hovering over an event sound file path like "event:/SFX/Events/..." 
+	// show a popup that browses all available event sounds
+	"EventSoundPopup": true,
+
+	// Should on save validation for script files be enabled?
+	"ScriptValidator": true,
 
 	// What style should the documentation popups use?
 	// dark = grey border with black background
