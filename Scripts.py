@@ -100,8 +100,8 @@ def get_mod_data():
 				SimpleScriptValuesDict.update({x: ModClass.simple_script_values[x]})
 
 def write_data_to_syntax():
-	fake_syntax_path = sublime.packages_path() + "\\VicTools\\Vic3 Script\\VictoriaScript.fake-sublime-syntax"
-	real_syntax_path = sublime.packages_path() + "\\VicTools\\Vic3 Script\\VictoriaScript.sublime-syntax"
+	fake_syntax_path = sublime.packages_path() + "\\Victoria3Tools\\Vic3 Script\\VictoriaScript.fake-sublime-syntax"
+	real_syntax_path = sublime.packages_path() + "\\Victoria3Tools\\Vic3 Script\\VictoriaScript.sublime-syntax"
 	with open (fake_syntax_path, "r") as file:
 	    lines = file.read()
 

@@ -72,7 +72,7 @@ When setting up the package make sure the file paths to your Victoria 3 game fol
 
 The syntaxes can be activated by going to:
 ```
-main menu -> view -> syntax -> Open All with current extention as... -> VicTools
+main menu -> view -> syntax -> Open All with current extention as... -> Victoria3Tools
 ```
 With a Victoria 3 .txt file open in sublime 
 Select ```Victoria Script``` as the default syntax for .txt.
