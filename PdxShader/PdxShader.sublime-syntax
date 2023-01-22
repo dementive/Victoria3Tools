@@ -79,6 +79,27 @@ contexts:
     # COMMENTS
     - match: (#).*$\n?
       scope: comment
+    - match: \@endif
+      scope: keyword
+    - match: \@ifdef
+      scope: keyword
+      push:
+        - match: ({{valid_variable}})
+          scope: constant.numeric
+        - match: \n
+          pop: true
+    - match: file|\sType\s|\stype\s
+      scope: constant.numeric
+    - match: \bsrgb|CompareFunction|SamplerType|AlphaToCoverage|StencilRef|StencilEnable|FrontStencilPassOp|WriteMask|DepthClip|\sIndex\s|FillMode|CullMode|FrontCCW|fillmode|DepthWriteEnable|DepthBias|SlopeScaleDepthBias|Ref|MagFilter|MinFilter|MipFilter|SampleModeU|SampleModeV|DepthEnable|BlendEnable|SourceBlend|DestBlend\b
+      scope: variable.parameter
+    - match: \bBlendState|DepthStencilState|RasterizerState\b
+      scope: entity.name
+      push:
+        - match: \b{{valid_variable}}\b
+          scope: storage.type
+          pop: true
+        - match: \n
+          pop: true
     - match: (\bstruct\b)(?:\s+)({{valid_variable}})
       scope: meta.struct.hlsl
       captures:
@@ -212,7 +233,7 @@ contexts:
   control_keywords:
     - match: \b(break|case|continue|discard|do|else|for|if|return|switch|while|Effect|Includes)\b
       scope: keyword.control.hlsl
-    - match: \b(VertexStruct|VertexShader|PixelShader|PDX_MAIN|RasterizerState)\b
+    - match: \b(VertexStruct|VertexShader|PixelShader|PDX_MAIN)\b
       scope: entity.name.hlsl
     - match: \b(Defines)\b
       scope: storage.type.hlsl
@@ -475,28 +496,6 @@ contexts:
         - match: (?=\n)
           pop: true
 
-
-  # preprocessor_include:
-  #   - match: ^\s*#\s*(include)\b
-  #     scope: keyword.control.preprocessor.include.hlsl
-  #     push:
-  #       - meta_scope: meta.preprocessor.include.hlsl
-  #       - include: preprocessor_line_ending
-  #       - include: preprocessor_comments
-  #       - match: '"'
-  #         scope: punctuation.definition.string.begin.hlsl
-  #         push:
-  #           - meta_content_scope: string.quoted.double.include.hlsl
-  #           - match: '"'
-  #             scope: punctuation.definition.string.end.hlsl
-  #             pop: true
-  #       - match: <
-  #         scope: punctuation.definition.string.begin.hlsl
-  #         push:
-  #           - meta_content_scope: string.quoted.other.lt-gt.include.hlsl
-  #           - match: ">"
-  #             scope: punctuation.definition.string.end.hlsl
-  #             pop: true
   preprocessor_include:
     - match: Includes
       scope: keyword.control.preprocessor.include.hlsl
@@ -516,15 +515,15 @@ contexts:
                   pop: true
             - match: '\}'
               pop: true
+            - match: (#).*$\n?
+              scope: comment
 
   preprocessor_keywords:
     - match: ^\s*#\s*(elif|else|endif|error|if|line|pragma|undef)\b
       scope: keyword.control.preprocessor.hlsl
 
-
   preprocessor_line_continuation:
     - match: (\\)$\n
-
 
   preprocessor_line_ending:
     - match: $\n
