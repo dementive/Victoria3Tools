@@ -41,6 +41,9 @@
 	// show a popup that browses all available event sounds
 	"EventSoundPopup": true,
 
+	// Should hovering over a scripted effect/scripted trigger/script value show a popup that goes to it's definition
+	"GoToScriptedDataPopup": true,
+
 	// Should on save validation for script files be enabled?
 	"ScriptValidator": true,
 

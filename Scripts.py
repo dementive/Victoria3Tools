@@ -1,21 +1,8 @@
 import sublime, sublime_plugin
 import os, re, webbrowser
 from collections import deque
-from .Utilities.PluginData import (
-	CustomTriggersList,
-	EffectsList,
-	TriggersList,
-	ScopesList,
-	CustomScopesList,
-	IntrinsicList,
-	EventSoundsList,
-	ScriptedEffectsList,
-	ScriptedTriggersList,
-	ScriptValuesList,
-	SimpleScriptValuesDict,
-	EventVideos
-)
-from .Utilities.GetGameData import ModData
+from .Utilities.PluginData import GameData
+from .Utilities.ModData import ModData
 
 # ----------------------------------
 # -          Plugin Setup          -
@@ -24,13 +11,16 @@ settings = None
 v3_files_path = None
 v3_mod_files = None
 
+# Game Data class
+GameData = GameData()
+
 def plugin_loaded():
 	global settings, v3_files_path, v3_mod_files
 	settings = sublime.load_settings("Victoria Syntax.sublime-settings")
 	v3_files_path = settings.get("Victoria3FilesPath")
 	v3_mod_files = settings.get("PathsToModFiles")
 	get_mod_data()
-	if settings.get("DynamicContentAddTrigger") != "on_start":
+	if settings.get("DynamicContentAddTrigger") != "on_start" and settings.get("AddDynamicContentToSyntax"):
 		write_data_to_syntax()
 	
 save_count = 0
@@ -44,7 +34,8 @@ class SaveEventListener(sublime_plugin.EventListener):
 			return
 
 		if settings.get("AddDynamicContentToSyntax"):
-			write_data_to_syntax()
+			for view in views:
+				write_data_to_syntax()
 
 	def on_post_save_async(self, view):
 		global save_count
@@ -77,40 +68,38 @@ class SaveEventListener(sublime_plugin.EventListener):
 			if save_count == 5: s.set("index_files", True)
 			if save_count > 5: save_count = 0
 
-def get_mod_data():	
-	global EventVideos, SimpleScriptValuesDict, ScriptValuesList, ScriptedEffectsList, ScriptedTriggersList
-	# Populate EventVideos list from gfx files
+def get_mod_data():
 	for mod in v3_mod_files:
+		# Populate GameData.EventVideos list from gfx files
 		if os.path.exists(mod + "\\gfx\\event_pictures"):			
-			for file in os.scandir(mod + "\\gfx\\event_pictures"):
-				if file.name.endswith(".bk2"):
-					path = file.path
-					path = path.split("game\\")[1].replace("\\", "/")
-					EventVideos.append(path)
+			for file in [x for x in os.scandir(mod + "\\gfx\\event_pictures") if x.name.endswith(".bk2")]:
+				path = file.path
+				path = path.split("game\\")[1].replace("\\", "/")
+				GameData.EventVideos.append(path)
 		# Get svalues, scripted effects and triggers.
 		ModClass = ModData(mod)
 		for x in ModClass.scripted_effects:
-			if x not in ScriptedEffectsList: ScriptedEffectsList.append(x)
+			if x not in GameData.ScriptedEffectsList: GameData.ScriptedEffectsList.append(x)
 		for x in ModClass.scripted_triggers:
-			if x not in ScriptedTriggersList: ScriptedTriggersList.append(x)
+			if x not in GameData.ScriptedTriggersList: GameData.ScriptedTriggersList.append(x)
 		for x in ModClass.script_values:
-			if x not in ScriptValuesList: ScriptValuesList.append(x)
+			if x not in GameData.ScriptValuesList: GameData.ScriptValuesList.append(x)
 		for x in ModClass.simple_script_values.keys():
-			if x not in SimpleScriptValuesDict.keys():
-				SimpleScriptValuesDict.update({x: ModClass.simple_script_values[x]})
+			if x not in GameData.SimpleScriptValuesDict.keys():
+				GameData.SimpleScriptValuesDict.update({x: ModClass.simple_script_values[x]})
 
 def write_data_to_syntax():
 	fake_syntax_path = sublime.packages_path() + "\\Victoria3Tools\\Vic3 Script\\VictoriaScript.fake-sublime-syntax"
 	real_syntax_path = sublime.packages_path() + "\\Victoria3Tools\\Vic3 Script\\VictoriaScript.sublime-syntax"
-	with open (fake_syntax_path, "r") as file:
+	with open(fake_syntax_path, "r") as file:
 	    lines = file.read()
 
 	# Append all other matches to auto-generated-content section
-	lines += write_syntax(ScriptedTriggersList, "Scripted Triggers", "string.scripted.trigger")
-	lines += write_syntax(ScriptedEffectsList, "Scripted Effects", "keyword.scripted.effect")
-	lines += write_syntax(ScriptValuesList, "Scripted Values", "storage.type.script.value")
-	lines += write_syntax(SimpleScriptValuesDict.keys(), "Simple Scripted Values", "storage.type.simple.script.value")
-	with open(real_syntax_path, "w") as file:
+	lines += write_syntax(GameData.ScriptedTriggersList, "Scripted Triggers", "string.scripted.trigger")
+	lines += write_syntax(GameData.ScriptedEffectsList, "Scripted Effects", "keyword.scripted.effect")
+	lines += write_syntax(GameData.ScriptValuesList, "Scripted Values", "storage.type.script.value")
+	lines += write_syntax(GameData.SimpleScriptValuesDict.keys(), "Simple Scripted Values", "storage.type.simple.script.value")
+	with open(real_syntax_path, "w", encoding="utf-8") as file:
 	    file.write(lines)
 
 def write_syntax(li, header, scope):
@@ -142,7 +131,8 @@ css_basic_style = """
 	}
 	p {
 		font-size: 1.0rem;
-		margin: 5;
+		margin-top: 5;
+		margin-bottom: 5;
 	}
 	h1 {
 		font-size: 1.2rem;
@@ -193,58 +183,39 @@ class LocalizeCurrentFileCommand(sublime_plugin.TextCommand):
 				pass
 			else:
 				if (not key.endswith("tt") and not key.endswith("ttt") and key.endswith(".t") or key.endswith("title")):
-					key = "\n" + key + ":0 \"\"\n"
+					loced = key.replace("_", " ")
+					key = "\n" + key + ":0 \"" + loced + "\""
 				else:
-					key = key + ":0 \"\"\n"
+					loced = key.replace("_", " ")
+					key = "\n" + key + ":0 \"" + loced + "\""
 					key = key.replace("\t","")
 				out_list.append(key)
 
 		return out_list
 
-class FoldAllObjectsCommand(sublime_plugin.TextCommand):
-	def run(self, edit):
-		view = sublime.active_window().active_view()
-		view_region = sublime.Region(0, view.size())
-		view_str = view.substr(view_region)
+class FolderHandler(sublime_plugin.TextCommand):
 
-		loc_list = self.find_obj_regions(view_str, view)
-		for i in loc_list:
-			if view.is_folded(i):
-				view.unfold(i)
-			else:
-				view.fold(i)
+    def input_description(self):
+        return "Fold Level"
 
-	def find_obj_regions(self, string, view):
-		# Return a list of regions from top level objects
-		li = []
-		start = -1
-		open_count = -1
-		close_count = 0
-		end = 0
-		found = False
-		for index, char in enumerate(string):
-			if char == '{' and found == False:
-				start = index
-				open_count += 2
-				found = True
+    def input(self, args):
+        if 'level' not in args:
+            return FoldingInputHandler()
 
-			elif char == '{':
-				open_count += 1
+    def run(self, edit, level):
+        if level != "Unfold All":
+            self.view.run_command("fold_by_level", {"level": int(level)})
+        else:
+            self.view.run_command("unfold_all")
 
-			if char == '}':
-				close_count += 1
+class FoldingInputHandler(sublime_plugin.ListInputHandler):
 
-			if close_count == open_count:
-				end = index
-				open_count = -1
-				close_count = 0
-				found = False
-				li.append((start + 1, end - 1))
+    def name(self):
+        return 'level'
 
-		for index, region in enumerate(li):
-			li[index] = sublime.Region(li[index][0], li[index][1])
-
-		return li
+    def list_items(self):
+        keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "Unfold All"]
+        return keys
 
 # ----------------------------------
 # -            Validator           -
@@ -536,8 +507,8 @@ class IntrinsicHoverListener(sublime_plugin.EventListener):
 			if scope == "keyword.function.intrinsic.hlsl":
 				posWord = view.word(point)
 				intrinsicWord = view.substr(posWord)
-				if intrinsicWord in IntrinsicList:
-					url, desc = IntrinsicList[intrinsicWord]
+				if intrinsicWord in GameData.IntrinsicList:
+					url, desc = GameData.IntrinsicList[intrinsicWord]
 					hoverBody = """
 						<body id=show-intrinsic>
 							<style>
@@ -973,15 +944,15 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 		if view.syntax().name == "Victoria Script":
 			if settings.get("DocsHoverEnabled") == True:
 				if view.match_selector(point, "keyword.effect"):
-					show_hover_docs(view, point, "keyword.effect", EffectsList)
+					show_hover_docs(view, point, "keyword.effect", GameData.EffectsList)
 
 				if view.match_selector(point, "string.trigger"):
-					TriggersList.update(CustomTriggersList)
-					show_hover_docs(view, point, "string.trigger", TriggersList)
+					GameData.TriggersList.update(GameData.CustomTriggersList)
+					show_hover_docs(view, point, "string.trigger", GameData.TriggersList)
 
 				if view.match_selector(point, "storage.type.scope"):
-					ScopesList.update(CustomScopesList)
-					show_hover_docs(view, point, "storage.type.scope", ScopesList)
+					GameData.ScopesList.update(GameData.CustomScopesList)
+					show_hover_docs(view, point, "storage.type.scope", GameData.ScopesList)
 
 				if view.match_selector(point, "storage.type.simple.script.value"):
 					self.show_simple_svalues(point, view)
@@ -996,7 +967,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 				video_region = sublime.Region(video_raw_start.b, posb)
 				video_file = view.substr(video_region).replace("\"", "").replace("video = ", "").replace(" ", "").replace("\t", "")
 				global video_point, video_file_path
-				if video_file in EventVideos:
+				if video_file in GameData.EventVideos:
 					video_file_path = v3_files_path + "\\" + video_file
 					if not os.path.exists(video_file_path):
 						# Check mod paths if it's not vanilla
@@ -1019,12 +990,19 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 					global sound_region
 					sound_region = sublime.Region(sound_raw_start.a, posLine.b - 1)
 					sound_string = view.substr(sound_region).replace("\"", "")
-					if sound_string in EventSoundsList and sound_region.__contains__(point):
+					if sound_string in GameData.EventSoundsList and sound_region.__contains__(point):
 						self.show_event_sound_hover_popup(view, point)
 				else:
 					global show_sound_menu
 					show_sound_menu = False
 
+			# Scripted effects/triggers/values
+			if settings.get("GoToScriptedDataPopup") == True:
+				# Find definition, if it exists show popup
+				item = view.substr(view.word(point))
+				found = self.find_scripted_data_definition(item)
+				if found:
+					self.show_scripted_data_definition(point, view, found)
 
 		# Texture popups can happen for both script and gui files
 		if settings.get("TextureOpenPopup") == True:
@@ -1038,19 +1016,77 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 				if not os.path.exists(full_texture_path):
 					# Check mod paths if it's not vanilla
 					for mod in v3_mod_files:
-						mod_path = mod + "\\" + texture_raw_path
-						if os.path.exists(mod_path):
-							full_texture_path = mod_path
+						if os.path.exists(mod):
+							if mod.endswith("mod"):
+								# if it is the path to the mod directory, get all directories in it
+								for directory in [ f.path for f in os.scandir(mod) if f.is_dir() ]:
+									mod_path = directory + "\\" + texture_raw_path
+									if os.path.exists(mod_path): full_texture_path = mod_path
+							else:
+								mod_path = mod + "\\" + texture_raw_path
+								if os.path.exists(mod_path): full_texture_path = mod_path
 				full_texture_path = full_texture_path.replace("/", "\\")
 				# The path exists and the point in the view is inside of the path
 				if texture_raw_region.__contains__(point):
 					texture_name = view.substr(view.word(texture_raw_end.a - 1))
 					self.show_texture_hover_popup(view, point, texture_name, full_texture_path)
 
+	def find_scripted_data_definition(self, item):
+		# Returns list with 4 elements
+		# 0 = found key
+		# 1 = file key was found in
+		# 2 = line key was declared on
+		# 3 = type of data (Scripted Effect, Scripted Trigger, or Script Value)
+		found_item = ["", "", -1, ""] # item, filename, line number of declaration
+		if item in GameData.ScriptedEffectsList:
+			# Check for folder
+			for mod in [x for x in v3_mod_files if os.path.exists(x + "\\common\\scripted_effects")]:
+				mod += "\\common\\scripted_effects"
+				# Iterate files in folder
+				for filename in os.listdir(mod):
+					full_path = os.path.join(mod, filename)
+					# Open file and iterate lines until item is found, save data into found_items for popup
+					with open(full_path, "r") as file:
+						for i, line in enumerate(file):
+							# Check if the line is the definition of the scripted effect
+							# remove UTF8-BOM encoding if it is present
+							if line.replace("ï»¿", "")[0:len(item)] == item:
+								found_item[0] = item
+								found_item[1] = file.name
+								found_item[2] = i + 1
+								found_item[3] = "Scripted Effect"
+		if item in GameData.ScriptedTriggersList:
+			for mod in [x for x in v3_mod_files if os.path.exists(x + "\\common\\scripted_triggers")]:
+				mod += "\\common\\scripted_triggers"
+				for filename in os.listdir(mod):
+					full_path = os.path.join(mod, filename)
+					with open(full_path, "r") as file:
+						for i, line in enumerate(file):
+							if line.replace("ï»¿", "")[0:len(item)] == item:
+								found_item[0] = item
+								found_item[1] = file.name
+								found_item[2] = i + 1
+								found_item[3] = "Scripted Trigger"
+		if item in GameData.ScriptValuesList:
+			for mod in [x for x in v3_mod_files if os.path.exists(x + "\\common\\script_values")]:
+				mod += "\\common\\script_values"
+				for filename in os.listdir(mod):
+					full_path = os.path.join(mod, filename)
+					with open(full_path, "r") as file:
+						for i, line in enumerate(file):
+							if line.replace("ï»¿", "")[0:len(item)] == item:
+								found_item[0] = item
+								found_item[1] = file.name
+								found_item[2] = i + 1
+								found_item[3] = "Script Value"
+
+		if found_item[2] == -1: return False
+		return found_item
+
 	def show_simple_svalues(self, point, view):
 		item = view.substr(view.word(point))
-		if item in SimpleScriptValuesDict:
-			value = SimpleScriptValuesDict[item]
+		if item in GameData.SimpleScriptValuesDict:
+			value = GameData.SimpleScriptValuesDict[item]
 			style = settings.get("DocsPopupStyle")
 			if style == "dark":
 				style = """
@@ -1118,17 +1154,129 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 							location=point, max_width=1024)
 			return
 
+	def show_scripted_data_definition(self, point, view, found):
+		item = view.substr(view.word(point))
+		goto_args = { "found": found}
+		goto_url = sublime.command_url("goto_script_definition", goto_args)
+		custom_data = ""
+		style = css_basic_style
+		if found[0] in GameData.CustomTriggersList:
+			custom_data = "<br>" + "Description:<br>" + GameData.CustomTriggersList[found[0]]
+			style = """
+						body {
+							font-family: system;
+							margin: 0;
+							padding: 0.35rem;
+							border: 0.15rem solid rgb(123, 123, 0);
+							background-color: rgb(10, 10, 10);
+						}
+						p {
+							font-size: 1.0rem;
+							margin-top: 5;
+							margin-bottom: 5;
+						}
+						h1 {
+							font-size: 1.2rem;
+							margin: 0;
+							padding-bottom: 0.05rem;
+						}
+						a {
+							font-size: 1.0rem;
+						}
+						span {
+							padding-right: 0.3rem;
+						}
+						div {
+							padding: 0.1rem;
+						}
+					"""
+		if found[0] in GameData.CustomScopesList:
+			custom_data = "<br>" + "Description:<br>" + GameData.CustomScopesList[found[0]]
+			style = """
+						body {
+							font-family: system;
+							margin: 0;
+							padding: 0.35rem;
+							border: 0.15rem solid rgb(0, 122, 153);
+							background-color: rgb(10, 10, 10);
+						}
+						p {
+							font-size: 1.0rem;
+							margin: 0;
+						}
+						h1 {
+							font-size: 1.2rem;
+							margin: 0;
+							padding-bottom: 0.05rem;
+						}
+						a {
+							font-size: 1.0rem;
+						}
+						span {
+							padding-right: 0.3rem;
+						}
+						div {
+							padding: 0.1rem;
+						}
+					"""
+		if found[0] in GameData.CustomEffectsList:
+			custom_data = "<br>" + "Description:<br>" + GameData.CustomEffectsList[found[0]]
+			style = """
+						body {
+							font-family: system;
+							margin: 0;
+							padding: 0.35rem;
+							border: 0.15rem solid rgb(128, 26, 0);
+							background-color: rgb(10, 10, 10);
+						}
+						p {
+							font-size: 1.0rem;
+							margin: 0;
+						}
+						h1 {
+							font-size: 1.2rem;
+							margin: 0;
+							padding-bottom: 0.05rem;
+						}
+						a {
+							font-size: 1.0rem;
+						}
+						span {
+							padding-right: 0.3rem;
+						}
+						div {
+							padding: 0.1rem;
+						}
+					"""
+		hoverBody = """
+			<body id="vic-body">
+				<style>%s</style>
+				<h1>%s</h1>
+				<p>Name: <span id="name">%s</span></p>
+				<a href="%s" title="Open %s and goto line %d">Goto Definition</a>
+				%s
+			</body>
+		""" %(style, found[3], found[0], goto_url, found[1].rpartition("\\")[2], found[2], custom_data)
+
+		view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY |sublime.COOPERATE_WITH_AUTO_COMPLETE |sublime.HIDE_ON_CHARACTER_EVENT),
+						location=point, max_width=1024)
+		return
+
 	def show_texture_hover_popup(self, view, point, texture_name, full_texture_path):
 		args = { "path": full_texture_path }
 		open_texture_url = sublime.command_url("open_pdx_texture ", args)
+		folder_args = { "path": full_texture_path, "folder": True}
+		open_folder_url = sublime.command_url("open_pdx_texture ", folder_args)
 		hoverBody = """
 			<body id=\"vic-body\">
 				<style>%s</style>
 				<h1>Open Texture</h1>
 				<div></div>
-				<a href="%s" title="Will open texture with the default program.">Open %s.dds</a>
+				<a href="%s" title="Open folder containing the texture.">Open Folder</a>
+				<br>
+				<a href="%s" title="Open texture with the default program.">Open %s.dds</a>
 			</body>
-		""" %(css_basic_style, open_texture_url, texture_name)
+		""" %(css_basic_style, open_folder_url, open_texture_url, texture_name)
 
 		view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY
 						|sublime.COOPERATE_WITH_AUTO_COMPLETE |sublime.HIDE_ON_CHARACTER_EVENT),
@@ -1177,9 +1325,31 @@ edit_obj = None # Used to pass edit object to on_done
 show_sound_menu = False
 sound_region = False
 
+class GotoScriptDefinitionCommand(sublime_plugin.WindowCommand):
+	def run(self, found):
+		#view = self.window.open_file(found[1])
+		file_path = "{}:{}:{}".format(found[1], found[2], 0)
+		view = self.window.open_file(file_path, sublime.ENCODED_POSITION)
+		#sublime.set_timeout_async(self.goto_line(view, found[2]), 5)
+
+	def goto_line(self, view, line):
+		view.sel().add(sublime.Region(0))
+		pt = view.text_point(line - 1, 0)
+		#print(view.split_by_newlines(sublime.Region(0, view.size()))[line])
+		view.sel().clear()
+		view.sel().add(sublime.Region(pt))
+		view.show(pt)
+		print(f"going to line {line}")
+
+
 class OpenPdxTextureCommand(sublime_plugin.WindowCommand):
-	def run(self, path):
-		os.startfile(path)
+	def run(self, path, folder=False):
+		if folder:
+			end = path.rfind("\\")
+			path = path[0:end:]
+			os.startfile(path)
+		else:
+			os.startfile(path)
 
 class PlayBinkVideoCommand(sublime_plugin.WindowCommand):
 	def run(self):
@@ -1261,7 +1431,7 @@ class VideoInputHandler(sublime_plugin.ListInputHandler):
 
 	def list_items(self):
 		keys = []
-		for x in EventVideos: keys.append(x.replace("gfx/event_pictures/", ""))
+		for x in GameData.EventVideos: keys.append(x.replace("gfx/event_pictures/", ""))
 		return keys
 
 class SoundInputHandler(sublime_plugin.ListInputHandler):
@@ -1271,5 +1441,5 @@ class SoundInputHandler(sublime_plugin.ListInputHandler):
 
 	def list_items(self):
 		keys = []
-		for x in EventSoundsList: keys.append(x.replace("event:/SFX/Events/", ""))
+		for x in GameData.EventSoundsList: keys.append(x.replace("event:/SFX/Events/", ""))
 		return sorted(keys)

@@ -88,7 +88,7 @@ contexts:
           scope: constant.numeric
         - match: \n
           pop: true
-    - match: file|\sType\s|\stype\s
+    - match: \sfile\s|\sType\s|\stype\s
       scope: constant.numeric
     - match: \bsrgb|CompareFunction|SamplerType|AlphaToCoverage|StencilRef|StencilEnable|FrontStencilPassOp|WriteMask|DepthClip|\sIndex\s|FillMode|CullMode|FrontCCW|fillmode|DepthWriteEnable|DepthBias|SlopeScaleDepthBias|Ref|MagFilter|MinFilter|MipFilter|SampleModeU|SampleModeV|DepthEnable|BlendEnable|SourceBlend|DestBlend\b
       scope: variable.parameter

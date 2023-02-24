@@ -6,13 +6,7 @@
 
 		},
 	},
-	{
-		"caption": "Victoria 3 - Fold Objects",
-		"command": "fold_all_objects",
-		"args": {
-
-		},
-	},
+	{ "command": "folder_handler", "caption": "Victoria 3 - Fold..." },
 	{
 		"caption": "Victoria 3 - Browse Videos",
 		"command": "browse_bink_videos",

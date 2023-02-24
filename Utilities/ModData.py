@@ -195,6 +195,7 @@ def get_game_data():
 #get_game_data()
 
 class ModData:
+	""" Class to hold all mod data from the base game """
 	def __init__(self, modpath):
 		self.scripted_triggers = set()
 		self.scripted_effects = set()
