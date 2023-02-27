@@ -12,16 +12,6 @@
 		//"C:\\Users\\ADDYOURUSERNAMEHERE\\Documents\\Paradox Interactive\\Victoria 3\\mod\\MOD2"
 	],
 
-	// Will add dynamic content from mods and vanilla to VictoriaScript.sublime-syntax when plugin is loaded
-	// This will enhance the syntax by providing highlighting for script values, scripted effects, and scripted triggers
-	// Note that newly added content requires sublime to restart to be added to the syntax
-	"AddDynamicContentToSyntax": true,
-
-	// What will trigger dynamic content to be added to syntax? Only valid when AddDynamicContentToSyntax = true
-	// on_save = Saving a vic3 file will recalc dynamic content for files where script values, scripted effects, and scripted triggers are defined
-	// on_start = Dynamic content will only be calculated when application is started
-	"DynamicContentAddTrigger": "on_save",
-
 	// Should documentation show up on hover for script files?
 	// true = will show docs
 	// false = won't show docs

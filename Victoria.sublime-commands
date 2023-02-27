@@ -20,5 +20,12 @@
 		"args": {
 
 		},
-	}
+	},
+	{
+		"caption": "Victoria 3 - Reload plugin objects and regenerate syntax",
+		"command": "v3_reload_plugin",
+		"args": {
+
+		},
+	},
 ]

@@ -1,7 +1,85 @@
+import os, re
+
+# Exclusion keys to not read when looking for top level keys
+exclusion_keys = {"namespace", "#","@","modifier","character_modifier","if","else","elseif","else_if","\n","can_have","can_keep","can_pass","on_pass","on_revoke","should_start_with","graphical_cultures","pass_cost","desc","compatibility","name","opposites","triggered_opinion","icon","random_list","limit","random"}
+
+def should_read(x,level=0):
+	# Check if a line should be read
+	y = x.split("#")[0]
+	z = y.split("=")[0]
+	return_bool = False
+	if ("= {" in y and z.count("\t")+z.count("    ") == level and not z.strip() in exclusion_keys):
+		return_bool = True
+	w = y.find("=")
+	if w != -1:
+		w = y[0:w].rstrip()
+		if "\t" not in w and " " not in w:
+			return_bool = True
+
+	return return_bool
+
+def get_game_data():
+	# Get game data for static lists
+
+	def get_event_sound(file_path):
+		""" Get sounds that are used in events """
+		event_sounds = set()
+		with open(file_path, "r") as fh:
+			try:
+				string = fh.read()
+			except UnicodeDecodeError:
+				return
+		for line in string.splitlines():
+			x = re.search("event:/SFX/Events.*\"", line)
+			if x:
+				event_sounds.add(x.group().replace("\"", ""))
+		return event_sounds
+		
+	lamb = lambda x: should_read(x)
+
+	event_sounds = set()
+	EventVideos = list()
+
+	for dirpath, dirnames, filenames in os.walk("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Victoria 3\\game"):
+		for filename in [f for f in filenames if f.endswith(".txt")]:
+			file_path = os.path.join(dirpath, filename)
+			if "events" in file_path:
+				res = get_event_sound(file_path)
+				if res: event_sounds.update(res)
+
+	for file in os.scandir("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Victoria 3\\game" + "\\gfx\\event_pictures"):
+		if file.name.endswith(".bk2"):
+			path = file.path
+			path = path.split("game\\")[1].replace("\\", "/")
+			EventVideos.append(path)
+
+	event_sounds = tuple(event_sounds)
+	event_sounds = sorted(event_sounds)
+
+	print("EventSoundsList = [")
+	for i, j in enumerate(sorted(event_sounds)):
+		if i == len(event_sounds) - 1:
+			# No comma at the end
+			print(f"\t\"{j}\"")
+		else:
+			print(f"\t\"{j}\",")
+	print("]")
+	print("EventVideos = [")
+	for i, j in enumerate(sorted(EventVideos)):
+		if i == len(EventVideos) - 1:
+			print(f"\t\"{j}\"")
+		else:
+			print(f"\t\"{j}\",")
+	print("]")
+
+# Run this to update the GameData class
+#get_game_data()
+
 class GameData:
-	""" Class to hold all data from the base game """
+	""" Class to hold all data generated from the base game logs """
 	def __init__(self):
 		# Manually added lists, add custom stuff here
+		# TODO - make these actually work
 		self.CustomTriggersList = {
 			"MFE_has_building" : "Check if scoped object has a building that satisfies the provided triggers.<br>MFE_has_building = {<br>&nbsp;&nbsp;&nbsp;&nbsp;S(scope) = 1(country)/2(state)/3(building)<br>&nbsp;&nbsp;&nbsp;&nbsp;T(trigger) = \"Trigger\"<br>&nbsp;&nbsp;&nbsp;&nbsp;K(kind) = 1(poor)/2(rich)/3(any)<br>}"
 		}
@@ -1566,397 +1644,3 @@ class GameData:
 			"gfx/event_pictures/unspecific_world_fair.bk2",
 			"gfx/event_pictures/unspecififc_airship.bk2"
 		]
-		self.ScriptedEffectsList = [
-			"add_large_peril_effect",
-			"add_medium_peril_effect",
-			"add_plague_modifier_effect",
-			"add_small_peril_effect",
-			"assert",
-			"central_africa_location_effect",
-			"check_the_next_wave",
-			"congo_river_expedition_location",
-			"debug_fail",
-			"debug_success",
-			"effect_native_conscription_1",
-			"effect_native_conscription_10",
-			"effect_native_conscription_11",
-			"effect_native_conscription_12",
-			"effect_native_conscription_2",
-			"effect_native_conscription_3",
-			"effect_native_conscription_4",
-			"effect_native_conscription_5",
-			"effect_native_conscription_6",
-			"effect_native_conscription_7",
-			"effect_native_conscription_8",
-			"effect_native_conscription_9",
-			"effect_reset_wealth_if_slave",
-			"effect_set_limited_non_hostile_mutual_secret_goal",
-			"effect_set_non_hostile_mutual_secret_goal",
-			"effect_set_non_hostile_mutual_secret_goal_power_difference",
-			"effect_starting_politics_conservative",
-			"effect_starting_politics_liberal",
-			"effect_starting_politics_reactionary",
-			"effect_starting_politics_traditional",
-			"effect_starting_pop_literacy_baseline",
-			"effect_starting_pop_literacy_high",
-			"effect_starting_pop_literacy_low",
-			"effect_starting_pop_literacy_middling",
-			"effect_starting_pop_literacy_very_high",
-			"effect_starting_pop_literacy_very_low",
-			"effect_starting_pop_wealth_high",
-			"effect_starting_pop_wealth_low",
-			"effect_starting_pop_wealth_medium",
-			"effect_starting_pop_wealth_very_high",
-			"effect_starting_technology_tier_1_tech",
-			"effect_starting_technology_tier_2_tech",
-			"effect_starting_technology_tier_3_tech",
-			"effect_starting_technology_tier_4_tech",
-			"effect_starting_technology_tier_5_tech",
-			"effect_starting_technology_tier_6_tech",
-			"effect_starting_technology_tier_7_tech",
-			"expedition_great_progress_effect",
-			"expedition_lose_progress_effect",
-			"expedition_minor_progress_effect",
-			"expedition_moderate_progress_effect",
-			"expedition_peril_decrease_medium_effect",
-			"expedition_peril_decrease_small_effect",
-			"krakatoa_tsunami_effect",
-			"liberate_slaves",
-			"niger_river_expedition_location",
-			"randomize_plague_level_effect",
-			"remove_expedition_events_effect",
-			"save_industrialized_pm_building_and_state",
-			"save_neighbor_with_state",
-			"scripted_effect_parties_disappearence",
-			"scripted_effect_parties_emergence",
-			"set_all_colony",
-			"set_radical_leader",
-			"strike_end_effect",
-			"strike_state_add_modifier_effect_strong",
-			"strike_state_add_modifier_effect_weak",
-			"warlord_setup_effect",
-			"west_america_expedition_location"
-		]
-		self.ScriptedTriggersList = [
-			"academics_clothes_pop_trigger",
-			"african_clothes_pop_trigger",
-			"african_clothes_trigger",
-			"african_diaspora_clothes_trigger",
-			"african_diaspora_pop_clothes_trigger",
-			"american_clothes_pop_trigger",
-			"american_clothes_trigger",
-			"arabic_clothes_pop_trigger",
-			"arabic_clothes_trigger",
-			"arabic_fez_trigger",
-			"arabic_military_fez_pop_trigger",
-			"aristocrats_clothes_pop_trigger",
-			"armed_forces_clothes_trigger",
-			"assert",
-			"british_empire_clothes_p_trigger",
-			"british_empire_clothes_pop_trigger",
-			"british_empire_clothes_trigger",
-			"british_treaty_ports",
-			"buddhist_clothes_pop_trigger",
-			"bureaucrats_clothes_pop_trigger",
-			"can_reach_target_country",
-			"can_reach_target_state",
-			"central_asian_clothes_pop_trigger",
-			"chinese_court_clothes_pop_trigger",
-			"chinese_court_clothes_trigger",
-			"chinese_imperial_clothes_trigger",
-			"chinese_manchu_queue_hairstyle_character_trigger",
-			"chinese_manchu_queue_hairstyle_pops_trigger",
-			"christian_clothes_pop_trigger",
-			"christian_clothes_trigger",
-			"circumpolar_clothes_pop_trigger",
-			"clergy_clothes_pop_trigger",
-			"clerks_clothes_pop_trigger",
-			"coa_SWE_karl_johan_is_king_trigger",
-			"coa_SWE_use_norway_canton_trigger",
-			"coa_SWE_use_union_mark_canton_trigger",
-			"coa_SWE_use_union_mark_flag_trigger",
-			"coa_absolute_monarchy_trigger",
-			"coa_anarchy_trigger",
-			"coa_autocracy_trigger",
-			"coa_communist_trigger",
-			"coa_controls_part_of_france",
-			"coa_controls_part_of_ireland",
-			"coa_def_absolute_monarchy_flag_trigger",
-			"coa_def_african_trigger",
-			"coa_def_american_ensign_trigger",
-			"coa_def_anarchy_flag_trigger",
-			"coa_def_austrian_ensign_trigger",
-			"coa_def_autocracy_flag_trigger",
-			"coa_def_brazilian_ensign_trigger",
-			"coa_def_british_ensign_trigger",
-			"coa_def_british_india_trigger",
-			"coa_def_buddhist_trigger",
-			"coa_def_catholic_trigger",
-			"coa_def_chinese_ensign_trigger",
-			"coa_def_colonial_ensign_trigger",
-			"coa_def_communist_flag_trigger",
-			"coa_def_controls_part_of_france",
-			"coa_def_controls_part_of_ireland",
-			"coa_def_crescent_trigger",
-			"coa_def_cross_trigger",
-			"coa_def_danish_ensign_trigger",
-			"coa_def_dictatorship_flag_trigger",
-			"coa_def_dominant_scotland_trigger",
-			"coa_def_egalitarian_flag_trigger",
-			"coa_def_ensign_trigger",
-			"coa_def_fascist_flag_trigger",
-			"coa_def_finnish_ensign_trigger",
-			"coa_def_french_ensign_trigger",
-			"coa_def_german_ensign_trigger",
-			"coa_def_german_trigger",
-			"coa_def_hispanic_american_trigger",
-			"coa_def_iberian_trigger",
-			"coa_def_independent_trigger",
-			"coa_def_italian_trigger",
-			"coa_def_kalmar_flag_trigger",
-			"coa_def_lesser_subject_trigger",
-			"coa_def_mexican_ensign_trigger",
-			"coa_def_military_junta_flag_trigger",
-			"coa_def_monarchy_flag_trigger",
-			"coa_def_multicultural_trigger",
-			"coa_def_native_american_trigger",
-			"coa_def_netherlands_ensign_trigger",
-			"coa_def_nordic_cross_trigger",
-			"coa_def_oceanic_trigger",
-			"coa_def_oligarchy_flag_trigger",
-			"coa_def_prussian_ensign_trigger",
-			"coa_def_republic_flag_trigger",
-			"coa_def_russian_ensign_trigger",
-			"coa_def_secessionist_country_trigger",
-			"coa_def_secessionist_or_revolutionary_trigger",
-			"coa_def_siam_ensign_trigger",
-			"coa_def_spanish_ensign_trigger",
-			"coa_def_state_religion_flag_trigger",
-			"coa_def_swedish_ensign_trigger",
-			"coa_def_theocracy_flag_trigger",
-			"coa_def_turkic_trigger",
-			"coa_def_turkish_ensign_trigger",
-			"coa_def_undemocratic_monarchy_flag_trigger",
-			"coa_def_war_trigger",
-			"coa_def_west_african_trigger",
-			"coa_dictatorship_trigger",
-			"coa_fascist_trigger",
-			"coa_military_trigger",
-			"coa_monarchy_trigger",
-			"coa_multicultural_trigger",
-			"coa_oligarchy_trigger",
-			"coa_republic_trigger",
-			"coa_secessionist_or_revolutionary_trigger",
-			"coa_theocracy_trigger",
-			"coa_undemocratic_monarchy_trigger",
-			"cold_clothes_pop_trigger",
-			"countries_are_valid_rivals",
-			"country_has_education_system",
-			"country_has_voting_franchise",
-			"country_is_in_africa",
-			"country_is_in_central_america",
-			"country_is_in_central_asia",
-			"country_is_in_east_asia",
-			"country_is_in_europe",
-			"country_is_in_india",
-			"country_is_in_middle_east",
-			"country_is_in_north_america",
-			"country_is_in_south_america",
-			"country_is_in_southeast_asia",
-			"default_auto_expand_rule",
-			"devout_clothes_trigger",
-			"east_asian_clothes_pop_trigger",
-			"engineers_clothes_pop_trigger",
-			"ethiopian_clothes_trigger",
-			"european_clothes_pop_trigger",
-			"european_clothes_trigger",
-			"european_colonies_central_africa",
-			"european_colonies_east_africa",
-			"european_colonies_nile_basin",
-			"european_colonies_north_africa",
-			"european_colonies_south_africa",
-			"european_colonies_west_africa",
-			"farmers_clothes_pop_trigger",
-			"french_empire_clothes_pop_trigger",
-			"french_empire_clothes_trigger",
-			"french_treaty_ports",
-			"german_clothes_pop_trigger",
-			"german_clothes_trigger",
-			"german_treaty_ports",
-			"harsh_ai_behavior_trigger",
-			"has_addiction",
-			"has_american_buildings_dlc_trigger",
-			"has_colonial_growth",
-			"has_distillery",
-			"has_farm_building",
-			"has_government_building",
-			"has_heavy_industry_building",
-			"has_industrialized_pm",
-			"has_industry_building",
-			"has_military_building",
-			"has_paternalist_ideology",
-			"has_subsistence_building",
-			"has_v2_soundtrack_dlc_trigger",
-			"hindu_clothes_pop_trigger",
-			"iberian_treaty_ports",
-			"in_earthquake_zone",
-			"in_volcanic_zone",
-			"indian_clothes_pop_trigger",
-			"indian_clothes_trigger",
-			"indigenous_oceanic_clothes_trigger",
-			"integrated_south_american_natives_pop_trigger",
-			"is_arabic_farmland",
-			"is_arid_region",
-			"is_asian_farmland",
-			"is_being_incorporated",
-			"is_commander",
-			"is_distillery",
-			"is_economic_objective_building",
-			"is_farm_building",
-			"is_heavy_industry_building",
-			"is_in_civil_war",
-			"is_industry_building",
-			"is_non_customs_union_subject",
-			"is_on_front",
-			"is_peasant_under_serfdom",
-			"is_plantation_building",
-			"is_production_building",
-			"is_raw_industries_building",
-			"is_still_learning",
-			"is_subtropic_farmland",
-			"italian_treaty_ports",
-			"japanese_clothes_pop_trigger",
-			"japanese_clothes_trigger",
-			"japanese_imperial_clothes_trigger",
-			"jewish_clothes_pop_trigger",
-			"laborers_clothes_pop_trigger",
-			"language_accepted",
-			"law_can_hurt_minorities",
-			"lenient_ai_behavior_trigger",
-			"machinists_clothes_pop_trigger",
-			"middle_clothes_pop_trigger",
-			"military_clothes_trigger",
-			"monarchy_clothes_trigger",
-			"muslim_clothes_pop_trigger",
-			"native_american_clothes_pop_trigger",
-			"native_american_clothes_trigger",
-			"native_north_american_clothes_trigger",
-			"officers_clothes_pop_trigger",
-			"on_river",
-			"overweight_pop_trigger",
-			"overweight_trigger",
-			"owned_andes_region_states",
-			"owned_central_asia_region_states",
-			"owned_gran_colombia_region_states",
-			"owned_great_plains_region_states",
-			"owned_la_plata_region_states",
-			"owned_pacific_coast_region_states",
-			"peasants_clothes_pop_trigger",
-			"politician_clothes_trigger",
-			"poor_clothes_pop_trigger",
-			"recognized_country_pop_trigger",
-			"recognized_country_trigger",
-			"republic_clothes_trigger",
-			"ruler_clothes_trigger",
-			"sami_clothes_pop_trigger",
-			"shopkeepers_clothes_pop_trigger",
-			"should_be_fully_naked_portrait_trigger",
-			"should_be_naked_trigger",
-			"siamese_clothes_trigger",
-			"slaves_clothes_pop_trigger",
-			"slavic_clothes_pop_trigger",
-			"slightly_overweight_pop_trigger",
-			"slightly_underweight_pop_trigger",
-			"soldier_clothes_pop_trigger",
-			"south_american_clothes_character_trigger",
-			"south_american_clothes_pop_trigger",
-			"south_east_asia_clothes_pop_trigger",
-			"state_has_strike_modifier_trigger",
-			"state_in_africa",
-			"state_is_in_africa",
-			"state_is_in_americas",
-			"state_is_in_central_america",
-			"state_is_in_central_asia",
-			"state_is_in_china",
-			"state_is_in_east_asia",
-			"state_is_in_europe",
-			"state_is_in_india",
-			"state_is_in_middle_east",
-			"state_is_in_north_america",
-			"state_is_in_south_america",
-			"state_is_in_southeast_asia",
-			"strike_goal_complete_trigger",
-			"struggling_pop_trigger",
-			"underweight_pop_trigger",
-			"upper_clothes_pop_trigger",
-			"using_watertube_boiler",
-			"very_overweight_pop_trigger",
-			"very_underweight_pop_trigger",
-			"violate_sovereignty_war_check",
-			"will_be_accepted_culture"
-		]
-		self.ScriptValuesList = [
-			"battle_unit_casualty_weight",
-			"country_and_subjects_population",
-			"country_and_subjects_population_global_share",
-			"front_battle_province_weight",
-			"front_commander_pick_weight",
-			"front_country_troop_weight",
-			"global_population",
-			"grand_exhibition_points",
-			"land_battle_size",
-			"land_battle_unit_selection_weight",
-			"money_amount_multiplier_large",
-			"money_amount_multiplier_large_state",
-			"money_amount_multiplier_medium",
-			"money_amount_multiplier_small",
-			"money_amount_multiplier_very_large",
-			"money_amount_multiplier_very_small",
-			"naval_battle_size",
-			"naval_battle_unit_selection_weight",
-			"state_infrastructure_balance"
-		]
-		self.SimpleScriptValuesDict = {
-			"construction_cost_canal": 2000,
-			"construction_cost_monument": 1000,
-			"construction_cost_very_high": 600,
-			"construction_cost_high": 450,
-			"construction_cost_medium": 300,
-			"construction_cost_low": 150,
-			"construction_cost_very_low": 50,
-			"max_autoexpand_queue_weeks": 26,
-			"small_radicals": 0.02,
-			"medium_radicals": 0.05,
-			"large_radicals": 0.1,
-			"very_large_radicals": 0.2,
-			"momentum_small": 0.1,
-			"momentum_medium": 0.2,
-			"momentum_large": 0.3,
-			"momentum_very_large": 0.5,
-			"momentum_small_decrease": -0.1,
-			"momentum_medium_decrease": -0.2,
-			"momentum_large_decrease": -0.3,
-			"momentum_very_large_decrease": -0.5,
-			"election_event_cooldown_months": 3,
-			"day_until_next_expedition_event": 30,
-			"expedition_peril_amount_small": 1.2,
-			"expedition_peril_amount_medium": 2.2,
-			"expedition_peril_amount_large": 5,
-			"expedition_peril_decrease_small": -1,
-			"expedition_peril_decrease_medium": -2,
-			"expedition_progress_amount_small": 1,
-			"expedition_progress_amount_medium": 2,
-			"expedition_progress_amount_large": 5,
-			"short_modifier_time": 31,
-			"normal_modifier_time": 61,
-			"long_modifier_time": 121,
-			"very_long_modifier_time": 241,
-			"stupidly_long_modifier_time": 600,
-			"poor": 0,
-			"middle": 1,
-			"rich": 2,
-			"none": 0,
-			"minimal": 1,
-			"partial": 2,
-			"full": 3
-		}

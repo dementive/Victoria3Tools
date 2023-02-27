@@ -1,8 +1,8 @@
 import sublime, sublime_plugin
-import os, re, webbrowser
+import os, re, webbrowser, threading
 from collections import deque
-from .Utilities.PluginData import GameData
-from .Utilities.ModData import ModData
+from .jomini import GameObjectBase
+from .Utilities.game_data import GameData
 
 # ----------------------------------
 # -          Plugin Setup          -
@@ -11,62 +11,295 @@ settings = None
 v3_files_path = None
 v3_mod_files = None
 
+
+# Setup Paths for Objects, get set on plugin_loaded
+# This is the unified paths with all mod paths + base game path at the end
+file_paths = []
+
+# Victoria 3 Game Object Class implementations
+class V3AiStrategy(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\ai_strategies")
+
+class V3BuildingGroup(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\building_groups")
+
+class V3Building(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\building")
+
+class V3CharacterTrait(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\character_traits")
+
+class V3Culture(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\cultures")
+
+class V3Decree(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\decrees")
+
+class V3DiplomaticAction(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\diplomatic_actions")
+
+class V3DiplomaticPlay(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\diplomatic_plays")
+
+class V3GameRules(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\game_rules")
+
+class V3Goods(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\goods")
+
+class V3GovernmentType(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\government_types")
+
+class V3Ideology(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\ideologies")
+
+class V3Institutions(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\institutions")
+
+class V3Ideology(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\ideologies")
+
+class V3InterestGroupTrait(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\interest_group_traits")
+
+class V3InterestGroup(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\interest_groups")
+
+class V3JournalEntry(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\journal_entries")
+
+class V3LawGroup(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\law_groups")
+
+class V3Law(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\laws")
+
+class V3Modifier(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\modifiers")
+
+class V3OpinionModifier(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\opinion_modifiers")
+
+class V3Party(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\parties")
+
+class V3PopNeed(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\pop_needs")
+
+class V3PopType(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\pop_types")
+
+class V3ProductionMethodGroup(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\production_method_groups")
+
+class V3ProductionMethod(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\production_methods")
+
+class V3Religion(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\religions")
+
+class V3ScriptValue(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\script_values")
+
+class V3ScriptedEffect(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\scripted_effects")
+
+class V3ScriptedModifier(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\scripted_modifiers")
+
+class V3ScriptedTrigger(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\scripted_triggers")
+
+class V3StateTrait(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\state_traits")
+
+class V3StrategicRegion(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\strategic_regions")
+
+class V3SubjectType(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\subject_types")
+
+class V3Technology(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\technology")
+
+class V3Terrain(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "common\\terrain")
+
+class V3StateRegion(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "map_data\\state_regions")
+
+class V3Event(GameObjectBase):
+	def __init__(self, paths):
+		super().__init__(paths)
+		self.get_data(file_paths, "events")
+
 # Game Data class
 GameData = GameData()
 
+# Global Object Variables that get set on plugin_loaded
+ai_strats = bgs = buildings = char_traits = cultures = mods = decrees = diplo_actions = diplo_plays = ""
+game_rules = goods = gov_types = ideologies = institutions = ig_traits = igs = jes = law_groups = laws = ""
+op_mods = parties = pop_needs = pop_types = pm_groups = pms = religions = state_traits = strategic_regions = "" 
+subject_types = technologies = terrains = state_regions = events = ""
+
+# Function to fill all global game objects that get set in non-blocking async function on plugin_loaded
+# Setting all the objects can be slow and doing it on every hover (when they are actually used) is even slower, 
+# so loading it all in on plugin init makes popups actually responsive
+
+def load_game_objects():
+	#import time # Use time to optimize thread count when adding new objects
+	#t0 = time.time()
+
+	def load_first():
+		global ai_strats, bgs, buildings, char_traits, cultures, decrees, diplo_actions, diplo_plays
+		ai_strats = V3AiStrategy(file_paths)
+		bgs = V3BuildingGroup(file_paths)
+		buildings = V3Building(file_paths)
+		char_traits = V3CharacterTrait(file_paths)
+		cultures = V3Culture(file_paths)
+		decrees = V3Decree(file_paths)
+		diplo_actions = V3DiplomaticAction(file_paths)
+		diplo_plays = V3DiplomaticPlay(file_paths)
+
+	def load_second():
+		global mods, game_rules, goods, gov_types, ideologies, institutions, ig_traits, igs
+		mods = V3Modifier(file_paths)
+		game_rules = V3GameRules(file_paths)
+		goods = V3Goods(file_paths)
+		gov_types = V3GovernmentType(file_paths)
+		ideologies = V3Ideology(file_paths)
+		institutions = V3Institutions(file_paths)
+		ig_traits = V3InterestGroupTrait(file_paths)
+		igs = V3InterestGroup(file_paths)
+
+	def load_third():
+		global jes, law_groups, laws, op_mods, parties, pop_needs, pop_types, pm_groups
+		jes = V3JournalEntry(file_paths)
+		law_groups = V3LawGroup(file_paths)
+		laws = V3Law(file_paths)
+		op_mods = V3OpinionModifier(file_paths)
+		parties = V3Party(file_paths)
+		pop_needs = V3PopNeed(file_paths)
+		pop_types = V3PopType(file_paths)
+		pm_groups = V3ProductionMethodGroup(file_paths)
+
+	def load_fourth():
+		global pms, religions, script_values, scripted_effects, scripted_modifiers, scripted_triggers, state_traits, strategic_regions
+		pms = V3ProductionMethod(file_paths)
+		religions = V3Religion(file_paths)
+		script_values = V3ScriptValue(file_paths)
+		scripted_effects = V3ScriptedEffect(file_paths)
+		scripted_modifiers = V3ScriptedModifier(file_paths)
+		scripted_triggers = V3ScriptedTrigger(file_paths)
+		state_traits = V3StateTrait(file_paths)
+		strategic_regions = V3StrategicRegion(file_paths)
+
+	def load_fifth():
+		global subject_types, technologies, terrains, state_regions, events
+		subject_types = V3SubjectType(file_paths)
+		technologies = V3Technology(file_paths)
+		terrains = V3Terrain(file_paths)
+		state_regions = V3StateRegion(file_paths)
+		events = V3Event(file_paths)
+
+	thread1 = threading.Thread(target=load_first); thread2 = threading.Thread(target=load_second)
+	thread3 = threading.Thread(target=load_third); thread4 = threading.Thread(target=load_fourth)
+	thread5 = threading.Thread(target=load_fifth)
+	thread1.start(); thread2.start(); thread3.start(); thread4.start(); thread5.start();
+	thread1.join(); thread2.join(); thread3.join(); thread4.join(); thread5.join();
+
+	#t1 = time.time()
+	#print("Time taken to load Victoria 3 objects: {:.3f} seconds".format(t1-t0))
+
 def plugin_loaded():
-	global settings, v3_files_path, v3_mod_files
+	global settings, v3_files_path, v3_mod_files, file_paths
 	settings = sublime.load_settings("Victoria Syntax.sublime-settings")
 	v3_files_path = settings.get("Victoria3FilesPath")
 	v3_mod_files = settings.get("PathsToModFiles")
-	get_mod_data()
-	if settings.get("DynamicContentAddTrigger") != "on_start" and settings.get("AddDynamicContentToSyntax"):
-		write_data_to_syntax()
-	
-save_count = 0
-class SaveEventListener(sublime_plugin.EventListener):
-	def on_exit(self):
-		s = sublime.load_settings('Preferences.sublime-settings')
-		s.set("index_files", True)
-	def on_pre_close_window(self, window):
-		views = [view for view in window.views() if view.syntax().name == "Victoria Script"]
-		if not views:
-			return
+	out_file_paths = v3_mod_files
+	out_file_paths.append(v3_files_path)
+	file_paths = out_file_paths
+	sublime.set_timeout_async(lambda: get_mod_data(), 0)
+	sublime.set_timeout_async(lambda: load_game_objects(), 0)
+	sublime.set_timeout_async(lambda: write_data_to_syntax(), 0)
 
-		if settings.get("AddDynamicContentToSyntax"):
-			for view in views:
-				write_data_to_syntax()
-
-	def on_post_save_async(self, view):
-		global save_count
-		if view is None:
-			return
-		try:
-			if view.syntax().name != "Victoria Script":
-				return
-		except AttributeError:
-			return
-
-		if settings.get("DynamicContentAddTrigger") != "on_save":
-			return
-
-		inclusion_paths = ["scripted_effects", "script_values", "scripted_triggers"]
-		if not any(x in view.file_name() for x in inclusion_paths):
-			return
-
-		if settings.get("AddDynamicContentToSyntax"):
-			get_mod_data()
-			# Every 5 saves allow indexing for 1 save
-			# not perfect but good enough
-			if save_count < 5:
-				write_data_to_syntax()
-
-			window = sublime.active_window()
-			s = sublime.load_settings('Preferences.sublime-settings')
-			if save_count == 0: s.set("index_files", False)
-			save_count += 1
-			if save_count == 5: s.set("index_files", True)
-			if save_count > 5: save_count = 0
+class V3ReloadPluginCommand(sublime_plugin.WindowCommand):
+	def run(self):
+		plugin_loaded()
 
 def get_mod_data():
 	for mod in v3_mod_files:
@@ -76,17 +309,6 @@ def get_mod_data():
 				path = file.path
 				path = path.split("game\\")[1].replace("\\", "/")
 				GameData.EventVideos.append(path)
-		# Get svalues, scripted effects and triggers.
-		ModClass = ModData(mod)
-		for x in ModClass.scripted_effects:
-			if x not in GameData.ScriptedEffectsList: GameData.ScriptedEffectsList.append(x)
-		for x in ModClass.scripted_triggers:
-			if x not in GameData.ScriptedTriggersList: GameData.ScriptedTriggersList.append(x)
-		for x in ModClass.script_values:
-			if x not in GameData.ScriptValuesList: GameData.ScriptValuesList.append(x)
-		for x in ModClass.simple_script_values.keys():
-			if x not in GameData.SimpleScriptValuesDict.keys():
-				GameData.SimpleScriptValuesDict.update({x: ModClass.simple_script_values[x]})
 
 def write_data_to_syntax():
 	fake_syntax_path = sublime.packages_path() + "\\Victoria3Tools\\Vic3 Script\\VictoriaScript.fake-sublime-syntax"
@@ -95,10 +317,47 @@ def write_data_to_syntax():
 	    lines = file.read()
 
 	# Append all other matches to auto-generated-content section
-	lines += write_syntax(GameData.ScriptedTriggersList, "Scripted Triggers", "string.scripted.trigger")
-	lines += write_syntax(GameData.ScriptedEffectsList, "Scripted Effects", "keyword.scripted.effect")
-	lines += write_syntax(GameData.ScriptValuesList, "Scripted Values", "storage.type.script.value")
-	lines += write_syntax(GameData.SimpleScriptValuesDict.keys(), "Simple Scripted Values", "storage.type.simple.script.value")
+	lines += write_syntax(scripted_triggers.keys(), "Scripted Triggers", "string.scripted.trigger")
+	lines += write_syntax(scripted_effects.keys(), "Scripted Effects", "keyword.scripted.effect")
+	lines += write_syntax(script_values.keys(), "Scripted Values", "storage.type.script.value")
+
+	# All GameObjects get entity.name scope
+	lines += write_syntax(ai_strats.keys(), "Ai Strategies", "entity.name.ai.strat")
+	lines += write_syntax(bgs.keys(), "Building Groups", "entity.name.bg")
+	lines += write_syntax(buildings.keys(), "Buildings", "entity.name.building")
+	lines += write_syntax(char_traits.keys(), "Character Traits", "entity.name.character.trait")
+	lines += write_syntax(cultures.keys(), "Cultures", "entity.name.culture")
+	lines += write_syntax(mods.keys(), "Modifiers", "entity.name.modifier")
+	lines += write_syntax(decrees.keys(), "Decrees", "entity.name.decree")
+	lines += write_syntax(diplo_actions.keys(), "Diplomatic Actions", "entity.name.diplo.action")
+	lines += write_syntax(diplo_plays.keys(), "Diplomatic Plays", "entity.name.diplo.play")
+	lines += write_syntax(game_rules.keys(), "Game Rules", "entity.name.game.rule")
+	lines += write_syntax(goods.keys(), "Trade Goods", "entity.name.trade.good")
+	lines += write_syntax(gov_types.keys(), "Gov Types", "entity.name.gov.type")
+	lines += write_syntax(ideologies.keys(), "Ideologies", "entity.name.ideology")
+	lines += write_syntax(institutions.keys(), "Institutions", "entity.name.institution")
+	lines += write_syntax(ig_traits.keys(), "Ig Traits", "entity.name.ig.trait")
+	lines += write_syntax(igs.keys(), "Interest Groups", "entity.name.interest.group")
+	lines += write_syntax(jes.keys(), "Journal Entries", "entity.name.journal.entry")
+	lines += write_syntax(law_groups.keys(), "Law Groups", "entity.name.law.group")
+	lines += write_syntax(laws.keys(), "Laws", "entity.name.law")
+	lines += write_syntax(op_mods.keys(), "Opinion Modifiers", "entity.name.op.mod")
+	lines += write_syntax(parties.keys(), "Parties", "entity.name.party")
+	lines += write_syntax(pop_needs.keys(), "Pop Needs", "entity.name.pop.need")
+	lines += write_syntax(pop_types.keys(), "Pop Types", "entity.name.pop.type")
+	lines += write_syntax(pm_groups.keys(), "Production Method Groups", "entity.name.pm.groups")
+	lines += write_syntax(pms.keys(), "Production Methods", "entity.name.pm")
+	lines += write_syntax(religions.keys(), "Religions", "entity.name.religion")
+	lines += write_syntax(state_traits.keys(), "State Traits", "entity.name.state.trait")
+	lines += write_syntax(strategic_regions.keys(), "Strategic Regions", "entity.name.strategic.region")
+	lines += write_syntax(subject_types.keys(), "Subject Types", "entity.name.subject.type")
+	lines += write_syntax(technologies.keys(), "Technologies", "entity.name.tech")
+	lines += write_syntax(terrains.keys(), "Terrains", "entity.name.terrain")
+	lines += write_syntax(state_regions.keys(), "State Regions", "entity.name.state.region")
+	
+	# Dont highlight event ids, only show popups
+	#lines += write_syntax(events.keys(), "Events", "entity.name.event")
+
 	with open(real_syntax_path, "w", encoding="utf-8") as file:
 	    file.write(lines)
 
@@ -928,6 +1187,7 @@ def show_hover_docs(view, point, scope, collection):
 		return
 
 class ScriptHoverListener(sublime_plugin.EventListener):
+
 	def on_hover(self, view, point, hover_zone):
 
 		if not view:
@@ -954,8 +1214,8 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 					GameData.ScopesList.update(GameData.CustomScopesList)
 					show_hover_docs(view, point, "storage.type.scope", GameData.ScopesList)
 
-				if view.match_selector(point, "storage.type.simple.script.value"):
-					self.show_simple_svalues(point, view)
+				# Do everything that requires fetching GameObjects in non-blocking thread
+				sublime.set_timeout_async(lambda: self.do_hover_async(view, point), 0)
 
 			# Event Videos
 			if settings.get("BinkVideoHover") == True:
@@ -996,14 +1256,6 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 					global show_sound_menu
 					show_sound_menu = False
 
-			# Scripted effects/triggers/values
-			if settings.get("GoToScriptedDataPopup") == True:
-				# Find definition, if it exists show popup
-				item = view.substr(view.word(point))
-				found = self.find_scripted_data_definition(item)
-				if found:
-					self.show_scripted_data_definition(point, view, found)
-
 		# Texture popups can happen for both script and gui files
 		if settings.get("TextureOpenPopup") == True:
 			posLine = view.line(point)
@@ -1031,236 +1283,143 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 					texture_name = view.substr(view.word(texture_raw_end.a - 1))
 					self.show_texture_hover_popup(view, point, texture_name, full_texture_path)
 
-	def find_scripted_data_definition(self, item):
-		# Returns list with 4 elements
-		# 0 = found key
-		# 1 = file key was found in
-		# 2 = line key was declared on
-		# 3 = type of data (Scripted Effect, Scripted Trigger, or Script Value)
-		found_item = ["", "", -1, ""] # item, filename, line number of declaration
-		if item in GameData.ScriptedEffectsList:
-			# Check for folder
-			for mod in [x for x in v3_mod_files if os.path.exists(x + "\\common\\scripted_effects")]:
-				mod += "\\common\\scripted_effects"
-				# Iterate files in folder
-				for filename in os.listdir(mod):
-					full_path = os.path.join(mod, filename)
-					# Open file and iterate lines until item is found, save data into found_items for popup
-					with open(full_path, "r") as file:
-						for i, line in enumerate(file):
-							# Check if the line is the definition of the scripted effect
-							# remove UTF8-BOM encoding if it is present
-							if line.replace("ï»¿", "")[0:len(item)] == item:
-								found_item[0] = item
-								found_item[1] = file.name
-								found_item[2] = i + 1
-								found_item[3] = "Scripted Effect"
-		if item in GameData.ScriptedTriggersList:
-			for mod in [x for x in v3_mod_files if os.path.exists(x + "\\common\\scripted_triggers")]:
-				mod += "\\common\\scripted_triggers"
-				for filename in os.listdir(mod):
-					full_path = os.path.join(mod, filename)
-					with open(full_path, "r") as file:
-						for i, line in enumerate(file):
-							if line.replace("ï»¿", "")[0:len(item)] == item:
-								found_item[0] = item
-								found_item[1] = file.name
-								found_item[2] = i + 1
-								found_item[3] = "Scripted Trigger"
-		if item in GameData.ScriptValuesList:
-			for mod in [x for x in v3_mod_files if os.path.exists(x + "\\common\\script_values")]:
-				mod += "\\common\\script_values"
-				for filename in os.listdir(mod):
-					full_path = os.path.join(mod, filename)
-					with open(full_path, "r") as file:
-						for i, line in enumerate(file):
-							if line.replace("ï»¿", "")[0:len(item)] == item:
-								found_item[0] = item
-								found_item[1] = file.name
-								found_item[2] = i + 1
-								found_item[3] = "Script Value"
+	def do_hover_async(self, view, point):
+		word_region = view.word(point)
+		word = view.substr(word_region)
 
-		if found_item[2] == -1: return False
-		return found_item
+		# Fix hovered word for event ids so something like "cold.100" will work 
+		if view.substr(word_region.b) == ".":
+			word += "."
+			word += view.substr(view.word(word_region.b + 1))
+		if view.substr(word_region.a-1) == ".":
+			word = view.substr(view.word(word_region.a - 1)) + "." + word
 
-	def show_simple_svalues(self, point, view):
-		item = view.substr(view.word(point))
-		if item in GameData.SimpleScriptValuesDict:
-			value = GameData.SimpleScriptValuesDict[item]
-			style = settings.get("DocsPopupStyle")
-			if style == "dark":
-				style = """
-							body {
-								font-family: system;
-								margin: 0;
-								padding: 0.35rem;
-								border: 0.2rem solid rgb(46, 46, 46);
-								background-color: rgb(5, 5, 5);
-							}
-							p {
-								font-size: 1.0rem;
-								margin: 0;
-							}
-							h1 {
-								font-size: 1.2rem;
-								margin: 0;
-								padding-bottom: 0.05rem;
-							}
-						"""
-			elif style == "none":
-				style = """
-							body {
-								font-family: system;
-							}
-							p {
-								font-size: 1.0rem;
-								margin: 0;
-							}
-							h1 {
-								font-size: 1.2rem;
-								margin: 0;
-								padding-bottom: 0.05rem;
-							}
-						"""
-			elif style == "dynamic":
-				style = """
-							body {
-								font-family: system;
-								margin: 0;
-								padding: 0.35rem;
-								border: 0.15rem solid rgb(0, 122, 153);
-								background-color: rgb(10, 10, 10);
-							}
-							p {
-								font-size: 1.0rem;
-								margin: 0;
-							}
-							h1 {
-								font-size: 1.2rem;
-								margin: 0;
-								padding-bottom: 0.05rem;
-							}
-						"""
-			hoverBody = """
-				<body id="vic-body">
-					<style>%s</style>
-					<h1>Script Value</h1>
-					<p>Name: <span id="name">%s</span></p>
-					<p>Value: <span id="value">%s</span></p>
-				</body>
-			""" %(style, item, value)
+		# Check if currently hovered word is equal to any game object and show goto definition popup if found	
+		if ai_strats.contains(word):
+			self.show_popup_default(view, point, word, ai_strats.access(word), "Ai Strategies")
 
-			view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY |sublime.COOPERATE_WITH_AUTO_COMPLETE |sublime.HIDE_ON_CHARACTER_EVENT),
-							location=point, max_width=1024)
-			return
+		if bgs.contains(word):
+			self.show_popup_default(view, point, word, bgs.access(word), "Building Group")
 
-	def show_scripted_data_definition(self, point, view, found):
-		item = view.substr(view.word(point))
-		goto_args = { "found": found}
-		goto_url = sublime.command_url("goto_script_definition", goto_args)
-		custom_data = ""
-		style = css_basic_style
-		if found[0] in GameData.CustomTriggersList:
-			custom_data = "<br>" + "Description:<br>" + GameData.CustomTriggersList[found[0]]
-			style = """
-						body {
-							font-family: system;
-							margin: 0;
-							padding: 0.35rem;
-							border: 0.15rem solid rgb(123, 123, 0);
-							background-color: rgb(10, 10, 10);
-						}
-						p {
-							font-size: 1.0rem;
-							margin-top: 5;
-							margin-bottom: 5;
-						}
-						h1 {
-							font-size: 1.2rem;
-							margin: 0;
-							padding-bottom: 0.05rem;
-						}
-						a {
-							font-size: 1.0rem;
-						}
-						span {
-							padding-right: 0.3rem;
-						}
-						div {
-							padding: 0.1rem;
-						}
-					"""
-		if found[0] in GameData.CustomScopesList:
-			custom_data = "<br>" + "Description:<br>" + GameData.CustomScopesList[found[0]]
-			style = """
-						body {
-							font-family: system;
-							margin: 0;
-							padding: 0.35rem;
-							border: 0.15rem solid rgb(0, 122, 153);
-							background-color: rgb(10, 10, 10);
-						}
-						p {
-							font-size: 1.0rem;
-							margin: 0;
-						}
-						h1 {
-							font-size: 1.2rem;
-							margin: 0;
-							padding-bottom: 0.05rem;
-						}
-						a {
-							font-size: 1.0rem;
-						}
-						span {
-							padding-right: 0.3rem;
-						}
-						div {
-							padding: 0.1rem;
-						}
-					"""
-		if found[0] in GameData.CustomEffectsList:
-			custom_data = "<br>" + "Description:<br>" + GameData.CustomEffectsList[found[0]]
-			style = """
-						body {
-							font-family: system;
-							margin: 0;
-							padding: 0.35rem;
-							border: 0.15rem solid rgb(128, 26, 0);
-							background-color: rgb(10, 10, 10);
-						}
-						p {
-							font-size: 1.0rem;
-							margin: 0;
-						}
-						h1 {
-							font-size: 1.2rem;
-							margin: 0;
-							padding-bottom: 0.05rem;
-						}
-						a {
-							font-size: 1.0rem;
-						}
-						span {
-							padding-right: 0.3rem;
-						}
-						div {
-							padding: 0.1rem;
-						}
-					"""
+		if buildings.contains(word):
+			self.show_popup_default(view, point, word, buildings.access(word), "Building")
+
+		if char_traits.contains(word):
+			self.show_popup_default(view, point, word, char_traits.access(word), "Character Trait")
+
+		if cultures.contains(word):
+			self.show_popup_default(view, point, word, cultures.access(word), "Culture")
+
+		if decrees.contains(word):
+			self.show_popup_default(view, point, word, decrees.access(word), "Decree")
+
+		if diplo_actions.contains(word):
+			self.show_popup_default(view, point, word, diplo_actions.access(word), "Diplomatic Action")
+
+		if diplo_plays.contains(word):
+			self.show_popup_default(view, point, word, diplo_plays.access(word), "Diplomatic Play")
+
+		if game_rules.contains(word):
+			self.show_popup_default(view, point, word, game_rules.access(word), "Game Rule")
+
+		if goods.contains(word):
+			self.show_popup_default(view, point, word, goods.access(word), "Trade Good")
+
+		if gov_types.contains(word):
+			self.show_popup_default(view, point, word, gov_types.access(word), "Government Type")
+		
+		if ideologies.contains(word):
+			self.show_popup_default(view, point, word, ideologies.access(word), "Ideology")
+
+		if institutions.contains(word):
+			self.show_popup_default(view, point, word, institutions.access(word), "Institution")
+
+		if ig_traits.contains(word):
+			self.show_popup_default(view, point, word, ig_traits.access(word), "Interest Group Traits")
+
+		if igs.contains(word):
+			self.show_popup_default(view, point, word, igs.access(word), "Interest Group")
+
+		if jes.contains(word):
+			self.show_popup_default(view, point, word, jes.access(word), "Journal Entry")
+		
+		if law_groups.contains(word):
+			self.show_popup_default(view, point, word, law_groups.access(word), "Law Group")
+
+		if laws.contains(word):
+			self.show_popup_default(view, point, word, laws.access(word), "Law")
+
+		if mods.contains(word):
+			self.show_popup_default(view, point, word, mods.access(word), "Modifier")
+
+		if op_mods.contains(word):
+			self.show_popup_default(view, point, word, op_mods.access(word), "Opinion Modifier")
+
+		if parties.contains(word):
+			self.show_popup_default(view, point, word, parties.access(word), "Party")
+		
+		if pop_needs.contains(word):
+			self.show_popup_default(view, point, word, pop_needs.access(word), "Pop Need")
+
+		if pop_types.contains(word):
+			self.show_popup_default(view, point, word, pop_types.access(word), "Pop Type")
+
+		if pm_groups.contains(word):
+			self.show_popup_default(view, point, word, pm_groups.access(word), "Production Method Group")
+		
+		if pms.contains(word):
+			self.show_popup_default(view, point, word, pms.access(word), "Production Method")
+
+		if religions.contains(word):
+			self.show_popup_default(view, point, word, religions.access(word), "Religion")
+
+		if script_values.contains(word):
+			self.show_popup_default(view, point, word, script_values.access(word), "Script Value")
+
+		if scripted_effects.contains(word):
+			self.show_popup_default(view, point, word, scripted_effects.access(word), "Scripted Effect")
+
+		if scripted_modifiers.contains(word):
+			self.show_popup_default(view, point, word, scripted_modifiers.access(word), "Scripted Modifer")
+
+		if scripted_triggers.contains(word):
+			self.show_popup_default(view, point, word, scripted_triggers.access(word), "Scripted Trigger")
+		
+		if state_traits.contains(word):
+			self.show_popup_default(view, point, word, state_traits.access(word), "State Trait")
+
+		if strategic_regions.contains(word):
+			self.show_popup_default(view, point, word, strategic_regions.access(word), "Strategic Region")
+
+		if subject_types.contains(word):
+			self.show_popup_default(view, point, word, subject_types.access(word), "Subject Types")
+
+		if technologies.contains(word):
+			self.show_popup_default(view, point, word, technologies.access(word), "Technology")
+
+		if terrains.contains(word):
+			self.show_popup_default(view, point, word, terrains.access(word), "Terrain")
+
+		if state_regions.contains(word):
+			self.show_popup_default(view, point, word, state_regions.access(word), "State Region")
+
+		if events.contains(word):
+			self.show_popup_default(view, point, word, events.access(word), "Events")
+		
+	def show_popup_default(self, view, point, word, PdxObject, header):
+		goto_args = { "path": PdxObject.path, "line": PdxObject.line}
+		goto_url = sublime.command_url("goto_script_object_definition", goto_args)
 		hoverBody = """
 			<body id="vic-body">
 				<style>%s</style>
 				<h1>%s</h1>
 				<p>Name: <span id="name">%s</span></p>
 				<a href="%s" title="Open %s and goto line %d">Goto Definition</a>
-				%s
 			</body>
-		""" %(style, found[3], found[0], goto_url, found[1].rpartition("\\")[2], found[2], custom_data)
+		""" %(css_basic_style, header, word, goto_url, PdxObject.path.rpartition("\\")[2], PdxObject.line)
 
 		view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY |sublime.COOPERATE_WITH_AUTO_COMPLETE |sublime.HIDE_ON_CHARACTER_EVENT),
 						location=point, max_width=1024)
-		return
 
 	def show_texture_hover_popup(self, view, point, texture_name, full_texture_path):
 		args = { "path": full_texture_path }
@@ -1325,22 +1484,10 @@ edit_obj = None # Used to pass edit object to on_done
 show_sound_menu = False
 sound_region = False
 
-class GotoScriptDefinitionCommand(sublime_plugin.WindowCommand):
-	def run(self, found):
-		#view = self.window.open_file(found[1])
-		file_path = "{}:{}:{}".format(found[1], found[2], 0)
+class GotoScriptObjectDefinitionCommand(sublime_plugin.WindowCommand):
+	def run(self, path, line):
+		file_path = "{}:{}:{}".format(path, line, 0)
 		view = self.window.open_file(file_path, sublime.ENCODED_POSITION)
-		#sublime.set_timeout_async(self.goto_line(view, found[2]), 5)
-
-	def goto_line(self, view, line):
-		view.sel().add(sublime.Region(0))
-		pt = view.text_point(line - 1, 0)
-		#print(view.split_by_newlines(sublime.Region(0, view.size()))[line])
-		view.sel().clear()
-		view.sel().add(sublime.Region(pt))
-		view.show(pt)
-		print(f"going to line {line}")
-
 
 class OpenPdxTextureCommand(sublime_plugin.WindowCommand):
 	def run(self, path, folder=False):
