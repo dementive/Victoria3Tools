@@ -2,30 +2,22 @@
 	{
 		"caption": "Victoria 3: Localize Current File",
 		"command": "localize_current_file",
-		"args": {
-
-		},
 	},
 	{ "command": "folder_handler", "caption": "Victoria 3 - Fold..." },
 	{
 		"caption": "Victoria 3: Browse Videos",
 		"command": "browse_bink_videos",
-		"args": {
-
-		},
 	},
 	{
 		"caption": "Victoria 3: Browse Event Sounds",
 		"command": "browse_event_sound",
-		"args": {
-
-		},
 	},
 	{
 		"caption": "Victoria 3: Reload plugin objects and regenerate syntax",
 		"command": "v3_reload_plugin",
-		"args": {
-
-		},
+	},
+	{
+		"caption": "Victoria 3: Clear Image Cache",
+		"command": "v3_clear_image_cache",
 	},
 ]
