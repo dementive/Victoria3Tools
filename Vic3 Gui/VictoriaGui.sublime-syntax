@@ -42,7 +42,7 @@ contexts:
       scope: constant.numeric
       push:
         - match: ({{valid_variable}})
-          scope: entity.name.function.gui
+          scope: entity.name.type.gui
           pop: true
 
   template-definition:

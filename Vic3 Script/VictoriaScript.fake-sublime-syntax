@@ -23,9 +23,13 @@ contexts:
     - include: remove-var
     - include: one-line-var-trigger
     - include: scope-usage
+    # Blocks
     - include: trigger-block-start
     - include: effect-block-start
     - include: ai-block-start
+    - include: bg-block-start
+    - include: char-trait-block-start
+
     - include: manually-entered-content
     - include: scripted-trigger-event-declaration
     - include: scripted-effect-event-declaration
@@ -67,10 +71,35 @@ contexts:
           push:
             - match: \n|\s
               pop: 2
-            - include: scripted-effect-zone
+            - match: (#).*$\n?
+              scope: comment.line
+              pop: 2
+            - match: \$
+              scope: keyword.dolla
+              push:
+                - include: line_ending
+                - match: ({{valid_variable}})
+                  scope: variable.language.at.parameter
+                - match: \$
+                  scope: keyword.dolla
+                  pop: 1
             - match: ({{valid_variable}})
               scope: variable.parameter.scope.usage
-              pop: 2
+              push:
+                - match: (#).*$\n?
+                  scope: comment.line
+                  pop: 4
+                - match: \$
+                  scope: keyword.dolla
+                  push:
+                    - include: line_ending
+                    - match: ({{valid_variable}})
+                      scope: variable.language.at.parameter
+                    - match: \$
+                      scope: keyword.dolla
+                      pop: 4
+                - match: \n|\s|\.
+                  pop: 3
 
   remove-var:
     - match: remove_(local_|global_)?variable
@@ -80,10 +109,36 @@ contexts:
           push:
             - match: \n
               pop: 2
-            - include: scripted-effect-zone
+            - match: (#).*$\n?
+              scope: comment.line
+              pop: 2
+            - match: \$
+              scope: keyword.dolla
+              push:
+                - include: line_ending
+                - match: ({{valid_variable}})
+                  scope: variable.language.at.parameter
+                - match: \$
+                  scope: keyword.dolla
+                  pop: 1
             - match: ({{valid_variable}})
               scope: variable.parameter.remove.var
-              pop: 2
+              push:
+                - include: auto-generated-content
+                - match: (#).*$\n?
+                  scope: comment.line
+                  pop: 4
+                - match: \$
+                  scope: keyword.dolla
+                  push:
+                    - include: line_ending
+                    - match: ({{valid_variable}})
+                      scope: variable.language.at.parameter
+                    - match: \$
+                      scope: keyword.dolla
+                      pop: 4
+                - match: \n
+                  pop: 3
 
   save-scope:
     - match: save_scope_as
@@ -94,12 +149,35 @@ contexts:
             - match: \n
               pop: 2
             - match: (#).*$\n?
-              scope: comment
+              scope: comment.line
               pop: 2
-            - include: scripted-effect-zone
+            - match: \$
+              scope: keyword.dolla
+              push:
+                - include: line_ending
+                - match: ({{valid_variable}})
+                  scope: variable.language.at.parameter
+                - match: \$
+                  scope: keyword.dolla
+                  pop: 1
             - match: ({{valid_variable}})
-            - meta_content_scope: variable.parameter.function.vic
-              pop: 2
+              scope: entity.name.function.scope.declaration
+              push:
+                - include: auto-generated-content
+                - match: (#).*$\n?
+                  scope: comment.line
+                  pop: 4
+                - match: \$
+                  scope: keyword.dolla
+                  push:
+                    - include: line_ending
+                    - match: ({{valid_variable}})
+                      scope: variable.language.at.parameter
+                    - match: \$
+                      scope: keyword.dolla
+                      pop: 4
+                - match: \n
+                  pop: 3
 
   one-line-var-trigger:
     - match: has_variable|has_global_variable
@@ -109,10 +187,141 @@ contexts:
           push:
             - match: \n
               pop: 2
-            - include: scripted-effect-zone
+            - match: (#).*$\n?
+              scope: comment.line
+              pop: 2
+            - match: \$
+              scope: keyword.dolla
+              push:
+                - include: line_ending
+                - match: ({{valid_variable}})
+                  scope: variable.language.at.parameter
+                - match: \$
+                  scope: keyword.dolla
+                  pop: 1
             - match: ({{valid_variable}})
               scope: variable.parameter.trigger.usage
+              push:
+                - include: auto-generated-content
+                - match: (#).*$\n?
+                  scope: comment.line
+                  pop: 4
+                - match: \$
+                  scope: keyword.dolla
+                  push:
+                    - include: line_ending
+                    - match: ({{valid_variable}})
+                      scope: variable.language.at.parameter
+                    - match: \$
+                      scope: keyword.dolla
+                      pop: 4
+                - match: \n
+                  pop: 3
+
+  variable-definition-complex:
+    - match: set_(local_|global_)?variable
+      scope: keyword.effect
+      push:
+        - match: =\s?\{
+          push:
+            - match: (#).*$\n?
+              scope: comment.line
+            - match: \}
+              pop: 3
+            - match: name
+              scope: constant.numeric
+              push:
+                - match: \n
+                  pop: 3
+                - match: (#).*$\n?
+                  scope: comment.line
+                  pop: 3
+                - match: \$
+                  scope: keyword.dolla
+                  push:
+                    - include: line_ending
+                    - match: ({{valid_variable}})
+                      scope: variable.language.at.parameter
+                    - match: \$
+                      scope: keyword.dolla
+                      pop: 1
+                - match: ({{valid_variable}})
+                  scope: entity.name.function.var.declaration
+                  push:
+                    - include: auto-generated-content
+                    - match: (#).*$\n?
+                      scope: comment.line
+                      pop: 4
+                    - match: \$
+                      scope: keyword.dolla
+                      push:
+                        - include: line_ending
+                        - match: ({{valid_variable}})
+                          scope: variable.language.at.parameter
+                        - match: \$
+                          scope: keyword.dolla
+                          pop: 5
+                    - match: \n
+                      pop: 4
+        - match: =
+          push:
+            - match: \n
               pop: 2
+            - include: scripted-effect-zone
+            - match: ({{valid_variable}})
+              scope: entity.name.function.var.declaration
+              pop: 2
+        - match: \n
+          pop: 2
+
+  variable-usage-complex:
+    - match: (change|round|clamp)_(local_|global_)?variable
+      scope: keyword.effect
+      push:
+        - include: line_ending
+        - match: = \{\n?+
+          push:
+            - match: (#).*$\n?
+              scope: comment.line
+            - match: \}
+              pop: 3
+            - match: name
+              scope: constant.numeric
+              push:
+                - match: \n
+                  pop: 3
+                - match: (#).*$\n?
+                  scope: comment.line
+                  pop: 3
+                - match: \$
+                  scope: keyword.dolla
+                  push:
+                    - include: line_ending
+                    - match: ({{valid_variable}})
+                      scope: variable.language.at.parameter
+                    - match: \$
+                      scope: keyword.dolla
+                      pop: 1
+                - match: ({{valid_variable}})
+                  scope: variable.parameter.trigger.usage
+                  push:
+                    - include: auto-generated-content
+                    - match: (#).*$\n?
+                      scope: comment.line
+                      pop: 4
+                    - match: \$
+                      scope: keyword.dolla
+                      push:
+                        - include: line_ending
+                        - match: ({{valid_variable}})
+                          scope: variable.language.at.parameter
+                        - match: \$
+                          scope: keyword.dolla
+                          pop: 5
+                    - match: \n
+                      pop: 4
+        - match: \n
+          pop: 2
 
   trigger-block-start:
     - match: \b(visible|cancellation_trigger|should_auto_expand|country_type_change_alternatives|can_change_subject_type_from|valid_overlord_country_types|valid_subject_country_types|valid_overlord_ranks|valid_subject_ranks|can_change_subject_type_from|valid_overlord_country_types|unlocking_laws|valid_for_country|available_for_interest_group|is_visible|disallowing_laws|possible_political_movements|change_allowed_trigger|invalid|fail|is_shown_when_inactive|complete|pop_potential|ideologies|enable|will_propose|selectable_in_lens|will_break|additional_involvement_trigger|is_about_to_auto_break|should_auto_break|should_invalidate|potential|trigger|limit|possible|happened|valid|unlocking_technologies|production_method_groups|is_shown)\b
@@ -141,49 +350,23 @@ contexts:
           scope: meta.ai.bracket
           pop: true
 
-  variable-definition-complex:
-    - match: set_(local_|global_)?variable
-      scope: keyword.effect
+  bg-block-start:
+    - match: \b(remaining_undepleted)\b
+      scope: string.trigger
       push:
         - include: line_ending
-        - match: = \{\n?+
-          push:
-            - include: line_ending
-            - match: name
-              scope: constant.numeric
-              push:
-                - match: \n
-                  pop: 3
-                - match: ({{valid_variable}})
-                  scope: variable.parameter.function.var.declaration
-                  pop: 2
-                - include: scripted-effect-zone
-        - match: =
-          push:
-            - match: \n
-              pop: 2
-            - include: scripted-effect-zone
-            - match: ({{valid_variable}})
-              meta_content_scope: variable.parameter.function.var.declaration
-              pop: 2
+        - match: \{
+          scope: meta.bg.bracket
+          pop: true
 
-  variable-usage-complex:
-    - match: (change|round|clamp)_(local_|global_)?variable
+  char-trait-block-start:
+    - match: \b(create_character)\b
       scope: keyword.effect
       push:
         - include: line_ending
-        - match: = \{\n?+
-          push:
-            - include: line_ending
-            - match: name
-              scope: constant.numeric
-              push:
-                - match: \n
-                  pop: 3
-                - match: ({{valid_variable}})
-                  scope: variable.parameter.var.usage
-                  pop: 2
-                - include: scripted-effect-zone
+        - match: \{
+          scope: meta.char.trait.bracket
+          pop: true
 
   at-symbol:
     - match: (@)({{valid_variable}})
@@ -219,10 +402,12 @@ contexts:
           pop: true
 
   line_ending:
+    - include: comments
     - match: $\n
       pop: true
 
   line_ending_space:
+    - include: comments
     - match: $\n|\s
       pop: 2
 
@@ -237,7 +422,7 @@ contexts:
     - match: \b(Return type|on_character_ig_membership|weekly_effect|commander_usage|break_effect|accept_effect|on_start|on_enable|on_disable|on_war_begins|on_enact|on_activate|on_deactivate|add_war_goal|activate_production_methods|set_secret_goal|on_created|on_yearly_pulse|on_weekly_pulse|on_fail|on_invalid|on_timeout|on_monthly_pulse|on_complete|effect|immediate|option|after|when_taken)\b
       scope: keyword.effect
     # Triggers
-    - match: \b(dynamic_country_name|language_accepted|cooldown|clear_size_area|inheritable_construction|is_military|is_subsistence|hires_unemployed_only|subsidized|stateregion_max_level|created_by_trade_routes|land_usage|always_possible|capped_by_resources|economy_of_scale|auto_place_buildings|discoverable_resource|depletable_resource|pays_taxes|fired_pops_become_radical|can_use_slaves|timed_modifiers|fail|valid_country_types|general_modifier|admiral_modifier|role|earliest_usage_date|latest_usage_date|country_trigger|happened|filter|dna|enable_switch_sides|allow_negotiated_peace|initiator_can_add_war_goals|target_can_add_war_goals|is_alliance|additional_involvement_trigger|show_effect_in_tooltip|recipient_gets_income_transfer|income_transfer_based_on_recipient|check_acceptance_for_will_break|will_propose|actor_can_break|target_can_break|should_notify_third_parties|target_requires_approval_to_break|has_junior_participant|recipient_pays_maintenance|is_customs_union|subject_type|check_acceptance_for_will_propose|transfer_pact|reverse_pact|will_break|is_about_to_auto_break|should_auto_break|should_invalidate|requires_approval|can_use_obligations|mapmode|special_selection|special_selection|textured_emblem|technology_cost|era|capital_province|graphical_culture|ai_is_valid|is_valid|state_modifiers|country_modifiers|unlocking_production_methods|building_modifiers|ai_selection|production_methods|entry|notification_type|ideologies|pop_potential|enable|transfer_of_power|fixed_price|tradeable|category|war_goal|requires_interest_marker|mirror_war_goal|selectable_in_lens|modifier|valid|cost|male_common_first_names|female_common_first_names|common_last_names|male_noble_first_names|female_noble_first_names|noble_last_names|male_regal_first_names|female_regal_first_names|regal_last_names|valid_for_country|available_for_interest_group|can_enact|religious_acceptance_rule|tariff_modifier_very_low|tariff_modifier_low|tariff_modifier_medium|tariff_modifier_high|tariff_modifier_very_high|cultural_acceptance_rule|build_from_investment_pool|tax_modifier_very_low|tax_modifier_low|tax_modifier_medium|tax_modifier_high|tax_modifier_very_high|unlocking_laws|disallowing_laws|possible_political_movements|institution_modifier|recruits_combat_unit|has_max_level|canal|terrain_manipulator|should_auto_expand|city_type|levels_per_mesh|buildable|expandable|downsizeable|unique|locator|production_method_groups|unlocking_technologies|required_construction|can_build|character_modifier|command_modifier|country_modifier|interest_group_modifier|state_type|building_type|production_method|is_general|is_admiral|use_culture_states|required_num_states|birth_date|tag|origin|ai_will_do|ai_chance|weight_multiplier|technology|popup|highlighted_option|localization_key|first_valid|random_valid|can_deactivate|should_be_pinned_by_default|inheritable|progressbar|invalid|is_shown_when_inactive|trigger|limit|complete|ig_leader|owned_provinces|ideology|traits|potential|law|is_shown|possible|cultures|coa|subject_canton|coa_with_overlord_canton|colored_emblem|sub|fallback|qualifications)\b
+    - match: \b(required_techs_for_colonization|disabling_technologies|city|port|farm|mine|naval_exit_id|impassable|subsistence_building|arable_resources|capped_resources|resource|naval_exit_iddynamic_country_name|language_accepted|cooldown|clear_size_area|inheritable_construction|is_military|is_subsistence|hires_unemployed_only|subsidized|stateregion_max_level|created_by_trade_routes|land_usage|always_possible|capped_by_resources|economy_of_scale|auto_place_buildings|discoverable_resource|depletable_resource|pays_taxes|fired_pops_become_radical|can_use_slaves|timed_modifiers|fail|valid_country_types|general_modifier|admiral_modifier|role|earliest_usage_date|latest_usage_date|country_trigger|happened|filter|dna|enable_switch_sides|allow_negotiated_peace|initiator_can_add_war_goals|target_can_add_war_goals|is_alliance|additional_involvement_trigger|show_effect_in_tooltip|recipient_gets_income_transfer|income_transfer_based_on_recipient|check_acceptance_for_will_break|will_propose|actor_can_break|target_can_break|should_notify_third_parties|target_requires_approval_to_break|has_junior_participant|recipient_pays_maintenance|is_customs_union|subject_type|check_acceptance_for_will_propose|transfer_pact|reverse_pact|will_break|is_about_to_auto_break|should_auto_break|should_invalidate|requires_approval|can_use_obligations|mapmode|special_selection|special_selection|textured_emblem|technology_cost|era|capital_province|graphical_culture|ai_is_valid|is_valid|state_modifiers|country_modifiers|unlocking_production_methods|building_modifiers|ai_selection|production_methods|entry|notification_type|ideologies|pop_potential|enable|transfer_of_power|fixed_price|tradeable|category|war_goal|requires_interest_marker|mirror_war_goal|selectable_in_lens|modifier|valid|cost|male_common_first_names|female_common_first_names|common_last_names|male_noble_first_names|female_noble_first_names|noble_last_names|male_regal_first_names|female_regal_first_names|regal_last_names|valid_for_country|available_for_interest_group|can_enact|religious_acceptance_rule|tariff_modifier_very_low|tariff_modifier_low|tariff_modifier_medium|tariff_modifier_high|tariff_modifier_very_high|cultural_acceptance_rule|build_from_investment_pool|tax_modifier_very_low|tax_modifier_low|tax_modifier_medium|tax_modifier_high|tax_modifier_very_high|unlocking_laws|disallowing_laws|possible_political_movements|institution_modifier|recruits_combat_unit|has_max_level|canal|terrain_manipulator|should_auto_expand|city_type|levels_per_mesh|buildable|expandable|downsizeable|unique|locator|production_method_groups|unlocking_technologies|required_construction|can_build|character_modifier|command_modifier|country_modifier|interest_group_modifier|state_type|building_type|production_method|is_general|is_admiral|use_culture_states|required_num_states|birth_date|tag|origin|ai_will_do|ai_chance|weight_multiplier|technology|popup|highlighted_option|localization_key|first_valid|random_valid|can_deactivate|should_be_pinned_by_default|inheritable|progressbar|invalid|is_shown_when_inactive|trigger|limit|complete|ig_leader|owned_provinces|ideology|traits|potential|law|is_shown|possible|cultures|coa|subject_canton|coa_with_overlord_canton|colored_emblem|sub|fallback|qualifications)\b
       scope: string.trigger
     # Scripted Triggers that also have a hover doc entry
     - match: \b(MFE_has_building)\b
@@ -248,7 +433,6 @@ contexts:
     # Other Stuff
     - match: \b(events|random_events|R G B)\b
       scope: entity.name
-
   auto-generated-content:
     - match: \b(?i)(nand|nor|not|or|and)(?-i)\b
       scope: storage.type.scope

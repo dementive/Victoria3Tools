@@ -4,7 +4,7 @@
 	<key>name</key>
 	<string>Vic3 Gui</string>
 	<key>scope</key>
-	<string>text.vic.gui variable.parameter.gui, text.vic.gui entity.name.function.gui</string>
+	<string>text.vic.gui variable.parameter.gui, text.vic.gui entity.name.type.gui</string>
 	<key>settings</key>
 	<dict>
 		<key>showInSymbolList</key>

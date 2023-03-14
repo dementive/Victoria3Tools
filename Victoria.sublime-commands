@@ -1,6 +1,6 @@
 [
 	{
-		"caption": "Victoria 3 - Localize Current File",
+		"caption": "Victoria 3: Localize Current File",
 		"command": "localize_current_file",
 		"args": {
 
@@ -8,21 +8,21 @@
 	},
 	{ "command": "folder_handler", "caption": "Victoria 3 - Fold..." },
 	{
-		"caption": "Victoria 3 - Browse Videos",
+		"caption": "Victoria 3: Browse Videos",
 		"command": "browse_bink_videos",
 		"args": {
 
 		},
 	},
 	{
-		"caption": "Victoria 3 - Browse Event Sounds",
+		"caption": "Victoria 3: Browse Event Sounds",
 		"command": "browse_event_sound",
 		"args": {
 
 		},
 	},
 	{
-		"caption": "Victoria 3 - Reload plugin objects and regenerate syntax",
+		"caption": "Victoria 3: Reload plugin objects and regenerate syntax",
 		"command": "v3_reload_plugin",
 		"args": {
 
