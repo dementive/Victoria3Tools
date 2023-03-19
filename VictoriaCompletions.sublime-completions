@@ -1057,6 +1057,6 @@
 			"contents": "culture",
 			"details": "Scope to pop's or character's culture",
 			"kind": ["namespace", "S", "Scope"]
-		},}
+		},
 	]
 }

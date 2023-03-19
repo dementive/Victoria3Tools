@@ -413,7 +413,7 @@ contexts:
 
   manually-entered-content:
     # Essential Scipt Functions
-    - match: \b(triggered_desc|minor_left_icon|minor_right_icon|right_icon|namespace|parent_group|default_building|chance|mode|adjective|default|popup_name|male_ruler|female_ruler|male_heir|female_heir|ethnicities|ai_weight|group|building_group|entity_not_constructed|city_gfx_interactions|entity_under_construction|entity_constructed|gui_window|left_icon|base|progress|status_desc|progress_desc|how_tutorial|why_tutorial|timeout|weight|first_name|last_name|texture|icon|placement|title|desc|flavor|event_image|duration|default_option|months|days|years|hidden|id|text|log_loc_errors|name|country_type|tier|flag_definition|allow_overlord_canton|order_by|qualifications_growth_desc)\b
+    - match: \b(center_icon|triggered_desc|minor_left_icon|minor_right_icon|right_icon|namespace|parent_group|default_building|chance|mode|adjective|default|popup_name|male_ruler|female_ruler|male_heir|female_heir|ethnicities|ai_weight|group|building_group|entity_not_constructed|city_gfx_interactions|entity_under_construction|entity_constructed|gui_window|left_icon|base|progress|status_desc|progress_desc|how_tutorial|why_tutorial|timeout|weight|first_name|last_name|texture|icon|placement|title|desc|flavor|event_image|duration|default_option|months|days|years|hidden|id|text|log_loc_errors|name|country_type|tier|flag_definition|allow_overlord_canton|order_by|qualifications_growth_desc)\b
       scope: constant.numeric
     # Math/Sound/Video
     - match: \b(range|factor|percent|nearest|multiplier|amount|add|subtract|max|min|round|ceiling|floor|divide|modulo|multiply|divide|video|on_created_soundeffect|on_opened_soundeffect|integer_range|clicksound)\b

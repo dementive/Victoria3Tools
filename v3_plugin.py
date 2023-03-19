@@ -698,7 +698,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					],
 					flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
 				)
-			return None
+		return None
 
 	# Get the index of a closing bracket in a string given the starting brackets index
 	def getIndex(self, string, index):
