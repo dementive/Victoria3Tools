@@ -324,7 +324,7 @@ contexts:
           pop: 2
 
   trigger-block-start:
-    - match: \b(visible|cancellation_trigger|should_auto_expand|country_type_change_alternatives|can_change_subject_type_from|valid_overlord_country_types|valid_subject_country_types|valid_overlord_ranks|valid_subject_ranks|can_change_subject_type_from|valid_overlord_country_types|unlocking_laws|valid_for_country|available_for_interest_group|is_visible|disallowing_laws|possible_political_movements|change_allowed_trigger|invalid|fail|is_shown_when_inactive|complete|pop_potential|ideologies|enable|will_propose|selectable_in_lens|will_break|additional_involvement_trigger|is_about_to_auto_break|should_auto_break|should_invalidate|potential|trigger|limit|possible|happened|valid|unlocking_technologies|production_method_groups|is_shown)\b
+    - match: \b(show_as_unavailable|visible|cancellation_trigger|should_auto_expand|country_type_change_alternatives|can_change_subject_type_from|valid_overlord_country_types|valid_subject_country_types|valid_overlord_ranks|valid_subject_ranks|can_change_subject_type_from|valid_overlord_country_types|unlocking_laws|valid_for_country|available_for_interest_group|is_visible|disallowing_laws|possible_political_movements|change_allowed_trigger|invalid|fail|is_shown_when_inactive|complete|pop_potential|ideologies|enable|will_propose|selectable_in_lens|will_break|additional_involvement_trigger|is_about_to_auto_break|should_auto_break|should_invalidate|potential|trigger|limit|possible|happened|valid|unlocking_technologies|production_method_groups|is_shown)\b
       scope: string.trigger.block.start
       push:
         - include: line_ending

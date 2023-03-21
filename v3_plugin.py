@@ -6,7 +6,7 @@ import webbrowser
 import threading
 import subprocess
 from collections import deque
-from .jomini import GameObjectBase
+from .jomini import GameObjectBase, PdxScriptObject
 from .Utilities.game_data import GameData
 
 # ----------------------------------
@@ -567,7 +567,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 			return None
 
 		try:
-			if view.syntax().name != "Victoria Script":
+			if view.syntax().name != "Victoria Script" and view.syntax().name != "PdxPython":
 				return None
 		except AttributeError:
 			return None
@@ -917,7 +917,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 			return
 
 		try:
-			if view.syntax().name != "Victoria Script":
+			if view.syntax().name != "Victoria Script" and view.syntax().name != "PdxPython":
 				return
 		except AttributeError:
 			return
@@ -1628,14 +1628,14 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 			return
 
 		try:
-			if view.syntax().name == "Victoria Script" or view.syntax().name == "Victoria Gui":
+			if view.syntax().name == "Victoria Script" or view.syntax().name == "PdxPython":
 				pass
 			else:
 				return
 		except AttributeError:
 			return
 
-		if view.syntax().name == "Victoria Script":
+		if view.syntax().name == "Victoria Script" or view.syntax().name == "PdxPython":
 			if settings.get("DocsHoverEnabled") == True:
 				if view.match_selector(point, "keyword.effect"):
 					show_hover_docs(view, point, "keyword.effect", GameData.EffectsList)
@@ -1691,7 +1691,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 					show_sound_menu = False
 
 		# Texture popups can happen for both script and gui files
-		if view.syntax().name == "Victoria Script" or view.syntax().name == "Victoria Gui":
+		if view.syntax().name == "Victoria Script" or view.syntax().name == "Victoria Gui" or view.syntax().name == "PdxPython":
 			if settings.get("TextureOpenPopup") == True:
 				posLine = view.line(point)
 				if ".dds" in view.substr(posLine):
@@ -1851,7 +1851,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 		if header == "Saved Scope" or header == "Saved Variable":
 			for win in sublime.windows():
 				for i in [v for v in win.views() if v and v.file_name()]:
-					if i.file_name().endswith(".txt"):
+					if i.file_name().endswith(".txt") or i.file_name().endswith(".py"):
 						variables = [x for x in i.find_by_selector("entity.name.function.var.declaration") if i.substr(x) == PdxObject.key]
 						variables.extend([x for x in i.find_by_selector("entity.name.function.scope.declaration") if i.substr(x) == PdxObject.key])
 						for r in variables:
@@ -1888,7 +1888,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 		ref = ""
 		for win in sublime.windows():
 			for i in [v for v in win.views() if v and v.file_name()]:
-				if i.file_name().endswith(".txt"):
+				if i.file_name().endswith(".txt") or i.file_name().endswith(".py"):
 					view_region = sublime.Region(0, i.size())
 					view_str = i.substr(view_region)
 					for j, line in enumerate(view_str.splitlines()):
