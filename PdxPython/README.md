@@ -24,4 +24,4 @@ string = Template('''pdx
 ''').render(variable=variable)
 ```
 
-![Screenshot](PdxPython/images/image.png)
+![Screenshot](images/image.png)
