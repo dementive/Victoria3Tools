@@ -5,8 +5,9 @@ import re
 import webbrowser
 import threading
 import subprocess
+import time
 from collections import deque
-from .jomini import GameObjectBase, PdxScriptObject
+from .jomini import GameObjectBase, PdxScriptObjectType, PdxScriptObject
 from .Utilities.game_data import GameData
 
 # ----------------------------------
@@ -16,10 +17,69 @@ settings = None
 v3_files_path = None
 v3_mod_files = None
 
-
 # Setup Paths for Objects, get set on plugin_loaded
 # This is the unified paths with all mod paths + base game path at the end
 file_paths = []
+
+# Gui Game Class implementations
+
+
+class GuiType(GameObjectBase):
+	def __init__(self):
+		super().__init__(file_paths)
+		self.get_data("gui")
+
+	def get_pdx_object_list(self, path: str) -> PdxScriptObjectType:
+		obj_list = list()
+		for dirpath, dirnames, filenames in os.walk(path):
+			for filename in [f for f in filenames if f.endswith(".gui")]:
+				if filename in self.ignored_files:
+					continue
+				file_path = os.path.join(dirpath, filename)
+				if self.included_files:
+					if filename not in self.included_files:
+						continue
+				with open(file_path, "r", encoding='utf-8-sig') as file:
+					for i, line in enumerate(file):
+						if self.should_read(line):
+							found_item = re.search("type\s([A-Za-z_][A-Za-z_0-9]*)\s?=", line)
+							if found_item and found_item.groups()[0]:
+								found_item = found_item.groups()[0]
+								obj_list.append(PdxScriptObject(found_item, file_path, i + 1))
+		return PdxScriptObjectType(obj_list)
+
+	def should_read(self, x: str) -> bool:
+		# Check if a line should be read
+		return re.search("type\s[A-Za-z_][A-Za-z_0-9]*\s?=", x)
+
+
+class GuiTemplate(GameObjectBase):
+	def __init__(self):
+		super().__init__(file_paths)
+		self.get_data("gui")
+
+	def get_pdx_object_list(self, path: str) -> PdxScriptObjectType:
+		obj_list = list()
+		for dirpath, dirnames, filenames in os.walk(path):
+			for filename in [f for f in filenames if f.endswith(".gui")]:
+				if filename in self.ignored_files:
+					continue
+				file_path = os.path.join(dirpath, filename)
+				if self.included_files:
+					if filename not in self.included_files:
+						continue
+				with open(file_path, "r", encoding='utf-8-sig') as file:
+					for i, line in enumerate(file):
+						if self.should_read(line):
+							found_item = re.search("template\s([A-Za-z_][A-Za-z_0-9]*)", line)
+							if found_item and found_item.groups()[0]:
+								found_item = found_item.groups()[0]
+								obj_list.append(PdxScriptObject(found_item, file_path, i + 1))
+		return PdxScriptObjectType(obj_list)
+
+	def should_read(self, x: str) -> bool:
+		# Check if a line should be read
+		return re.search("template\s[A-Za-z_][A-Za-z_0-9]*", x)
 
 # Victoria 3 Game Object Class implementations
 
@@ -243,6 +303,10 @@ class V3StateRegion(GameObjectBase):
 # Game Data class
 GameData = GameData()
 
+# Gui globals
+
+gui_types = gui_templates = ""
+
 # Global Object Variables that get set on plugin_loaded
 ai_strats = bgs = buildings = char_traits = cultures = mods = decrees = diplo_actions = diplo_plays = ""
 game_rules = goods = gov_types = ideologies = institutions = ig_traits = igs = jes = law_groups = laws = ""
@@ -255,7 +319,6 @@ script_values = scripted_effects = scripted_modifiers = scripted_triggers = ""
 
 
 def load_game_objects():
-	import time  # Use time to optimize thread count when adding new objects
 	t0 = time.time()
 
 	def load_first():
@@ -329,8 +392,38 @@ def load_game_objects():
 	# Write syntax data after creating objects so they actually exist when writing
 	sublime.set_timeout_async(lambda: write_data_to_syntax(), 0)
 
+	# Load gui objects after script objects
+	sublime.set_timeout_async(lambda: load_gui_objects(), 0)
+
 	t1 = time.time()
 	print("Time taken to load Victoria 3 objects: {:.3f} seconds".format(t1 - t0))
+
+
+def load_gui_objects():
+	# t0 = time.time()
+
+	def load_first():
+		global gui_types
+		gui_types = GuiType()
+
+	def load_second():
+		global gui_templates
+		gui_templates = GuiTemplate()
+		gui_templates.remove("inside")
+		gui_templates.remove("you")
+		gui_templates.remove("can")
+		gui_templates.remove("but")
+		gui_templates.remove("on")
+		gui_templates.remove("within")
+		gui_templates.remove("names")
+
+	thread1 = threading.Thread(target=load_first)
+	thread2 = threading.Thread(target=load_second)
+	thread1.start()
+	thread2.start()
+
+	# t1 = time.time()
+	# print("Time taken to load pdx GUI objects: {:.3f} seconds".format(t1 - t0))
 
 
 def plugin_loaded():
@@ -472,6 +565,10 @@ KIND_AI_STRAT = (sublime.KIND_ID_MARKUP, "A", "Ai Strategy")
 KIND_BUILDING = (sublime.KIND_ID_VARIABLE, "B", "Building")
 KIND_BUILDING_GROUP = (sublime.KIND_ID_VARIABLE, "B", "Building Group")
 KIND_CHAR_TRAIT = (sublime.KIND_ID_VARIABLE, "C", "Character Trait")
+KIND_CULTURE = (sublime.KIND_ID_NAMESPACE, "C", "Culture")
+KIND_DECREE = (sublime.KIND_ID_MARKUP, "D", "Decree")
+KIND_DIPLO_ACTION = (sublime.KIND_ID_SNIPPET, "D", "Diplomatic Action")
+KIND_DIPLO_PLAY = (sublime.KIND_ID_SNIPPET, "D", "Diplomatic Play")
 
 FIND_SIMPLE_DECLARATION_RE = "\s?=\s?(\")?"
 FIND_ERROR_RE = "\s?=\s?\"?([A-Za-z_][A-Za-z_0-9]*)\"?"
@@ -494,11 +591,19 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 		self.show_b = False
 		self.show_bg = False
 		self.show_c_traits = False
-
 		self.show_ai_views = []
 		self.show_b_views = []
 		self.show_bg_views = []
 		self.show_c_traits_views = []
+
+		self.culture = False
+		self.culture_views = []
+		self.decree = False
+		self.decree_views = []
+		self.diplo_action = False
+		self.diplo_action_views = []
+		self.diplo_play = False
+		self.diplo_play_views = []
 
 		self.error_words = []
 
@@ -533,6 +638,19 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 		if self.show_c_traits:
 			self.show_c_traits = False
 			self.show_c_traits_views.append(vid)
+		if self.culture:
+			self.culture = False
+			self.culture_views.append(vid)
+		if self.decree:
+			self.decree = False
+			self.decree_views.append(vid)
+
+		if self.diplo_action:
+			self.diplo_action = False
+			self.diplo_action_views.append(vid)
+		if self.diplo_play:
+			self.diplo_play = False
+			self.diplo_play_views.append(vid)
 
 	def on_activated_async(self, view):
 		vid = view.id()
@@ -560,6 +678,20 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 		if self.show_c_traits_views:
 			self.show_c_traits = True
 			self.show_c_traits_views.remove(vid)
+
+		if self.culture_views:
+			self.culture = True
+			self.culture_views.remove(vid)
+		if self.decree_views:
+			self.decree = True
+			self.decree_views.remove(vid)
+
+		if self.diplo_action_views:
+			self.diplo_action = True
+			self.diplo_action_views.remove(vid)
+		if self.diplo_play_views:
+			self.diplo_play = True
+			self.diplo_play_views.remove(vid)
 
 	def on_query_completions(self, view, prefix, locations):
 
@@ -638,6 +770,70 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 						details=" "
 					)
 					for key in sorted(ct)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.culture:
+			self.culture = False
+			cu = cultures.keys()
+			cu = sorted(cu)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=KIND_CULTURE,
+						details=" "
+					)
+					for key in sorted(cu)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.decree:
+			self.decree = False
+			de = decrees.keys()
+			de = sorted(de)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=KIND_DECREE,
+						details=" "
+					)
+					for key in sorted(de)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.diplo_action:
+			self.diplo_action = False
+			da = diplo_actions.keys()
+			da = sorted(da)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=KIND_DIPLO_ACTION,
+						details=" "
+					)
+					for key in sorted(da)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.diplo_play:
+			self.diplo_play = False
+			dp = diplo_plays.keys()
+			dp = sorted(dp)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=KIND_DIPLO_PLAY,
+						details=" "
+					)
+					for key in sorted(dp)
 				],
 				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
 			)
@@ -802,6 +998,10 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 		self.show_b = False
 		self.show_bg = False
 		self.show_c_traits = False
+		self.culture = False
+		self.decree = False
+		self.diplo_action = False
+		self.diplo_play = False
 
 	def check_for_simple_completions(self, view, point):
 		"""
@@ -834,10 +1034,16 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 			"is_building_group", "has_potential_resource", "building_group"
 		]
 		char_traits_list = ["add_trait", "remove_trait", "has_trait"]
-
+		culture_list = [
+			"has_culture_graphics", "country_has_primary_culture",
+			"has_pop_culture", "is_homeland", "add_homeland", "remove_homeland", "culture"
+		]
+		decree_list = ["has_decree"]
+		diplo_action_list = ["is_diplomatic_action_type"]
+		diplo_play_list = ["is_diplomatic_play_type"]
 		# Ai Strats
 		for i in ai_list:
-			# TODO - move errors into validator and check for them on save
+			# Error checking if I end up wanting it
 			# match = re.search(f"{i}{FIND_ERROR_RE}", line)
 			# if match and match.groups()[0] not in keys:
 			# 	word = match.groups()[0]
@@ -899,17 +1105,101 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					self.show_c_traits = True
 					view.run_command("auto_complete")
 					break
+		# Culture Scopes
+		if "cu:" in line:
+			idx = line.index("cu:") + view.line(point).a + 3
+			if idx == point:
+				self.culture = True
+				view.run_command("auto_complete")
+		# Cultures
+		for i in culture_list:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.culture = True
+					view.run_command("auto_complete")
+					break
+		# Decree Scopes
+		if "decree_cost:" in line:
+			idx = line.index("decree_cost:") + view.line(point).a + 12
+			if idx == point:
+				self.decree = True
+				view.run_command("auto_complete")
+		# Decrees
+		for i in decree_list:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.decree = True
+					view.run_command("auto_complete")
+					break
+		# Diplo Actions
+		for i in diplo_action_list:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.diplo_action = True
+					view.run_command("auto_complete")
+					break
+		# Diplo Plays
+		for i in diplo_play_list:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.diplo_play = True
+					view.run_command("auto_complete")
+					break
 
 	def check_for_complex_completions(self, view, point):
 		view_str = view.substr(sublime.Region(0, view.size()))
 
 		start_bg_brackets = view.find_by_selector("meta.bg.bracket")
+		start_da_brackets = view.find_by_selector("meta.da.bracket")
+		start_dp_brackets = view.find_by_selector("meta.dp.bracket")
+
 		for br in start_bg_brackets:
+			print(start_bg_brackets)
 			i = sublime.Region(br.a, self.getIndex(view_str, br.a))
-			bg_point = (view.substr(i).index("type = ") + 7) + i.a  # add 7 = amount of chars in "type = ", so cursor ends up at end of statement
-			if bg_point == point:
-				self.show_bg = True
-				view.run_command("auto_complete")
+			s = view.substr(i)
+			if "type = " in s:
+				fpoint = (s.index("type = ") + 7) + i.a  # add 7 = amount of chars in "type = ", so cursor ends up at end of statement
+				if fpoint == point:
+					self.show_bg = True
+					view.run_command("auto_complete")
+
+		for br in start_da_brackets:
+			i = sublime.Region(br.a, self.getIndex(view_str, br.a))
+			s = view.substr(i)
+			if "type = " in s:
+				fpoint = (view.substr(i).index("type = ") + 7) + i.a
+				if fpoint == point:
+					self.diplo_action = True
+					view.run_command("auto_complete")
+
+		for br in start_dp_brackets:
+			i = sublime.Region(br.a, self.getIndex(view_str, br.a))
+			s = view.substr(i)
+			if "type = " in s:
+				fpoint = (view.substr(i).index("type = ") + 7) + i.a
+				if fpoint == point:
+					self.diplo_play = True
+					view.run_command("auto_complete")
 
 	def on_selection_modified(self, view):
 
@@ -1628,12 +1918,15 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 			return
 
 		try:
-			if view.syntax().name == "Victoria Script" or view.syntax().name == "PdxPython":
+			if view.syntax().name == "Victoria Script" or view.syntax().name == "PdxPython" or view.syntax().name == "Victoria Gui":
 				pass
 			else:
 				return
 		except AttributeError:
 			return
+
+		if view.syntax().name == "Victoria Gui":
+			sublime.set_timeout_async(lambda: self.do_gui_hover_async(view, point), 0)
 
 		if view.syntax().name == "Victoria Script" or view.syntax().name == "PdxPython":
 			if settings.get("DocsHoverEnabled") == True:
@@ -1720,6 +2013,18 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 						texture_name = view.substr(view.word(texture_raw_end.a - 1))
 						self.show_texture_hover_popup(view, point, texture_name, full_texture_path)
 
+	def do_gui_hover_async(self, view, point):
+		word = view.substr(view.word(point))
+
+		if view.match_selector(point, "comment.line"):
+			return
+
+		if gui_templates.contains(word):
+			self.show_gui_popup(view, point, word, gui_templates.access(word), "Gui Template")
+
+		if gui_types.contains(word):
+			self.show_gui_popup(view, point, word, gui_types.access(word), "Gui Type")
+
 	def do_hover_async(self, view, point):
 		word_region = view.word(point)
 		word = view.substr(word_region)
@@ -1729,7 +2034,13 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 		if view.match_selector(point, "comment.line"):
 			return
 
-		if view.match_selector(point, "variable.parameter.scope.usage") or view.match_selector(point, "variable.parameter.remove.var") or view.match_selector(point, "variable.parameter.trigger.usage") or view.match_selector(point, "variable.parameter.var.usage"):
+		if view.match_selector(point, "entity.name.function.scope.declaration"):
+			self.show_popup_default(view, point, word, PdxScriptObject(word, fname, current_line_num), "Scope Declaration")
+
+		if view.match_selector(point, "entity.name.function.var.declaration"):
+			self.show_popup_default(view, point, word, PdxScriptObject(word, fname, current_line_num), "Variable Declaration")
+
+		if view.match_selector(point, "variable.parameter.scope.usage") or view.match_selector(point, "variable.parameter.remove.var") or view.match_selector(point, "variable.parameter.trigger.usage") or view.match_selector(point, "variable.parameter.variable.usage"):
 			if view.match_selector(point, "variable.parameter.scope.usage"):
 				self.show_popup_default(view, point, word, PdxScriptObject(word, fname, current_line_num), "Saved Scope")
 			else:
@@ -1841,6 +2152,69 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 		if state_regions.contains(word):
 			self.show_popup_default(view, point, word, state_regions.access(word), "State Region")
 
+	def show_gui_popup(self, view, point, word, PdxObject, header):
+		word_line_num = view.rowcol(point)[0] + 1
+		word_file = view.file_name().rpartition("\\")[2]
+		definition = ""
+
+		if word_line_num != PdxObject.line:
+			definition = f"<p><b>Definition of&nbsp;&nbsp;</b><tt class=\"variable\">{PdxObject.key}</tt></p>"
+			goto_args = {"path": PdxObject.path, "line": PdxObject.line}
+			goto_url = sublime.command_url("goto_script_object_definition", goto_args)
+			definition += """<a href="%s" title="Open %s and goto line %d">%s:%d</a>&nbsp;"""%(goto_url, PdxObject.path.rpartition("\\")[2], PdxObject.line, PdxObject.path.rpartition("\\")[2], PdxObject.line)
+			goto_right_args = {"path": PdxObject.path, "line": PdxObject.line}
+			goto_right_url = sublime.command_url("goto_script_object_definition_right", goto_right_args)
+			definition += """<a class="icon" href="%s"title="Open Tab to Right of Current Selection">◨</a>&nbsp;<br>"""%(goto_right_url)
+
+		references = []
+		ref = ""
+		for win in sublime.windows():
+			for i in [v for v in win.views() if v and v.file_name()]:
+				if i.file_name().endswith(".gui"):
+					view_region = sublime.Region(0, i.size())
+					view_str = i.substr(view_region)
+					for j, line in enumerate(view_str.splitlines()):
+						definition_found = False
+						if PdxObject.key in line:
+							filename = i.file_name().rpartition("\\")[2]
+							line_num = j + 1
+							if word_line_num == line_num and word_file == filename:
+								# Don't do current word
+								continue
+							elif line_num == PdxObject.line and i.file_name() == PdxObject.path:
+								# Don't do definition
+								continue
+							if not definition_found:
+								references.append(f"{i.file_name()}|{line_num}")
+
+		if references:
+			ref = f"<p><b>References to&nbsp;&nbsp;</b><tt class=\"variable\">{PdxObject.key}</tt></p>"
+			for j, i in enumerate(references):
+				if j > 10:
+					break
+				fname = i.split("|")[0]
+				shortname = fname.rpartition("\\")[2]
+				line = i.split("|")[1]
+				goto_args = { "path": fname, "line": line}
+				goto_url = sublime.command_url("goto_script_object_definition", goto_args)
+				ref += """<a href="%s" title="Open %s and goto line %s">%s:%s</a>&nbsp;"""%(goto_url, shortname, line, shortname, line)
+				goto_right_args = {"path": fname, "line": line}
+				goto_right_url = sublime.command_url("goto_script_object_definition_right", goto_right_args)
+				ref += """<a class="icon" href="%s"title="Open Tab to Right of Current Selection">◨</a>&nbsp;<br>"""%(goto_right_url)
+
+		link = definition + ref
+		if link:
+			hoverBody = """
+				<body id="vic-body">
+					<style>%s</style>
+					<h1>%s</h1>
+					%s
+				</body>
+			""" %(css_basic_style, header, link)
+
+			view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY |sublime.COOPERATE_WITH_AUTO_COMPLETE |sublime.HIDE_ON_CHARACTER_EVENT),
+							location=point, max_width=1024)
+
 	def show_popup_default(self, view, point, word, PdxObject, header):
 
 		word_line_num = view.rowcol(point)[0] + 1
@@ -1893,7 +2267,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 					view_str = i.substr(view_region)
 					for j, line in enumerate(view_str.splitlines()):
 						definition_found = False
-						if PdxObject.key in line and "#" not in line:
+						if PdxObject.key in line:
 							filename = i.file_name().rpartition("\\")[2]
 							line_num = j+1
 							if definitions:

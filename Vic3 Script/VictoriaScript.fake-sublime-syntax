@@ -23,12 +23,15 @@ contexts:
     - include: remove-var
     - include: one-line-var-trigger
     - include: scope-usage
+    - include: variable-usage
     # Blocks
     - include: trigger-block-start
     - include: effect-block-start
     - include: ai-block-start
     - include: bg-block-start
     - include: char-trait-block-start
+    - include: diplo-action-block-start
+    - include: diplo-play-block-start
 
     - include: manually-entered-content
     - include: scripted-trigger-event-declaration
@@ -61,9 +64,47 @@ contexts:
           scope: keyword.dolla
           pop: 3
 
+  variable-usage:
+    - match: \bvar\b|\blocal_var\b|\bglobal_var\b
+      scope: storage.type.scope
+      push:
+        - include: line_ending_space
+        - match: ':'
+          push:
+            - match: \n|\s
+              pop: 2
+            - match: (#).*$\n?
+              scope: comment.line
+              pop: 2
+            - match: \$
+              scope: keyword.dolla
+              push:
+                - include: line_ending
+                - match: ({{valid_variable}})
+                  scope: variable.language.at.parameter
+                - match: \$
+                  scope: keyword.dolla
+                  pop: 1
+            - match: ({{valid_variable}})
+              scope: variable.parameter.variable.usage
+              push:
+                - match: (#).*$\n?
+                  scope: comment.line
+                  pop: 4
+                - match: \$
+                  scope: keyword.dolla
+                  push:
+                    - include: line_ending
+                    - match: ({{valid_variable}})
+                      scope: variable.language.at.parameter
+                    - match: \$
+                      scope: keyword.dolla
+                      pop: 4
+                - match: \n|\s|\.
+                  pop: 3
 
   scope-usage:
-    - match: \bscope\b|\bvar\b|\blocal_var\b|\bglobal_var\b
+    - match: \bscope\b
       scope: storage.type.scope
       push:
         - include: line_ending_space
@@ -366,6 +407,24 @@ contexts:
         - include: line_ending
         - match: \{
           scope: meta.char.trait.bracket
+          pop: true
+
+  diplo-action-block-start:
+    - match: \b(can_afford_diplomatic_action|has_diplomatic_pact|create_diplomatic_pact|remove_diplomatic_pact)\b
+      scope: string.trigger
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.da.bracket
+          pop: true
+
+  diplo-play-block-start:
+    - match: \b(create_diplomatic_play)\b
+      scope: string.trigger
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.dp.bracket
           pop: true
 
   at-symbol:

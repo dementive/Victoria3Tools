@@ -55,7 +55,7 @@ contexts:
 
   comments:
     - match: (#).*$\n?
-      scope: comment
+      scope: comment.line
 
   at-symbol:
     - match: (@)({{valid_variable}})
