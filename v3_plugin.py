@@ -497,8 +497,12 @@ def write_data_to_syntax():
 	lines += write_syntax(terrains.keys(), "Terrains", "entity.name.terrain")
 	lines += write_syntax(state_regions.keys(), "State Regions", "entity.name.state.region")
 
-	with open(real_syntax_path, "w", encoding="utf-8") as file:
-		file.write(lines)
+	with open(real_syntax_path, "r") as file:
+		real_lines = file.read()
+
+	if real_lines != lines:
+		with open(real_syntax_path, "w", encoding="utf-8") as file:
+			file.write(lines)
 
 
 def write_syntax(li, header, scope):
@@ -539,6 +543,10 @@ css_basic_style = """
 		margin: 0;
 		padding-bottom: 0.05rem;
 	}
+	h2 {
+		font-size: 1.0rem;
+		margin: 0;
+	}
 	a {
 		font-size: 1.0rem;
 	}
@@ -547,6 +555,14 @@ css_basic_style = """
 	}
 	div {
 		padding: 0.1rem;
+	}
+	.icon {
+		text-decoration: none;
+		font-size: 1em;
+	}
+	.variable {
+		font-size: 1.0rem;
+		color: rgb(150, 150, 150);
 	}
 """
 
@@ -569,6 +585,26 @@ KIND_CULTURE = (sublime.KIND_ID_NAMESPACE, "C", "Culture")
 KIND_DECREE = (sublime.KIND_ID_MARKUP, "D", "Decree")
 KIND_DIPLO_ACTION = (sublime.KIND_ID_SNIPPET, "D", "Diplomatic Action")
 KIND_DIPLO_PLAY = (sublime.KIND_ID_SNIPPET, "D", "Diplomatic Play")
+KIND_GAME_RULE = (sublime.KIND_ID_FUNCTION, "G", "Game Rule")
+KIND_GOOD = (sublime.KIND_ID_NAMESPACE, "G", "Trade Good")
+KIND_GOV_TYPE = (sublime.KIND_ID_SNIPPET, "G", "Government Type")
+KIND_IDEOLOGY = (sublime.KIND_ID_NAVIGATION, "I", "Ideology")
+KIND_INSTITUTION = (sublime.KIND_ID_NAVIGATION, "I", "Institution")
+KIND_INTEREST_GROUP = (sublime.KIND_ID_MARKUP, "I", "Interest Group")
+KIND_JOURNAL = (sublime.KIND_ID_TYPE, "J", "Journal Entry")
+KIND_LAW_GROUP = (sublime.KIND_ID_VARIABLE, "L", "Law Group")
+KIND_LAW = (sublime.KIND_ID_VARIABLE, "L", "Law")
+KIND_MODIFIER = (sublime.KIND_ID_SNIPPET, "M", "Modifier")
+KIND_PARTY = (sublime.KIND_ID_TYPE, "P", "Political Party")
+KIND_POP_TYPE = (sublime.KIND_ID_VARIABLE, "P", "Pop Type")
+KIND_PRODUCTION_METHOD = (sublime.KIND_ID_NAVIGATION, "P", "Production Method")
+KIND_RELIGION = (sublime.KIND_ID_NAMESPACE, "R", "Religion")
+KIND_STATE_TRAIT = (sublime.KIND_ID_VARIABLE, "S", "State Trait")
+KIND_STRATEGIC_REGION = (sublime.KIND_ID_SNIPPET, "S", "Strategic Region")
+KIND_SUBJECT_TYPE = (sublime.KIND_ID_TYPE, "S", "Subject Type")
+KIND_TECH = (sublime.KIND_ID_VARIABLE, "T", "Technology")
+KIND_TERRAIN = (sublime.KIND_ID_NAVIGATION, "T", "Terrain")
+KIND_STATE_REGION = (sublime.KIND_ID_NAMESPACE, "S", "State Region")
 
 FIND_SIMPLE_DECLARATION_RE = "\s?=\s?(\")?"
 FIND_ERROR_RE = "\s?=\s?\"?([A-Za-z_][A-Za-z_0-9]*)\"?"
@@ -595,7 +631,6 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 		self.show_b_views = []
 		self.show_bg_views = []
 		self.show_c_traits_views = []
-
 		self.culture = False
 		self.culture_views = []
 		self.decree = False
@@ -604,6 +639,47 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 		self.diplo_action_views = []
 		self.diplo_play = False
 		self.diplo_play_views = []
+		self.game_rule = False
+		self.game_rule_views = []
+		self.good = False
+		self.good_views = []
+		self.gov_type = False
+		self.gov_type_views = []
+		self.ideology = False
+		self.ideology_views = []
+		self.ig = False
+		self.ig_views = []
+		self.institution = False
+		self.institution_views = []
+		self.journal = False
+		self.journal_views = []
+		self.law_group = False
+		self.law_group_views = []
+		self.law = False
+		self.law_views = []
+		self.modifier = False
+		self.modifier_views = []
+		self.party = False
+		self.party_views = []
+		self.pop_type = False
+		self.pop_type_views = []
+		self.pm = False
+		self.pm_views = []
+		self.pop_type_views = []
+		self.religion = False
+		self.religion_views = []
+		self.state_trait = False
+		self.state_trait_views = []
+		self.strategic_region = False
+		self.strategic_region_views = []
+		self.subject_type = False
+		self.subject_type_views = []
+		self.tech = False
+		self.tech_views = []
+		self.terrain = False
+		self.terrain_views = []
+		self.state_region = False
+		self.state_region_views = []
 
 		self.error_words = []
 
@@ -644,13 +720,72 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 		if self.decree:
 			self.decree = False
 			self.decree_views.append(vid)
-
 		if self.diplo_action:
 			self.diplo_action = False
 			self.diplo_action_views.append(vid)
 		if self.diplo_play:
 			self.diplo_play = False
 			self.diplo_play_views.append(vid)
+		if self.game_rule:
+			self.game_rule = False
+			self.game_rule_views.append(vid)
+		if self.good:
+			self.good = False
+			self.good_views.append(vid)
+		if self.gov_type:
+			self.gov_type = False
+			self.gov_type_views.append(vid)
+		if self.ideology:
+			self.ideology = False
+			self.ideology_views.append(vid)
+		if self.ig:
+			self.ig = False
+			self.ig_views.append(vid)
+		if self.institution:
+			self.institution = False
+			self.institution_views.append(vid)
+		if self.journal:
+			self.journal = False
+			self.journal_views.append(vid)
+		if self.journal:
+			self.journal = False
+			self.journal_views.append(vid)
+		if self.law:
+			self.law = False
+			self.law_views.append(vid)
+		if self.modifier:
+			self.modifier = False
+			self.modifier_views.append(vid)
+		if self.party:
+			self.party = False
+			self.party_views.append(vid)
+		if self.pop_type:
+			self.pop_type = False
+			self.pop_type_views.append(vid)
+		if self.pm:
+			self.pm = False
+			self.pm_views.append(vid)
+		if self.religion:
+			self.religion = False
+			self.religion_views.append(vid)
+		if self.state_trait:
+			self.state_trait = False
+			self.state_trait_views.append(vid)
+		if self.strategic_region:
+			self.strategic_region = False
+			self.strategic_region_views.append(vid)
+		if self.subject_type:
+			self.subject_type = False
+			self.subject_type_views.append(vid)
+		if self.tech:
+			self.tech = False
+			self.tech_views.append(vid)
+		if self.terrain:
+			self.terrain = False
+			self.terrain_views.append(vid)
+		if self.state_region:
+			self.state_region = False
+			self.state_region_views.append(vid)
 
 	def on_activated_async(self, view):
 		vid = view.id()
@@ -678,20 +813,78 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 		if self.show_c_traits_views:
 			self.show_c_traits = True
 			self.show_c_traits_views.remove(vid)
-
 		if self.culture_views:
 			self.culture = True
 			self.culture_views.remove(vid)
 		if self.decree_views:
 			self.decree = True
 			self.decree_views.remove(vid)
-
 		if self.diplo_action_views:
 			self.diplo_action = True
 			self.diplo_action_views.remove(vid)
 		if self.diplo_play_views:
 			self.diplo_play = True
 			self.diplo_play_views.remove(vid)
+		if self.game_rule_views:
+			self.game_rule = True
+			self.game_rule_views.remove(vid)
+		if self.good_views:
+			self.good = True
+			self.good_views.remove(vid)
+		if self.gov_type_views:
+			self.gov_type = True
+			self.gov_type_views.remove(vid)
+		if self.ideology_views:
+			self.ideology = True
+			self.ideology_views.remove(vid)
+		if self.ig_views:
+			self.ig = True
+			self.ig_views.remove(vid)
+		if self.institution_views:
+			self.institution = True
+			self.institution_views.remove(vid)
+		if self.journal_views:
+			self.journal = True
+			self.journal_views.remove(vid)
+		if self.law_group_views:
+			self.law_group = True
+			self.law_group_views.remove(vid)
+		if self.law_views:
+			self.law = True
+			self.law_views.remove(vid)
+		if self.modifier_views:
+			self.modifier = True
+			self.modifier_views.remove(vid)
+		if self.party_views:
+			self.party = True
+			self.party_views.remove(vid)
+		if self.pop_type_views:
+			self.pop_type = True
+			self.pop_type_views.remove(vid)
+		if self.pm_views:
+			self.pm = True
+			self.pm_views.remove(vid)
+		if self.religion_views:
+			self.religion = True
+			self.religion_views.remove(vid)
+		if self.state_trait_views:
+			self.state_trait = True
+			self.state_trait_views.remove(vid)
+		if self.strategic_region_views:
+			self.strategic_region = True
+			self.strategic_region_views.remove(vid)
+		if self.subject_type_views:
+			self.subject_type = True
+			self.subject_type_views.remove(vid)
+		if self.tech_views:
+			self.tech = True
+			self.tech_views.remove(vid)
+		if self.terrain_views:
+			self.terrain = True
+			self.terrain_views.remove(vid)
+		if self.state_region_views:
+			self.state_region = True
+			self.state_region_views.remove(vid)
 
 	def on_query_completions(self, view, prefix, locations):
 
@@ -837,6 +1030,327 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 				],
 				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
 			)
+		if self.game_rule:
+			self.game_rule = False
+			gr = game_rules.keys()
+			gr = sorted(gr)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=KIND_GAME_RULE,
+						details=" "
+					)
+					for key in sorted(gr)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.good:
+			self.good = False
+			go = goods.keys()
+			go = sorted(go)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=KIND_GOOD,
+						details=" "
+					)
+					for key in sorted(go)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.gov_type:
+			self.gov_type = False
+			gov = gov_types.keys()
+			gov = sorted(gov)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=KIND_GOV_TYPE,
+						details=" "
+					)
+					for key in sorted(gov)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.ideology:
+			self.ideology = False
+			idea = ideologies.keys()
+			idea = sorted(idea)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=KIND_IDEOLOGY,
+						details=" "
+					)
+					for key in sorted(idea)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.institution:
+			self.institution = False
+			ins = institutions.keys()
+			ins = sorted(ins)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=KIND_INSTITUTION,
+						details=" "
+					)
+					for key in sorted(ins)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.ig:
+			self.ig = False
+			interest = igs.keys()
+			interest = sorted(interest)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=KIND_INTEREST_GROUP,
+						details=" "
+					)
+					for key in sorted(interest)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.journal:
+			self.journal = False
+			je = jes.keys()
+			je = sorted(je)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=KIND_JOURNAL,
+						details=" "
+					)
+					for key in sorted(je)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.law_group:
+			self.law_group = False
+			lg = law_groups.keys()
+			lg = sorted(lg)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=KIND_LAW_GROUP,
+						details=" "
+					)
+					for key in sorted(lg)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.law:
+			self.law = False
+			law = laws.keys()
+			law = sorted(law)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=KIND_LAW,
+						details=" "
+					)
+					for key in sorted(law)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.modifier:
+			self.modifier = False
+			mod = mods.keys()
+			mod = sorted(mod)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=KIND_MODIFIER,
+						details=" "
+					)
+					for key in sorted(mod)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.party:
+			self.party = False
+			pa = parties.keys()
+			pa = sorted(pa)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=KIND_PARTY,
+						details=" "
+					)
+					for key in sorted(pa)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.pop_type:
+			self.pop_type = False
+			pop = pop_types.keys()
+			pop = sorted(pop)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=KIND_POP_TYPE,
+						details=" "
+					)
+					for key in sorted(pop)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.pm:
+			self.pm = False
+			pm = pms.keys()
+			pm = sorted(pm)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=KIND_PRODUCTION_METHOD,
+						details=" "
+					)
+					for key in sorted(pm)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.religion:
+			self.religion = False
+			rel = religions.keys()
+			rel = sorted(rel)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=KIND_RELIGION,
+						details=" "
+					)
+					for key in sorted(rel)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.state_trait:
+			self.state_trait = False
+			state_trait = state_traits.keys()
+			state_trait = sorted(state_trait)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=KIND_STATE_TRAIT,
+						details=" "
+					)
+					for key in sorted(state_trait)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.strategic_region:
+			self.strategic_region = False
+			sr = strategic_regions.keys()
+			sr = sorted(sr)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=KIND_STRATEGIC_REGION,
+						details=" "
+					)
+					for key in sorted(sr)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.subject_type:
+			self.subject_type = False
+			st = subject_types.keys()
+			st = sorted(st)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=KIND_SUBJECT_TYPE,
+						details=" "
+					)
+					for key in sorted(st)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.tech:
+			self.tech = False
+			te = technologies.keys()
+			te = sorted(te)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=KIND_TECH,
+						details=" "
+					)
+					for key in sorted(te)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.terrain:
+			self.terrain = False
+			terr = terrains.keys()
+			terr = sorted(terr)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=KIND_TERRAIN,
+						details=" "
+					)
+					for key in sorted(terr)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.state_region:
+			self.state_region = False
+			streg = state_regions.keys()
+			streg = sorted(streg)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=KIND_STATE_REGION,
+						details=" "
+					)
+					for key in sorted(streg)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+
 		else:
 			if "script_values" in fname:
 				e_list = []
@@ -1002,11 +1516,31 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 		self.decree = False
 		self.diplo_action = False
 		self.diplo_play = False
+		self.game_rule = False
+		self.good = False
+		self.gov_type = False
+		self.ideology = False
+		self.ig = False
+		self.institution = False
+		self.journal = False
+		self.law_group = False
+		self.law = False
+		self.modifier = False
+		self.party = False
+		self.pop_type = False
+		self.pm = False
+		self.religion = False
+		self.state_trait = False
+		self.strategic_region = False
+		self.subject_type = False
+		self.tech = False
+		self.terrain = False
+		self.state_region = False
 
 	def check_for_simple_completions(self, view, point):
 		"""
-						Check if the current cursor position should trigger a autocompletion item
-						this is for simple declarations like: remove_building = CursorHere
+			Check if the current cursor position should trigger a autocompletion item
+			this is for simple declarations like: remove_building = CursorHere
 		"""
 		self.reset_shown()
 
@@ -1041,6 +1575,24 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 		decree_list = ["has_decree"]
 		diplo_action_list = ["is_diplomatic_action_type"]
 		diplo_play_list = ["is_diplomatic_play_type"]
+		game_rules_list = ["has_game_rule"]
+		trade_goods_list = ["add_cultural_obsession", "remove_cultural_obsession", "is_taxing_goods", "has_cultural_obsession", "is_banning_goods"]
+		gov_types_list = ["has_government_type"]
+		ideologies_list = ["has_ideology", "set_ideology", "add_ideology", "remove_ideology", "ideology"]
+		institutions_list = ["expanding_institution", "has_institution", "institution"]
+		ig_list = ["has_ruling_interest_group", "is_interest_group_type", "law_approved_by", "interest_group"]
+		journal_list = ["has_journal_entry"]
+		modifier_list = ["has_modifier", "remove_modifier"]
+		party_list = ["is_party_type"]
+		pops_list = ["is_pop_type", "pop_type"]
+		pms_list = ["has_active_production_method", "production_method"]
+		religions_list = ["has_pop_religion", "religion"]
+		state_trait_list = ["has_state_trait"]
+		strategic_regions_list = ["add_declared_interest", "has_interest_marker_in_region", "hq"]
+		subject_type_list = ["is_subject_type", "change_subject_type"]
+		tech_list = ["technology", "add_technology_researched", "can_research", "has_technology_progress", "has_technology_researched", "is_researching_technology", "is_researching_technology_category"]
+		terrain_list = ["has_terrain"]
+		state_regions_list = ["set_capital", "set_market_capital", "country_or_subject_owns_entire_state_region", "has_state_in_state_region", "owns_entire_state_region", "owns_treaty_port_in"]
 		# Ai Strats
 		for i in ai_list:
 			# Error checking if I end up wanting it
@@ -1165,15 +1717,310 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					self.diplo_play = True
 					view.run_command("auto_complete")
 					break
+		# Game Rules
+		for i in game_rules_list:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.game_rule = True
+					view.run_command("auto_complete")
+					break
+		# Trade goods
+		for i in trade_goods_list:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.good = True
+					view.run_command("auto_complete")
+					break
+		# Trade good Scopes
+		if "goods:" in line:
+			idx = line.index("goods:") + view.line(point).a + 6
+			if idx == point:
+				self.good = True
+				view.run_command("auto_complete")
+		if "g:" in line:
+			idx = line.index("g:") + view.line(point).a + 2
+			if idx == point:
+				self.good = True
+				view.run_command("auto_complete")
+		# Government Types
+		for i in gov_types_list:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.gov_type = True
+					view.run_command("auto_complete")
+					break
+		# Ideologies
+		for i in ideologies_list:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.ideology = True
+					view.run_command("auto_complete")
+					break
+		# Institutions
+		for i in institutions_list:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.institution = True
+					view.run_command("auto_complete")
+					break
+		# Institution Scope
+		if "institution:" in line:
+			idx = line.index("institution:") + view.line(point).a + 12
+			if idx == point:
+				self.institution = True
+				view.run_command("auto_complete")
+		# Interest Groups
+		for i in ig_list:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.ig = True
+					view.run_command("auto_complete")
+					break
+		# Ig Scope
+		if "ig:" in line:
+			idx = line.index("ig:") + view.line(point).a + 3
+			if idx == point:
+				self.ig = True
+				view.run_command("auto_complete")
+		if "interest_group:" in line:
+			idx = line.index("interest_group:") + view.line(point).a + 15
+			if idx == point:
+				self.ig = True
+				view.run_command("auto_complete")
+		# Journal Entries
+		for i in journal_list:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.journal = True
+					view.run_command("auto_complete")
+					break
+		# Journal Entry Scopes
+		if "je:" in line:
+			idx = line.index("je:") + view.line(point).a + 3
+			if idx == point:
+				self.journal = True
+				view.run_command("auto_complete")
+		# Law Group Scopes
+		if "active_law:" in line:
+			idx = line.index("active_law:") + view.line(point).a + 11
+			if idx == point:
+				self.journal = True
+				view.run_command("auto_complete")
+		# Law Scopes
+		if "law_type:" in line:
+			idx = line.index("law_type:") + view.line(point).a + 9
+			if idx == point:
+				self.journal = True
+				view.run_command("auto_complete")
+		# Modifiers
+		for i in modifier_list:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.modifier = True
+					view.run_command("auto_complete")
+					break
+		# Parties
+		for i in party_list:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.party = True
+					view.run_command("auto_complete")
+					break
+		# Party Scopes
+		if "py:" in line:
+			idx = line.index("py:") + view.line(point).a + 3
+			if idx == point:
+				self.party = True
+				view.run_command("auto_complete")
+		if "party:" in line:
+			idx = line.index("party:") + view.line(point).a + 6
+			if idx == point:
+				self.party = True
+				view.run_command("auto_complete")
+		# Pop Types
+		for i in pops_list:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.pop_type = True
+					view.run_command("auto_complete")
+					break
+		if "pop_type:" in line:
+			idx = line.index("pop_type:") + view.line(point).a + 9
+			if idx == point:
+				self.pop_type = True
+				view.run_command("auto_complete")
+		# Production Methods
+		for i in pms_list:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.pm = True
+					view.run_command("auto_complete")
+					break
+		# Religions
+		for i in religions_list:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.pm = True
+					view.run_command("auto_complete")
+					break
+		if "rel:" in line:
+			idx = line.index("rel:") + view.line(point).a + 4
+			if idx == point:
+				self.religion = True
+				view.run_command("auto_complete")
+		if "religion:" in line:
+			idx = line.index("religion:") + view.line(point).a + 4
+			if idx == point:
+				self.religion = True
+				view.run_command("auto_complete")
+		# State Trait
+		for i in state_trait_list:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.state_trait = True
+					view.run_command("auto_complete")
+					break
+		# Strategic Region
+		for i in strategic_regions_list:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.strategic_region = True
+					view.run_command("auto_complete")
+					break
+		if "sr:" in line:
+			idx = line.index("sr:") + view.line(point).a + 3
+			if idx == point:
+				self.strategic_region = True
+				view.run_command("auto_complete")
+		# Subject Type
+		for i in subject_type_list:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.subject_type = True
+					view.run_command("auto_complete")
+					break
+		# Technologies
+		for i in tech_list:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.tech = True
+					view.run_command("auto_complete")
+					break
+		# Terrains
+		for i in terrain_list:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.terrain = True
+					view.run_command("auto_complete")
+					break
+		# State Regions
+		for i in state_regions_list:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.state_region = True
+					view.run_command("auto_complete")
+					break
 
 	def check_for_complex_completions(self, view, point):
 		view_str = view.substr(sublime.Region(0, view.size()))
 
-		start_bg_brackets = view.find_by_selector("meta.bg.bracket")
-		start_da_brackets = view.find_by_selector("meta.da.bracket")
-		start_dp_brackets = view.find_by_selector("meta.dp.bracket")
+		for br in view.find_by_selector("meta.ig.bracket"):
+			i = sublime.Region(br.a, self.getIndex(view_str, br.a))
+			if i.contains(point):
+				self.ig = True
+				view.run_command("auto_complete")
 
-		for br in start_bg_brackets:
+		for br in view.find_by_selector("meta.bg.bracket"):
 			print(start_bg_brackets)
 			i = sublime.Region(br.a, self.getIndex(view_str, br.a))
 			s = view.substr(i)
@@ -1183,7 +2030,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					self.show_bg = True
 					view.run_command("auto_complete")
 
-		for br in start_da_brackets:
+		for br in view.find_by_selector("meta.da.bracket"):
 			i = sublime.Region(br.a, self.getIndex(view_str, br.a))
 			s = view.substr(i)
 			if "type = " in s:
@@ -1192,13 +2039,40 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					self.diplo_action = True
 					view.run_command("auto_complete")
 
-		for br in start_dp_brackets:
+		for br in view.find_by_selector("meta.dp.bracket"):
 			i = sublime.Region(br.a, self.getIndex(view_str, br.a))
 			s = view.substr(i)
 			if "type = " in s:
 				fpoint = (view.substr(i).index("type = ") + 7) + i.a
 				if fpoint == point:
 					self.diplo_play = True
+					view.run_command("auto_complete")
+
+		for br in view.find_by_selector("meta.je.bracket"):
+			i = sublime.Region(br.a, self.getIndex(view_str, br.a))
+			s = view.substr(i)
+			if "type = " in s:
+				fpoint = (view.substr(i).index("type = ") + 7) + i.a
+				if fpoint == point:
+					self.journal = True
+					view.run_command("auto_complete")
+
+		for br in view.find_by_selector("meta.mods.bracket"):
+			i = sublime.Region(br.a, self.getIndex(view_str, br.a))
+			s = view.substr(i)
+			if "name = " in s:
+				fpoint = (view.substr(i).index("name = ") + 7) + i.a
+				if fpoint == point:
+					self.modifier = True
+					view.run_command("auto_complete")
+
+		for br in view.find_by_selector("meta.subjects.bracket"):
+			i = sublime.Region(br.a, self.getIndex(view_str, br.a))
+			s = view.substr(i)
+			if "type = " in s:
+				fpoint = (view.substr(i).index("type = ") + 7) + i.a
+				if fpoint == point:
+					self.subject_type = True
 					view.run_command("auto_complete")
 
 	def on_selection_modified(self, view):

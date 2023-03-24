@@ -50,11 +50,11 @@ import os
 
 class PdxScriptObject:
 	"""
-			Class to hold everything that needs to be known about a GameObject
-			3 things are saved for default objects
-			1. The objects key
-			2. The path to the file the key is found in
-			3. The line number the key is found at
+		Class to hold everything that needs to be known about a GameObject
+		3 things are saved for default objects
+		1. The objects key
+		2. The path to the file the key is found in
+		3. The line number the key is found at
 	"""
 
 	def __init__(self, key, path, line):
@@ -91,7 +91,7 @@ class PdxScriptObject:
 
 class PdxScriptObjectType:
 	"""
-			Class to hold a list of PdxScriptObject types (or similar types)
+		Class to hold a list of PdxScriptObject types (or similar types)
 	"""
 
 	def __init__(self, obj_list):
@@ -99,8 +99,8 @@ class PdxScriptObjectType:
 
 	def __iadd__(self, other):
 		"""
-				Override += operator so 2 PdxScriptObjectTypes can be added together
-				If a key is already defined the key get overriden by the new key
+			Override += operator so 2 PdxScriptObjectTypes can be added together
+			If a key is already defined the key get overriden by the new key
 		"""
 		for j in other.objects:
 			if j in self.objects:
@@ -115,8 +115,8 @@ class PdxScriptObjectType:
 
 class GameObjectBase:
 	"""
-			Base Class that all GameObject classes should inherit
-			paths is a list of paths to base game and mods, the last element in paths should be the basegame path
+		Base Class that all GameObject classes should inherit
+		paths is a list of paths to base game and mods, the last element in paths should be the basegame path
 	"""
 
 	def __init__(self, paths: list(), level=0, ignored_files=[], included_files=[]):
@@ -149,7 +149,7 @@ class GameObjectBase:
 
 	def sort(self) -> None:
 		"""
-				Sort PdxScriptObjects by key
+			Sort PdxScriptObjects by key
 		"""
 		self.main.objects = sorted(self.main.objects)
 
@@ -166,8 +166,8 @@ class GameObjectBase:
 
 	def access(self, key):
 		"""
-				Return the PdxScriptObject (or similar type) with the specified key
-				return false if the key is not found
+			Return the PdxScriptObject (or similar type) with the specified key
+			return false if the key is not found
 		"""
 		if self.contains(key):
 			return self.main.objects[self.main.objects.index(key)]
@@ -176,7 +176,7 @@ class GameObjectBase:
 
 	def get_list(self) -> PdxScriptObjectType:
 		"""
-				Return the list of PdxScriptObjects that self.main holds
+			Return the list of PdxScriptObjects that self.main holds
 		"""
 		return self.main.objects
 

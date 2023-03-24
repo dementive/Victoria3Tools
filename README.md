@@ -8,13 +8,11 @@ import os; path=sublime.packages_path(); (os.makedirs(path) if not os.path.exist
 ```
 This will only work with git installed on your system.
 
-Alternatively you can download the zip file from github and put the Victoria3Tools folder in the packages folder. This is not reccomended because you will not receive updates unless you redownload it manually.
+Alternatively you can download the zip file from github and put the Victoria3Tools folder in the packages folder. This is not recommended because you will not receive updates unless you redownload it manually.
 The packages folder can easily be found by going to ```preferences``` in the main menu and selecting ```Browse Packages```.
 ```
 C:\Users\YOURUSERNAME\AppData\Roaming\Sublime Text 3\Packages\Victoria3Tools
 ```
-
-I highly recommend you make a [Sublime Project](https://www.sublimetext.com/docs/projects.html) and add your mod folder and the Victoria 3 game folder to it. This will make goto definition, autocomplete, several plugin features, and find in files work much better. [More info on sublime projects](https://www.youtube.com/watch?v=7QsL7_zxteU)
 
 ## Features
 
@@ -25,14 +23,12 @@ I highly recommend you make a [Sublime Project](https://www.sublimetext.com/docs
 - Documentation on hover for all terms in the log. Simply hovering over an effect/trigger/scope will show it's full documentation in a popup.
 - Status Bar automatically updates to show when cursor is inside a Trigger or Effect block.
 - Localize command that will automatically create localization entries from a script file. Accessed from the command palette, opened with `ctrl+shift+p` and then type in `Victoria 3`.
-- Fold objects command that will toggle folding of all top level objects, for example all events or all decisions in a file can be folded. `ctrl+alt+f` is the keybinding to toggle fold objects or it can be accessed from the command palette
 - Browse Video command that will allow you to play .bk2 videos directly from the command palette. Also shows a popup when hovering over a video file in an event that will let you play the video, replace the video with a new one, or replace and play the new video. Note that the [Rad Game Tools Bink Player](http://www.radgametools.com/bnkdown.htm) is required to play the games .bk2 files.
-- Simple Script value hover popups that will show up when hovering over script values declared like `large_radicals = 0.25`. The popup shows the name and value of the scripted value.
-- Hovering over texture paths will show a popup that allows you to open it in it's default program.
+- Hovering over texture paths will show a popup to open it.
 - Hovering over event sounds will show a popup that allows you to quickly browse and replace event sounds with the command palette.
-- Goto Definition for saved scopes and saved variables, if your mod and game folders are part of a active sublime project this will work across multiple files.
-- Simple validator that will check for common easy to find errors and alert you when they happen when a script file is saved. These include: Mismatched brackets, mismatched quotes, and encoding errors.
-- Full syntax highlighting of all relevent terms you may come across in Vic3 modding.
+- Goto Definition for all game objects, saved scopes, and saved variables
+- Simple validator that will check for common easy to find errors and alert you when they happen when a script file is saved. These include: mismatched brackets, mismatched quotes, and encoding errors.
+- Full syntax highlighting of all relevant terms you may come across in Vic3 modding.
 	- Effects = red
 	- Triggers = yellow
 	- Scopes = blue
@@ -49,7 +45,8 @@ I highly recommend you make a [Sublime Project](https://www.sublimetext.com/docs
 - Textures = purple
 - Gui Defaults = green
 - Sound/Animations = orange
-- Hovering over texture paths will show a popup that allows you to open it in it's default program.
+- Hovering over texture paths will show a popup to open it.
+- Goto definition for types and templates.
 
 ![Gui Screenshot](/images/gui.png)
 

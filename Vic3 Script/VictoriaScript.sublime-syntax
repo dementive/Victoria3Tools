@@ -31,7 +31,13 @@ contexts:
     - include: bg-block-start
     - include: char-trait-block-start
     - include: diplo-action-block-start
+    - include: diplo-action-effects-block-start
     - include: diplo-play-block-start
+    - include: trade-goods-block-start
+    - include: ig-block-start
+    - include: journal-block-start
+    - include: modifier-block-start
+    - include: subject-type-block-start
 
     - include: manually-entered-content
     - include: scripted-trigger-event-declaration
@@ -410,8 +416,17 @@ contexts:
           pop: true
 
   diplo-action-block-start:
-    - match: \b(can_afford_diplomatic_action|has_diplomatic_pact|create_diplomatic_pact|remove_diplomatic_pact)\b
+    - match: \b(can_afford_diplomatic_action|has_diplomatic_pact)\b
       scope: string.trigger
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.da.bracket
+          pop: true
+
+  diplo-action-effects-block-start:
+    - match: \b(create_diplomatic_pact|remove_diplomatic_pact)\b
+      scope: keyword.effect
       push:
         - include: line_ending
         - match: \{
@@ -420,11 +435,56 @@ contexts:
 
   diplo-play-block-start:
     - match: \b(create_diplomatic_play)\b
-      scope: string.trigger
+      scope: keyword.effect
       push:
         - include: line_ending
         - match: \{
           scope: meta.dp.bracket
+          pop: true
+
+  trade-goods-block-start:
+    - match: \b(create_trade_route)\b
+      scope: keyword.effect
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.goods.bracket
+          pop: true
+
+  ig-block-start:
+    - match: \b(set_ruling_interest_groups)\b
+      scope: keyword.effect
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.ig.bracket
+          pop: true
+
+  journal-block-start:
+    - match: \b(add_journal_entry)\b
+      scope: keyword.effect
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.je.bracket
+          pop: true
+
+  modifier-block-start:
+    - match: \b(add_modifier|add_enactment_modifier)\b
+      scope: keyword.effect
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.mods.bracket
+          pop: true
+
+  subject-type-block-start:
+    - match: \b(can_have_as_subject)\b
+      scope: string.trigger
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.subjects.bracket
           pop: true
 
   at-symbol:
