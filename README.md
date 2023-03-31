@@ -17,11 +17,10 @@ C:\Users\YOURUSERNAME\AppData\Roaming\Sublime Text 3\Packages\Victoria3Tools
 ## Features
 
 #### All script (.txt) files have the following features:
-- Autocomplete for all terms that are in triggers.log, effects.log, event_targets.log, and modifiers.log. All autocomplete items have a short description showing what input/output scope the term supports.
+- Context aware autocomplete for all scopes, effects, and triggers.
 - Dynamically generated syntax that will automatically add any scripted effects, scripted triggers, or scripted values you make to the highlighting. To work properly your mods path needs to be added to the package settings.
 - Snippets to generate common boiler plate text like country events, decisions, journals, and more.
 - Documentation on hover for all terms in the log. Simply hovering over an effect/trigger/scope will show it's full documentation in a popup.
-- Status Bar automatically updates to show when cursor is inside a Trigger or Effect block.
 - Localize command that will automatically create localization entries from a script file. Accessed from the command palette, opened with `ctrl+shift+p` and then type in `Victoria 3`.
 - Browse Video command that will allow you to play .bk2 videos directly from the command palette. Also shows a popup when hovering over a video file in an event that will let you play the video, replace the video with a new one, or replace and play the new video. Note that the [Rad Game Tools Bink Player](http://www.radgametools.com/bnkdown.htm) is required to play the games .bk2 files.
 - Hovering over texture paths will show a popup to open it.
@@ -29,22 +28,11 @@ C:\Users\YOURUSERNAME\AppData\Roaming\Sublime Text 3\Packages\Victoria3Tools
 - Goto Definition for all game objects, saved scopes, and saved variables
 - Simple validator that will check for common easy to find errors and alert you when they happen when a script file is saved. These include: mismatched brackets, mismatched quotes, and encoding errors.
 - Full syntax highlighting of all relevant terms you may come across in Vic3 modding.
-	- Effects = red
-	- Triggers = yellow
-	- Scopes = blue
-	- Math/Sound = orange
-	- on_actions from code = green
-	- Essential Scipt/Textures = purple
 
 ![Script Screenshot](/images/script.png)
 
-#### All GUI (.gui) files have syntax highlighting with a similar style to script
-- Effects = red
-- Triggers = yellow
-- Parameters = blue
-- Textures = purple
-- Gui Defaults = green
-- Sound/Animations = orange
+#### Gui 
+- Syntax highlighting for .gui files with a similar style to script
 - Hovering over texture paths will show a popup to open it.
 - Goto definition for types and templates.
 
