@@ -27,21 +27,24 @@ contexts:
     # Blocks
     - include: trigger-block-start
     - include: effect-block-start
-    - include: ai-block-start
+    - include: value-block-start
+    - include: mod-block-start
     - include: bg-block-start
     - include: char-trait-block-start
     - include: diplo-action-block-start
     - include: diplo-action-effects-block-start
     - include: diplo-play-block-start
     - include: trade-goods-block-start
+    - include: trade-goods-block-simple-start
     - include: ig-block-start
     - include: journal-block-start
     - include: modifier-block-start
     - include: subject-type-block-start
+    - include: law-block-start
+    - include: technology-block-start
+    - include: ideology-block-start
 
     - include: manually-entered-content
-    - include: scripted-trigger-event-declaration
-    - include: scripted-effect-event-declaration
     - include: auto-generated-content
 
   comments:
@@ -371,7 +374,7 @@ contexts:
           pop: 2
 
   trigger-block-start:
-    - match: \b(show_as_unavailable|visible|cancellation_trigger|should_auto_expand|country_type_change_alternatives|can_change_subject_type_from|valid_overlord_country_types|valid_subject_country_types|valid_overlord_ranks|valid_subject_ranks|can_change_subject_type_from|valid_overlord_country_types|unlocking_laws|valid_for_country|available_for_interest_group|is_visible|disallowing_laws|possible_political_movements|change_allowed_trigger|invalid|fail|is_shown_when_inactive|complete|pop_potential|ideologies|enable|will_propose|selectable_in_lens|will_break|additional_involvement_trigger|is_about_to_auto_break|should_auto_break|should_invalidate|potential|trigger|limit|possible|happened|valid|unlocking_technologies|production_method_groups|is_shown)\b
+    - match: \b(portrait_is_female|ai_will_do|cultural_acceptance_rule|religious_acceptance_rule|is_progressing|actor_can_break|target_can_break|show_as_unavailable|visible|cancellation_trigger|should_auto_expand|country_type_change_alternatives|can_change_subject_type_from|valid_overlord_country_types|valid_subject_country_types|valid_overlord_ranks|valid_subject_ranks|can_change_subject_type_from|valid_overlord_country_types|valid_for_country|available_for_interest_group|is_visible|change_allowed_trigger|invalid|fail|is_shown_when_inactive|complete|pop_potential|enable|will_propose|selectable_in_lens|will_break|additional_involvement_trigger|is_about_to_auto_break|should_auto_break|should_invalidate|potential|trigger|limit|possible|happened|valid|production_method_groups|is_shown)\b
       scope: string.trigger.block.start
       push:
         - include: line_ending
@@ -380,7 +383,7 @@ contexts:
           pop: true
 
   effect-block-start:
-    - match: \b(effect|on_activate|on_timeout|on_fail|on_complete|on_character_ig_membership|on_enable|on_disable|weekly_effect|break_effect|accept_effect|when_taken|immediate|option)\b
+    - match: \b(on_invalid|on_war_begins|on_war_end|daily_effect|monthly_effect|effect|on_activate|on_timeout|on_fail|on_complete|on_character_ig_membership|on_enable|on_disable|weekly_effect|break_effect|accept_effect|when_taken|immediate|option)\b
       scope: keyword.effect.block.start
       push:
         - include: line_ending
@@ -388,13 +391,22 @@ contexts:
           scope: meta.effect.bracket
           pop: true
 
-  ai-block-start:
-    - match: \b(ai_will_do|ai_chance|ai_weight)\b
-      scope: string.ai.block.start
+  value-block-start:
+    - match: \b(weight|qualifications|portrait_age|portrait_pose|political_engagement_mult|join_weight|opinion|decay|loyalties_gain|pop_support|current_value|goal_add_value|commander_leader_chance|female_politician_chance|noble_chance|female_commander_chance|pop_weight|monarch_weight|commander_weight|leader_weight|use_favor_chance|owe_favor_chance|accept_break_score|use_obligation_chance|owe_obligation_chance|junior_accept_score|propose_score|propose_break_score|accept_score|ai_chance|ai_weight)\b
+      scope: storage.type.value.block.start
       push:
         - include: line_ending
         - match: \{
-          scope: meta.ai.bracket
+          scope: meta.value.bracket
+          pop: true
+
+  mod-block-start:
+    - match: \b(country_modifiers|state_modifiers|building_modifiers|timed_modifiers|workforce_scaled|level_scaled|unscaled|character_modifier|command_modifier|country_modifier|interest_group_modifier|general_modifier|admiral_modifier|modifier)\b
+      scope: string.modifier.start
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.modifier.bracket
           pop: true
 
   bg-block-start:
@@ -451,6 +463,15 @@ contexts:
           scope: meta.goods.bracket
           pop: true
 
+  trade-goods-block-simple-start:
+    - match: \b(taboos)\b
+      scope: string.trigger
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.goods.simple.bracket
+          pop: true
+
   ig-block-start:
     - match: \b(set_ruling_interest_groups)\b
       scope: keyword.effect
@@ -487,6 +508,33 @@ contexts:
           scope: meta.subjects.bracket
           pop: true
 
+  law-block-start:
+    - match: \b(possible_political_movements|unlocking_laws|disallowing_laws)\b
+      scope: string.trigger
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.law.bracket
+          pop: true
+
+  technology-block-start:
+    - match: \b(unlocking_technologies|unlocking_global_technologies)\b
+      scope: string.trigger
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.tech.bracket
+          pop: true
+
+  ideology-block-start:
+    - match: \b(ideologies)\b
+      scope: string.trigger
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.ideology.bracket
+          pop: true
+
   at-symbol:
     - match: (@)({{valid_variable}})
       scope: keyword.numeric.at.symbol
@@ -504,22 +552,6 @@ contexts:
           scope: keyword.numeric.at.symbol
           pop: true
 
-  scripted-trigger-event-declaration:
-    - match: scripted_trigger
-      scope: string.trigger.event.declaration
-      push:
-        - match: ({{valid_variable}})
-          scope: variable.parameter.trigger.declaration
-          pop: true
-
-  scripted-effect-event-declaration:
-    - match: scripted_effect
-      scope: keyword.effect.event.declaration
-      push:
-        - match: ({{valid_variable}})
-          scope: variable.parameter.effect.declaration
-          pop: true
-
   line_ending:
     - include: comments
     - match: $\n
@@ -532,7 +564,7 @@ contexts:
 
   manually-entered-content:
     # Essential Scipt Functions
-    - match: \b(center_icon|triggered_desc|minor_left_icon|minor_right_icon|right_icon|namespace|parent_group|default_building|chance|mode|adjective|default|popup_name|male_ruler|female_ruler|male_heir|female_heir|ethnicities|ai_weight|group|building_group|entity_not_constructed|city_gfx_interactions|entity_under_construction|entity_constructed|gui_window|left_icon|base|progress|status_desc|progress_desc|how_tutorial|why_tutorial|timeout|weight|first_name|last_name|texture|icon|placement|title|desc|flavor|event_image|duration|default_option|months|days|years|hidden|id|text|log_loc_errors|name|country_type|tier|flag_definition|allow_overlord_canton|order_by|qualifications_growth_desc)\b
+    - match: \b(toggle_map_object_layers|created_material|materials|label|textures|path|dynamic_texture_postfix|open_popup|background|law_group_category|scripted_button|background_texture|propose_string|break_string|ask_to_end_string|pact|center_icon|triggered_desc|minor_left_icon|minor_right_icon|right_icon|namespace|parent_group|default_building|chance|mode|adjective|default|popup_name|male_ruler|female_ruler|male_heir|female_heir|ethnicities|ai_weight|group|building_group|entity_not_constructed|city_gfx_interactions|entity_under_construction|entity_constructed|gui_window|left_icon|base|progress|status_desc|progress_desc|how_tutorial|why_tutorial|timeout|first_name|last_name|texture|icon|placement|title|desc|flavor|event_image|duration|default_option|months|days|years|hidden|id|text|log_loc_errors|name|country_type|tier|flag_definition|allow_overlord_canton|order_by|qualifications_growth_desc)\b
       scope: constant.numeric
     # Math/Sound/Video
     - match: \b(range|factor|percent|nearest|multiplier|amount|add|subtract|max|min|round|ceiling|floor|divide|modulo|multiply|divide|video|on_created_soundeffect|on_opened_soundeffect|integer_range|clicksound)\b
@@ -541,13 +573,13 @@ contexts:
     - match: \b(Return type|on_character_ig_membership|weekly_effect|commander_usage|break_effect|accept_effect|on_start|on_enable|on_disable|on_war_begins|on_enact|on_activate|on_deactivate|add_war_goal|activate_production_methods|set_secret_goal|on_created|on_yearly_pulse|on_weekly_pulse|on_fail|on_invalid|on_timeout|on_monthly_pulse|on_complete|effect|immediate|option|after|when_taken)\b
       scope: keyword.effect
     # Triggers
-    - match: \b(required_techs_for_colonization|disabling_technologies|city|port|farm|mine|naval_exit_id|impassable|subsistence_building|arable_resources|capped_resources|resource|naval_exit_iddynamic_country_name|language_accepted|cooldown|clear_size_area|inheritable_construction|is_military|is_subsistence|hires_unemployed_only|subsidized|stateregion_max_level|created_by_trade_routes|land_usage|always_possible|capped_by_resources|economy_of_scale|auto_place_buildings|discoverable_resource|depletable_resource|pays_taxes|fired_pops_become_radical|can_use_slaves|timed_modifiers|fail|valid_country_types|general_modifier|admiral_modifier|role|earliest_usage_date|latest_usage_date|country_trigger|happened|filter|dna|enable_switch_sides|allow_negotiated_peace|initiator_can_add_war_goals|target_can_add_war_goals|is_alliance|additional_involvement_trigger|show_effect_in_tooltip|recipient_gets_income_transfer|income_transfer_based_on_recipient|check_acceptance_for_will_break|will_propose|actor_can_break|target_can_break|should_notify_third_parties|target_requires_approval_to_break|has_junior_participant|recipient_pays_maintenance|is_customs_union|subject_type|check_acceptance_for_will_propose|transfer_pact|reverse_pact|will_break|is_about_to_auto_break|should_auto_break|should_invalidate|requires_approval|can_use_obligations|mapmode|special_selection|special_selection|textured_emblem|technology_cost|era|capital_province|graphical_culture|ai_is_valid|is_valid|state_modifiers|country_modifiers|unlocking_production_methods|building_modifiers|ai_selection|production_methods|entry|notification_type|ideologies|pop_potential|enable|transfer_of_power|fixed_price|tradeable|category|war_goal|requires_interest_marker|mirror_war_goal|selectable_in_lens|modifier|valid|cost|male_common_first_names|female_common_first_names|common_last_names|male_noble_first_names|female_noble_first_names|noble_last_names|male_regal_first_names|female_regal_first_names|regal_last_names|valid_for_country|available_for_interest_group|can_enact|religious_acceptance_rule|tariff_modifier_very_low|tariff_modifier_low|tariff_modifier_medium|tariff_modifier_high|tariff_modifier_very_high|cultural_acceptance_rule|build_from_investment_pool|tax_modifier_very_low|tax_modifier_low|tax_modifier_medium|tax_modifier_high|tax_modifier_very_high|unlocking_laws|disallowing_laws|possible_political_movements|institution_modifier|recruits_combat_unit|has_max_level|canal|terrain_manipulator|should_auto_expand|city_type|levels_per_mesh|buildable|expandable|downsizeable|unique|locator|production_method_groups|unlocking_technologies|required_construction|can_build|character_modifier|command_modifier|country_modifier|interest_group_modifier|state_type|building_type|production_method|is_general|is_admiral|use_culture_states|required_num_states|birth_date|tag|origin|ai_will_do|ai_chance|weight_multiplier|technology|popup|highlighted_option|localization_key|first_valid|random_valid|can_deactivate|should_be_pinned_by_default|inheritable|progressbar|invalid|is_shown_when_inactive|trigger|limit|complete|ig_leader|owned_provinces|ideology|traits|potential|law|is_shown|possible|cultures|coa|subject_canton|coa_with_overlord_canton|colored_emblem|sub|fallback|qualifications)\b
+    - match: \b(created_terrain|terrain_mask|preferred_terrain|diplomatic_action|gives_prestige_to_overlord|subservient_to_overlord|can_start_own_diplomatic_plays|breaks_if_subject_not_protected|join_overlord_wars|overlord_must_be_higher_rank|overlord_must_be_same_country_type|use_for_release_country|allow_change_country_flag|use_overlord_map_color|use_overlord_ruler|is_default|has_dynamic_texture|unemployment|final_subgoal|blocking_subgoals_none_of|objective_subgoals|recommended_tags|recommended_game_rules|blocking_subgoals_not_all|objective_subgoals|recommended_tags|recommended_game_rules|unlocking_subgoals_all|unlocking_subgoals_any|is_exclusive|is_repeatable|neutral|boolean|good|character_ideology|add_infamy_for_starting_initiator_wargoals|add_infamy_for_starting_target_wargoals|is_epic|subject_relation|annex_on_country_formation|is_breaking_hostile|is_target_breaking_hostile|actor_requires_approval_to_break|counts_for_tech_spread|show_confirmation_box|is_hostile|required_techs_for_colonization|disabling_technologies|city|port|farm|mine|naval_exit_id|impassable|subsistence_building|arable_resources|capped_resources|resource|naval_exit_iddynamic_country_name|language_accepted|cooldown|clear_size_area|inheritable_construction|is_military|is_subsistence|hires_unemployed_only|subsidized|stateregion_max_level|created_by_trade_routes|land_usage|always_possible|capped_by_resources|economy_of_scale|auto_place_buildings|discoverable_resource|depletable_resource|pays_taxes|fired_pops_become_radical|can_use_slaves|timed_modifiers|fail|valid_country_types|general_modifier|admiral_modifier|role|earliest_usage_date|latest_usage_date|country_trigger|happened|filter|dna|enable_switch_sides|allow_negotiated_peace|initiator_can_add_war_goals|target_can_add_war_goals|is_alliance|additional_involvement_trigger|show_effect_in_tooltip|recipient_gets_income_transfer|income_transfer_based_on_recipient|check_acceptance_for_will_break|will_propose|actor_can_break|target_can_break|should_notify_third_parties|target_requires_approval_to_break|has_junior_participant|recipient_pays_maintenance|is_customs_union|subject_type|check_acceptance_for_will_propose|transfer_pact|reverse_pact|will_break|is_about_to_auto_break|should_auto_break|should_invalidate|requires_approval|can_use_obligations|mapmode|special_selection|special_selection|textured_emblem|technology_cost|era|capital_province|graphical_culture|ai_is_valid|is_valid|unlocking_production_methods|building_modifiers|ai_selection|production_methods|entry|notification_type|ideologies|pop_potential|enable|transfer_of_power|fixed_price|tradeable|category|war_goal|requires_interest_marker|mirror_war_goal|selectable_in_lens|modifier|valid|cost|male_common_first_names|female_common_first_names|common_last_names|male_noble_first_names|female_noble_first_names|noble_last_names|male_regal_first_names|female_regal_first_names|regal_last_names|valid_for_country|available_for_interest_group|can_enact|religious_acceptance_rule|tariff_modifier_very_low|tariff_modifier_low|tariff_modifier_medium|tariff_modifier_high|tariff_modifier_very_high|cultural_acceptance_rule|build_from_investment_pool|tax_modifier_very_low|tax_modifier_low|tax_modifier_medium|tax_modifier_high|tax_modifier_very_high|unlocking_laws|disallowing_laws|possible_political_movements|institution_modifier|recruits_combat_unit|has_max_level|canal|terrain_manipulator|should_auto_expand|city_type|levels_per_mesh|buildable|expandable|downsizeable|unique|locator|production_method_groups|unlocking_technologies|required_construction|can_build|character_modifier|command_modifier|country_modifier|interest_group_modifier|state_type|building_type|production_method|is_general|is_admiral|use_culture_states|required_num_states|birth_date|tag|origin|ai_chance|weight_multiplier|coastal|technology|popup|highlighted_option|localization_key|first_valid|random_valid|can_deactivate|should_be_pinned_by_default|inheritable|progressbar|invalid|is_shown_when_inactive|trigger|limit|complete|ig_leader|owned_provinces|ideology|traits|potential|law|is_shown|possible|cultures|coa|subject_canton|coa_with_overlord_canton|colored_emblem|sub|fallback)\b
       scope: string.trigger
     # Scripted Triggers that also have a hover doc entry
     - match: \b(MFE_has_building)\b
       scope: string.trigger
     # Scopes
-    - match: \b(progressiveness|min_approval|max_approval|pop_weight|hiring_rate|proportionality_limit|urbanization|infrastructure_usage_per_level|cash_reserves_max|throughput_scaled|opinion|decay|tile_size|nr_of_tiles|multiplier|is_decaying|consumption_tax_cost|convoy_cost_multiplier|traded_quantity|accept_break_score|attitude|income_transfer|ai|relations_progress_per_day|relations_improvement_max|propose_score|propose_break_score|use_obligation_chance|owe_obligation_chance|accept_score|junior_accept_score|who|country|target_state|target_country|color4|color5|map_color|mask|saved_scopes|ai_value|unscaled|workforce_scaled|level_scaled|max_weight|min_weight|obsession_chance|trade_route_revenue_multiplier|convoy_shipping_multiplier|prestige_factor|count|join_weight|show_in_list|leader_weight|leader_ideology|pop_support|residence_points_per_level|enable_air_connection|override_centerpiece_mesh|lens|replace|min_raise_to_hire|severity|direction|holder|reserves|secret_goal|states|provinces|setting|color1|current_value|goal_add_value|female|noble|color2|size|color3|pattern|color|priority|overlord_canton_offset|overlord_canton_scale|instance|scale|position|offset|parent|suffix)\b
+    - match: \b(risk|debug_color|pollution_mask_strength|devastation_mask_strength|convoy_contribution|pollution_generation|education_access|start_quality_of_life|wage_weight|literacy_target|consumption_mult|dependent_wage|political_engagement_base|unemployment_wealth|political_engagement_literacy_factor|unemployment_wealth|num_decimals|threshold|base_enactment_days|enactment_approval_mult|progressive_movement_chance|regressive_movement_chance|progressiveness|min_approval|max_approval|pop_weight|hiring_rate|proportionality_limit|urbanization|infrastructure_usage_per_level|cash_reserves_max|throughput_scaled|opinion|decay|tile_size|nr_of_tiles|multiplier|is_decaying|consumption_tax_cost|convoy_cost_multiplier|traded_quantity|accept_break_score|attitude|income_transfer|ai|relations_progress_per_day|relations_improvement_max|propose_score|propose_break_score|use_obligation_chance|owe_obligation_chance|accept_score|junior_accept_score|who|country|target_state|target_country|color4|color5|map_color|mask|saved_scopes|ai_value|unscaled|workforce_scaled|level_scaled|max_weight|min_weight|obsession_chance|trade_route_revenue_multiplier|convoy_shipping_multiplier|prestige_factor|count|join_weight|show_in_list|leader_weight|leader_ideology|pop_support|residence_points_per_level|enable_air_connection|override_centerpiece_mesh|lens|replace|min_raise_to_hire|severity|direction|holder|reserves|secret_goal|states|provinces|setting|color1|current_value|goal_add_value|female|noble|color2|size|color3|pattern|color|priority|overlord_canton_offset|overlord_canton_scale|instance|scale|position|offset|parent|suffix)\b
       scope: storage.type
     # Other Stuff
     - match: \b(events|random_events|R G B)\b

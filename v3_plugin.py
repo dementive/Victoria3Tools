@@ -685,9 +685,9 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 
 	def on_deactivated_async(self, view):
 		"""
-				Remove field states when view loses focus
-				if cursor was in a field in the old view but not the new view the completions will still be accurate
-				save the id of the view so it can be readded when it regains focus
+			Remove field states when view loses focus
+			if cursor was in a field in the old view but not the new view the completions will still be accurate
+			save the id of the view so it can be readded when it regains focus
 		"""
 		vid = view.id()
 		if self.trigger_field:
@@ -1352,7 +1352,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 			)
 
 		else:
-			if "script_values" in fname:
+			if "script_values" in fname or "scripted_modifiers" in fname:
 				e_list = []
 				for i in GameData.EffectsList:
 					e_list.append(sublime.CompletionItem(
@@ -1370,7 +1370,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 						details=GameData.TriggersList[i].split("<br>")[0]
 					))
 				return sublime.CompletionList(e_list + t_list)
-			if self.trigger_field or self.mtth_field or "scripted_triggers" in fname or "scripted_modifiers" in fname:
+			if self.trigger_field or "scripted_triggers" in fname:
 				return sublime.CompletionList(
 					[
 						sublime.CompletionItem(
@@ -1382,7 +1382,21 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 						for key in sorted(GameData.TriggersList)
 					]
 				)
-			if self.effect_field or "scripted_effects" in fname:
+			if self.mtth_field:
+				x = dict(sorted(GameData.ValueFieldCompletionList.items()))
+				return sublime.CompletionList(
+					[
+						sublime.CompletionItem(
+							trigger=key,
+							completion_format=sublime.COMPLETION_FORMAT_TEXT,
+							kind=(sublime.KIND_ID_NAMESPACE, "V", "Value"),
+							details=GameData.ValueFieldCompletionList[key]
+						)
+						for key in x
+					],
+					flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_REORDER
+				)
+			if self.effect_field or "scripted_effects" in fname or "common\\history" in fname:
 				return sublime.CompletionList(
 					[
 						sublime.CompletionItem(
@@ -1394,17 +1408,17 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 						for key in sorted(GameData.EffectsList)
 					]
 				)
-			if self.modifier_field or re.search("common\\\s?(modifiers|traits|buildings|governor_policies)", fname):
+			if self.modifier_field or re.search("(modifiers)", fname):
 				return sublime.CompletionList(
 					[
 						sublime.CompletionItem(
 							trigger=key,
 							completion_format=sublime.COMPLETION_FORMAT_TEXT,
 							kind=(sublime.KIND_ID_MARKUP, "M", "Modifier"),
-							details=GameData.ModifersList[key],
-							annotation=GameData.ModifersList[key].replace("Category: ", "")
+							details=GameData.ModifiersList[key],
+							annotation=GameData.ModifiersList[key].replace("Category: ", "")
 						)
-						for key in sorted(GameData.ModifersList)
+						for key in sorted(GameData.ModifiersList)
 					],
 					flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
 				)
@@ -1439,10 +1453,10 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 		for br in start_effect_brackets:
 			effect_regions.append(sublime.Region(br.a, self.getIndex(view_str, br.a)))
 
-		start_ai_brackets = view.find_by_selector("meta.ai.bracket")
-		ai_regions = []
-		for br in start_ai_brackets:
-			ai_regions.append(sublime.Region(br.a, self.getIndex(view_str, br.a)))
+		start_value_brackets = view.find_by_selector("meta.value.bracket")
+		value_regions = []
+		for br in start_value_brackets:
+			value_regions.append(sublime.Region(br.a, self.getIndex(view_str, br.a)))
 
 		start_modifier_brackets = view.find_by_selector("meta.modifier.bracket")
 		modifier_regions = []
@@ -1477,7 +1491,11 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 
 		self.show_status(selection[0].a, modifier_regions, "modifier", view)
 
-		self.show_status(selection[0].a, ai_regions, "mean time to happen", view)
+		self.show_status(selection[0].a, value_regions, "value", view)
+
+		# For actual mtth fields that have a modifier = {} block inside of them, remove the modifier status
+		if self.mtth_field and self.modifier_field:
+			view.erase_status("modifier")
 
 	def show_status(self, selection, regions, status, view):
 		for block in regions:
@@ -1489,7 +1507,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					self.effect_field = True
 				elif status == "modifier":
 					self.modifier_field = True
-				elif status == "mean time to happen":
+				elif status == "value":
 					self.mtth_field = True
 				break
 			else:
@@ -1500,7 +1518,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					self.effect_field = False
 				elif status == "modifier":
 					self.modifier_field = False
-				elif status == "mean time to happen":
+				elif status == "value":
 					self.mtth_field = False
 
 	def reset_shown(self):
@@ -2018,6 +2036,30 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 			i = sublime.Region(br.a, self.getIndex(view_str, br.a))
 			if i.contains(point):
 				self.ig = True
+				view.run_command("auto_complete")
+
+		for br in view.find_by_selector("meta.goods.simple.bracket"):
+			i = sublime.Region(br.a, self.getIndex(view_str, br.a))
+			if i.contains(point):
+				self.good = True
+				view.run_command("auto_complete")
+
+		for br in view.find_by_selector("meta.ideology.bracket"):
+			i = sublime.Region(br.a, self.getIndex(view_str, br.a))
+			if i.contains(point):
+				self.ideology = True
+				view.run_command("auto_complete")
+
+		for br in view.find_by_selector("meta.law.bracket"):
+			i = sublime.Region(br.a, self.getIndex(view_str, br.a))
+			if i.contains(point):
+				self.law = True
+				view.run_command("auto_complete")
+
+		for br in view.find_by_selector("meta.tech.bracket"):
+			i = sublime.Region(br.a, self.getIndex(view_str, br.a))
+			if i.contains(point):
+				self.tech = True
 				view.run_command("auto_complete")
 
 		for br in view.find_by_selector("meta.bg.bracket"):

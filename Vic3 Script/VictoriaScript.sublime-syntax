@@ -27,21 +27,24 @@ contexts:
     # Blocks
     - include: trigger-block-start
     - include: effect-block-start
-    - include: ai-block-start
+    - include: value-block-start
+    - include: mod-block-start
     - include: bg-block-start
     - include: char-trait-block-start
     - include: diplo-action-block-start
     - include: diplo-action-effects-block-start
     - include: diplo-play-block-start
     - include: trade-goods-block-start
+    - include: trade-goods-block-simple-start
     - include: ig-block-start
     - include: journal-block-start
     - include: modifier-block-start
     - include: subject-type-block-start
+    - include: law-block-start
+    - include: technology-block-start
+    - include: ideology-block-start
 
     - include: manually-entered-content
-    - include: scripted-trigger-event-declaration
-    - include: scripted-effect-event-declaration
     - include: auto-generated-content
 
   comments:
@@ -371,7 +374,7 @@ contexts:
           pop: 2
 
   trigger-block-start:
-    - match: \b(show_as_unavailable|visible|cancellation_trigger|should_auto_expand|country_type_change_alternatives|can_change_subject_type_from|valid_overlord_country_types|valid_subject_country_types|valid_overlord_ranks|valid_subject_ranks|can_change_subject_type_from|valid_overlord_country_types|unlocking_laws|valid_for_country|available_for_interest_group|is_visible|disallowing_laws|possible_political_movements|change_allowed_trigger|invalid|fail|is_shown_when_inactive|complete|pop_potential|ideologies|enable|will_propose|selectable_in_lens|will_break|additional_involvement_trigger|is_about_to_auto_break|should_auto_break|should_invalidate|potential|trigger|limit|possible|happened|valid|unlocking_technologies|production_method_groups|is_shown)\b
+    - match: \b(portrait_is_female|ai_will_do|cultural_acceptance_rule|religious_acceptance_rule|is_progressing|actor_can_break|target_can_break|show_as_unavailable|visible|cancellation_trigger|should_auto_expand|country_type_change_alternatives|can_change_subject_type_from|valid_overlord_country_types|valid_subject_country_types|valid_overlord_ranks|valid_subject_ranks|can_change_subject_type_from|valid_overlord_country_types|valid_for_country|available_for_interest_group|is_visible|change_allowed_trigger|invalid|fail|is_shown_when_inactive|complete|pop_potential|enable|will_propose|selectable_in_lens|will_break|additional_involvement_trigger|is_about_to_auto_break|should_auto_break|should_invalidate|potential|trigger|limit|possible|happened|valid|production_method_groups|is_shown)\b
       scope: string.trigger.block.start
       push:
         - include: line_ending
@@ -380,7 +383,7 @@ contexts:
           pop: true
 
   effect-block-start:
-    - match: \b(effect|on_activate|on_timeout|on_fail|on_complete|on_character_ig_membership|on_enable|on_disable|weekly_effect|break_effect|accept_effect|when_taken|immediate|option)\b
+    - match: \b(on_invalid|on_war_begins|on_war_end|daily_effect|monthly_effect|effect|on_activate|on_timeout|on_fail|on_complete|on_character_ig_membership|on_enable|on_disable|weekly_effect|break_effect|accept_effect|when_taken|immediate|option)\b
       scope: keyword.effect.block.start
       push:
         - include: line_ending
@@ -388,13 +391,22 @@ contexts:
           scope: meta.effect.bracket
           pop: true
 
-  ai-block-start:
-    - match: \b(ai_will_do|ai_chance|ai_weight)\b
-      scope: string.ai.block.start
+  value-block-start:
+    - match: \b(weight|qualifications|portrait_age|portrait_pose|political_engagement_mult|join_weight|opinion|decay|loyalties_gain|pop_support|current_value|goal_add_value|commander_leader_chance|female_politician_chance|noble_chance|female_commander_chance|pop_weight|monarch_weight|commander_weight|leader_weight|use_favor_chance|owe_favor_chance|accept_break_score|use_obligation_chance|owe_obligation_chance|junior_accept_score|propose_score|propose_break_score|accept_score|ai_chance|ai_weight)\b
+      scope: storage.type.value.block.start
       push:
         - include: line_ending
         - match: \{
-          scope: meta.ai.bracket
+          scope: meta.value.bracket
+          pop: true
+
+  mod-block-start:
+    - match: \b(country_modifiers|state_modifiers|building_modifiers|timed_modifiers|workforce_scaled|level_scaled|unscaled|character_modifier|command_modifier|country_modifier|interest_group_modifier|general_modifier|admiral_modifier|modifier)\b
+      scope: string.modifier.start
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.modifier.bracket
           pop: true
 
   bg-block-start:
@@ -451,6 +463,15 @@ contexts:
           scope: meta.goods.bracket
           pop: true
 
+  trade-goods-block-simple-start:
+    - match: \b(taboos)\b
+      scope: string.trigger
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.goods.simple.bracket
+          pop: true
+
   ig-block-start:
     - match: \b(set_ruling_interest_groups)\b
       scope: keyword.effect
@@ -487,6 +508,33 @@ contexts:
           scope: meta.subjects.bracket
           pop: true
 
+  law-block-start:
+    - match: \b(possible_political_movements|unlocking_laws|disallowing_laws)\b
+      scope: string.trigger
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.law.bracket
+          pop: true
+
+  technology-block-start:
+    - match: \b(unlocking_technologies|unlocking_global_technologies)\b
+      scope: string.trigger
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.tech.bracket
+          pop: true
+
+  ideology-block-start:
+    - match: \b(ideologies)\b
+      scope: string.trigger
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.ideology.bracket
+          pop: true
+
   at-symbol:
     - match: (@)({{valid_variable}})
       scope: keyword.numeric.at.symbol
@@ -504,22 +552,6 @@ contexts:
           scope: keyword.numeric.at.symbol
           pop: true
 
-  scripted-trigger-event-declaration:
-    - match: scripted_trigger
-      scope: string.trigger.event.declaration
-      push:
-        - match: ({{valid_variable}})
-          scope: variable.parameter.trigger.declaration
-          pop: true
-
-  scripted-effect-event-declaration:
-    - match: scripted_effect
-      scope: keyword.effect.event.declaration
-      push:
-        - match: ({{valid_variable}})
-          scope: variable.parameter.effect.declaration
-          pop: true
-
   line_ending:
     - include: comments
     - match: $\n
@@ -532,7 +564,7 @@ contexts:
 
   manually-entered-content:
     # Essential Scipt Functions
-    - match: \b(center_icon|triggered_desc|minor_left_icon|minor_right_icon|right_icon|namespace|parent_group|default_building|chance|mode|adjective|default|popup_name|male_ruler|female_ruler|male_heir|female_heir|ethnicities|ai_weight|group|building_group|entity_not_constructed|city_gfx_interactions|entity_under_construction|entity_constructed|gui_window|left_icon|base|progress|status_desc|progress_desc|how_tutorial|why_tutorial|timeout|weight|first_name|last_name|texture|icon|placement|title|desc|flavor|event_image|duration|default_option|months|days|years|hidden|id|text|log_loc_errors|name|country_type|tier|flag_definition|allow_overlord_canton|order_by|qualifications_growth_desc)\b
+    - match: \b(toggle_map_object_layers|created_material|materials|label|textures|path|dynamic_texture_postfix|open_popup|background|law_group_category|scripted_button|background_texture|propose_string|break_string|ask_to_end_string|pact|center_icon|triggered_desc|minor_left_icon|minor_right_icon|right_icon|namespace|parent_group|default_building|chance|mode|adjective|default|popup_name|male_ruler|female_ruler|male_heir|female_heir|ethnicities|ai_weight|group|building_group|entity_not_constructed|city_gfx_interactions|entity_under_construction|entity_constructed|gui_window|left_icon|base|progress|status_desc|progress_desc|how_tutorial|why_tutorial|timeout|first_name|last_name|texture|icon|placement|title|desc|flavor|event_image|duration|default_option|months|days|years|hidden|id|text|log_loc_errors|name|country_type|tier|flag_definition|allow_overlord_canton|order_by|qualifications_growth_desc)\b
       scope: constant.numeric
     # Math/Sound/Video
     - match: \b(range|factor|percent|nearest|multiplier|amount|add|subtract|max|min|round|ceiling|floor|divide|modulo|multiply|divide|video|on_created_soundeffect|on_opened_soundeffect|integer_range|clicksound)\b
@@ -541,13 +573,13 @@ contexts:
     - match: \b(Return type|on_character_ig_membership|weekly_effect|commander_usage|break_effect|accept_effect|on_start|on_enable|on_disable|on_war_begins|on_enact|on_activate|on_deactivate|add_war_goal|activate_production_methods|set_secret_goal|on_created|on_yearly_pulse|on_weekly_pulse|on_fail|on_invalid|on_timeout|on_monthly_pulse|on_complete|effect|immediate|option|after|when_taken)\b
       scope: keyword.effect
     # Triggers
-    - match: \b(required_techs_for_colonization|disabling_technologies|city|port|farm|mine|naval_exit_id|impassable|subsistence_building|arable_resources|capped_resources|resource|naval_exit_iddynamic_country_name|language_accepted|cooldown|clear_size_area|inheritable_construction|is_military|is_subsistence|hires_unemployed_only|subsidized|stateregion_max_level|created_by_trade_routes|land_usage|always_possible|capped_by_resources|economy_of_scale|auto_place_buildings|discoverable_resource|depletable_resource|pays_taxes|fired_pops_become_radical|can_use_slaves|timed_modifiers|fail|valid_country_types|general_modifier|admiral_modifier|role|earliest_usage_date|latest_usage_date|country_trigger|happened|filter|dna|enable_switch_sides|allow_negotiated_peace|initiator_can_add_war_goals|target_can_add_war_goals|is_alliance|additional_involvement_trigger|show_effect_in_tooltip|recipient_gets_income_transfer|income_transfer_based_on_recipient|check_acceptance_for_will_break|will_propose|actor_can_break|target_can_break|should_notify_third_parties|target_requires_approval_to_break|has_junior_participant|recipient_pays_maintenance|is_customs_union|subject_type|check_acceptance_for_will_propose|transfer_pact|reverse_pact|will_break|is_about_to_auto_break|should_auto_break|should_invalidate|requires_approval|can_use_obligations|mapmode|special_selection|special_selection|textured_emblem|technology_cost|era|capital_province|graphical_culture|ai_is_valid|is_valid|state_modifiers|country_modifiers|unlocking_production_methods|building_modifiers|ai_selection|production_methods|entry|notification_type|ideologies|pop_potential|enable|transfer_of_power|fixed_price|tradeable|category|war_goal|requires_interest_marker|mirror_war_goal|selectable_in_lens|modifier|valid|cost|male_common_first_names|female_common_first_names|common_last_names|male_noble_first_names|female_noble_first_names|noble_last_names|male_regal_first_names|female_regal_first_names|regal_last_names|valid_for_country|available_for_interest_group|can_enact|religious_acceptance_rule|tariff_modifier_very_low|tariff_modifier_low|tariff_modifier_medium|tariff_modifier_high|tariff_modifier_very_high|cultural_acceptance_rule|build_from_investment_pool|tax_modifier_very_low|tax_modifier_low|tax_modifier_medium|tax_modifier_high|tax_modifier_very_high|unlocking_laws|disallowing_laws|possible_political_movements|institution_modifier|recruits_combat_unit|has_max_level|canal|terrain_manipulator|should_auto_expand|city_type|levels_per_mesh|buildable|expandable|downsizeable|unique|locator|production_method_groups|unlocking_technologies|required_construction|can_build|character_modifier|command_modifier|country_modifier|interest_group_modifier|state_type|building_type|production_method|is_general|is_admiral|use_culture_states|required_num_states|birth_date|tag|origin|ai_will_do|ai_chance|weight_multiplier|technology|popup|highlighted_option|localization_key|first_valid|random_valid|can_deactivate|should_be_pinned_by_default|inheritable|progressbar|invalid|is_shown_when_inactive|trigger|limit|complete|ig_leader|owned_provinces|ideology|traits|potential|law|is_shown|possible|cultures|coa|subject_canton|coa_with_overlord_canton|colored_emblem|sub|fallback|qualifications)\b
+    - match: \b(created_terrain|terrain_mask|preferred_terrain|diplomatic_action|gives_prestige_to_overlord|subservient_to_overlord|can_start_own_diplomatic_plays|breaks_if_subject_not_protected|join_overlord_wars|overlord_must_be_higher_rank|overlord_must_be_same_country_type|use_for_release_country|allow_change_country_flag|use_overlord_map_color|use_overlord_ruler|is_default|has_dynamic_texture|unemployment|final_subgoal|blocking_subgoals_none_of|objective_subgoals|recommended_tags|recommended_game_rules|blocking_subgoals_not_all|objective_subgoals|recommended_tags|recommended_game_rules|unlocking_subgoals_all|unlocking_subgoals_any|is_exclusive|is_repeatable|neutral|boolean|good|character_ideology|add_infamy_for_starting_initiator_wargoals|add_infamy_for_starting_target_wargoals|is_epic|subject_relation|annex_on_country_formation|is_breaking_hostile|is_target_breaking_hostile|actor_requires_approval_to_break|counts_for_tech_spread|show_confirmation_box|is_hostile|required_techs_for_colonization|disabling_technologies|city|port|farm|mine|naval_exit_id|impassable|subsistence_building|arable_resources|capped_resources|resource|naval_exit_iddynamic_country_name|language_accepted|cooldown|clear_size_area|inheritable_construction|is_military|is_subsistence|hires_unemployed_only|subsidized|stateregion_max_level|created_by_trade_routes|land_usage|always_possible|capped_by_resources|economy_of_scale|auto_place_buildings|discoverable_resource|depletable_resource|pays_taxes|fired_pops_become_radical|can_use_slaves|timed_modifiers|fail|valid_country_types|general_modifier|admiral_modifier|role|earliest_usage_date|latest_usage_date|country_trigger|happened|filter|dna|enable_switch_sides|allow_negotiated_peace|initiator_can_add_war_goals|target_can_add_war_goals|is_alliance|additional_involvement_trigger|show_effect_in_tooltip|recipient_gets_income_transfer|income_transfer_based_on_recipient|check_acceptance_for_will_break|will_propose|actor_can_break|target_can_break|should_notify_third_parties|target_requires_approval_to_break|has_junior_participant|recipient_pays_maintenance|is_customs_union|subject_type|check_acceptance_for_will_propose|transfer_pact|reverse_pact|will_break|is_about_to_auto_break|should_auto_break|should_invalidate|requires_approval|can_use_obligations|mapmode|special_selection|special_selection|textured_emblem|technology_cost|era|capital_province|graphical_culture|ai_is_valid|is_valid|unlocking_production_methods|building_modifiers|ai_selection|production_methods|entry|notification_type|ideologies|pop_potential|enable|transfer_of_power|fixed_price|tradeable|category|war_goal|requires_interest_marker|mirror_war_goal|selectable_in_lens|modifier|valid|cost|male_common_first_names|female_common_first_names|common_last_names|male_noble_first_names|female_noble_first_names|noble_last_names|male_regal_first_names|female_regal_first_names|regal_last_names|valid_for_country|available_for_interest_group|can_enact|religious_acceptance_rule|tariff_modifier_very_low|tariff_modifier_low|tariff_modifier_medium|tariff_modifier_high|tariff_modifier_very_high|cultural_acceptance_rule|build_from_investment_pool|tax_modifier_very_low|tax_modifier_low|tax_modifier_medium|tax_modifier_high|tax_modifier_very_high|unlocking_laws|disallowing_laws|possible_political_movements|institution_modifier|recruits_combat_unit|has_max_level|canal|terrain_manipulator|should_auto_expand|city_type|levels_per_mesh|buildable|expandable|downsizeable|unique|locator|production_method_groups|unlocking_technologies|required_construction|can_build|character_modifier|command_modifier|country_modifier|interest_group_modifier|state_type|building_type|production_method|is_general|is_admiral|use_culture_states|required_num_states|birth_date|tag|origin|ai_chance|weight_multiplier|coastal|technology|popup|highlighted_option|localization_key|first_valid|random_valid|can_deactivate|should_be_pinned_by_default|inheritable|progressbar|invalid|is_shown_when_inactive|trigger|limit|complete|ig_leader|owned_provinces|ideology|traits|potential|law|is_shown|possible|cultures|coa|subject_canton|coa_with_overlord_canton|colored_emblem|sub|fallback)\b
       scope: string.trigger
     # Scripted Triggers that also have a hover doc entry
     - match: \b(MFE_has_building)\b
       scope: string.trigger
     # Scopes
-    - match: \b(progressiveness|min_approval|max_approval|pop_weight|hiring_rate|proportionality_limit|urbanization|infrastructure_usage_per_level|cash_reserves_max|throughput_scaled|opinion|decay|tile_size|nr_of_tiles|multiplier|is_decaying|consumption_tax_cost|convoy_cost_multiplier|traded_quantity|accept_break_score|attitude|income_transfer|ai|relations_progress_per_day|relations_improvement_max|propose_score|propose_break_score|use_obligation_chance|owe_obligation_chance|accept_score|junior_accept_score|who|country|target_state|target_country|color4|color5|map_color|mask|saved_scopes|ai_value|unscaled|workforce_scaled|level_scaled|max_weight|min_weight|obsession_chance|trade_route_revenue_multiplier|convoy_shipping_multiplier|prestige_factor|count|join_weight|show_in_list|leader_weight|leader_ideology|pop_support|residence_points_per_level|enable_air_connection|override_centerpiece_mesh|lens|replace|min_raise_to_hire|severity|direction|holder|reserves|secret_goal|states|provinces|setting|color1|current_value|goal_add_value|female|noble|color2|size|color3|pattern|color|priority|overlord_canton_offset|overlord_canton_scale|instance|scale|position|offset|parent|suffix)\b
+    - match: \b(risk|debug_color|pollution_mask_strength|devastation_mask_strength|convoy_contribution|pollution_generation|education_access|start_quality_of_life|wage_weight|literacy_target|consumption_mult|dependent_wage|political_engagement_base|unemployment_wealth|political_engagement_literacy_factor|unemployment_wealth|num_decimals|threshold|base_enactment_days|enactment_approval_mult|progressive_movement_chance|regressive_movement_chance|progressiveness|min_approval|max_approval|pop_weight|hiring_rate|proportionality_limit|urbanization|infrastructure_usage_per_level|cash_reserves_max|throughput_scaled|opinion|decay|tile_size|nr_of_tiles|multiplier|is_decaying|consumption_tax_cost|convoy_cost_multiplier|traded_quantity|accept_break_score|attitude|income_transfer|ai|relations_progress_per_day|relations_improvement_max|propose_score|propose_break_score|use_obligation_chance|owe_obligation_chance|accept_score|junior_accept_score|who|country|target_state|target_country|color4|color5|map_color|mask|saved_scopes|ai_value|unscaled|workforce_scaled|level_scaled|max_weight|min_weight|obsession_chance|trade_route_revenue_multiplier|convoy_shipping_multiplier|prestige_factor|count|join_weight|show_in_list|leader_weight|leader_ideology|pop_support|residence_points_per_level|enable_air_connection|override_centerpiece_mesh|lens|replace|min_raise_to_hire|severity|direction|holder|reserves|secret_goal|states|provinces|setting|color1|current_value|goal_add_value|female|noble|color2|size|color3|pattern|color|priority|overlord_canton_offset|overlord_canton_scale|instance|scale|position|offset|parent|suffix)\b
       scope: storage.type
     # Other Stuff
     - match: \b(events|random_events|R G B)\b
@@ -750,16 +782,16 @@ contexts:
     - match: \b(?i)(coa_def_buddhist_trigger|coa_def_nordic_cross_trigger|coa_def_oceanic_trigger|coa_def_german_trigger|coa_def_italian_trigger|coa_def_iberian_trigger|coa_def_turkic_trigger|coa_def_hispanic_american_trigger|coa_SWE_use_norway_canton_trigger|coa_SWE_use_union_mark_flag_trigger|coa_SWE_use_union_mark_canton_trigger|coa_SWE_karl_johan_is_king_trigger|coa_def_controls_part_of_ireland|coa_def_controls_part_of_france|coa_def_war_trigger|coa_def_secessionist_or_revolutionary_trigger|coa_def_secessionist_country_trigger|coa_def_catholic_trigger|coa_def_kalmar_flag_trigger|assert|state_is_in_europe|state_is_in_north_america|state_is_in_central_america|state_is_in_south_america|state_is_in_americas|state_is_in_africa|state_is_in_middle_east|state_is_in_central_asia|state_is_in_india|state_is_in_east_asia|state_is_in_china|state_is_in_southeast_asia|country_is_in_europe|country_is_in_north_america|country_is_in_central_america|country_is_in_south_america|country_is_in_africa|country_is_in_middle_east|country_is_in_central_asia|country_is_in_india|country_is_in_east_asia|country_is_in_southeast_asia|is_arabic_farmland|is_asian_farmland|is_subtropic_farmland|is_arid_region|has_v2_soundtrack_dlc_trigger|has_american_buildings_dlc_trigger|country_has_voting_franchise|country_has_education_system|is_being_incorporated|violate_sovereignty_war_check|has_industrialized_pm|using_watertube_boiler|countries_are_valid_rivals|in_earthquake_zone|in_volcanic_zone|on_river|has_government_building|has_military_building|has_industry_building|is_industry_building|has_heavy_industry_building|is_heavy_industry_building|state_in_africa|has_subsistence_building|owned_central_asia_region_states|owned_great_plains_region_states|owned_pacific_coast_region_states|french_treaty_ports|german_treaty_ports|british_treaty_ports|italian_treaty_ports|iberian_treaty_ports|)(?-i)\b
       scope: string.scripted.trigger
     # Generated Scripted Triggers
-    - match: \b(?i)(european_colonies_north_africa|european_colonies_west_africa|european_colonies_nile_basin|european_colonies_central_africa|european_colonies_east_africa|european_colonies_south_africa|owned_andes_region_states|owned_gran_colombia_region_states|owned_la_plata_region_states|is_farm_building|has_farm_building|is_production_building|will_be_accepted_culture|is_still_learning|law_can_hurt_minorities|has_distillery|is_distillery|is_raw_industries_building|is_plantation_building|is_economic_objective_building|is_non_customs_union_subject|has_addiction|is_commander|is_on_front|has_colonial_growth|language_accepted|default_auto_expand_rule|is_in_civil_war|has_paternalist_ideology|can_reach_target_country|can_reach_target_state|is_peasant_under_serfdom|has_radical_leftist_government|has_radical_leftist_economy|strike_goal_complete_trigger|state_has_strike_modifier_trigger|has_mp1_soundtrack_dlc_trigger|rich_building_trigger|average_building_trigger|poor_building_trigger|is_grain_producing_building|is_in_agriculture_building_group|MFE_has_building|ally_in_war_short_on_goods_trigger|has_ammo_pm|has_artillery_pm|has_manowar_pm|has_ironclad_pm|has_grain_pm|has_fabric_pm|has_good_fabric_pm|has_groceries_pm|has_clothes_pm|)(?-i)\b
+    - match: \b(?i)(european_colonies_north_africa|european_colonies_west_africa|european_colonies_nile_basin|european_colonies_central_africa|european_colonies_east_africa|european_colonies_south_africa|owned_andes_region_states|owned_gran_colombia_region_states|owned_la_plata_region_states|is_farm_building|has_farm_building|is_production_building|will_be_accepted_culture|is_still_learning|law_can_hurt_minorities|has_distillery|is_distillery|is_raw_industries_building|is_plantation_building|is_economic_objective_building|is_non_customs_union_subject|has_addiction|is_commander|is_on_front|has_colonial_growth|language_accepted|default_auto_expand_rule|is_in_civil_war|has_paternalist_ideology|can_reach_target_country|can_reach_target_state|is_peasant_under_serfdom|has_radical_leftist_government|has_radical_leftist_economy|strike_goal_complete_trigger|state_has_strike_modifier_trigger|has_mp1_soundtrack_dlc_trigger|rich_building_trigger|average_building_trigger|poor_building_trigger|is_grain_producing_building|is_in_agriculture_building_group|MFE_has_building|ally_in_war_short_on_goods_trigger|mine_is_using_explosives|has_ammo_pm|has_artillery_pm|has_manowar_pm|has_ironclad_pm|has_grain_pm|has_fabric_pm|has_good_fabric_pm|has_groceries_pm|has_clothes_pm|)(?-i)\b
       scope: string.scripted.trigger
     # Generated Scripted Effects
     - match: \b(?i)(debug_success|debug_fail|assert|set_all_colony|niger_river_expedition_location|west_america_expedition_location|central_africa_location_effect|congo_river_expedition_location|add_small_peril_effect|add_medium_peril_effect|add_large_peril_effect|expedition_peril_decrease_small_effect|expedition_peril_decrease_medium_effect|expedition_minor_progress_effect|expedition_moderate_progress_effect|expedition_great_progress_effect|expedition_lose_progress_effect|remove_expedition_events_effect|krakatoa_tsunami_effect|effect_native_conscription_1|effect_native_conscription_2|effect_native_conscription_3|effect_native_conscription_4|effect_native_conscription_5|effect_native_conscription_6|effect_native_conscription_7|effect_native_conscription_8|effect_native_conscription_9|effect_native_conscription_10|effect_native_conscription_11|effect_native_conscription_12|effect_starting_politics_liberal|effect_starting_politics_conservative|effect_starting_politics_reactionary|effect_starting_politics_traditional|set_radical_leader|save_neighbor_with_state|save_industrialized_pm_building_and_state|warlord_setup_effect|scripted_effect_parties_emergence|scripted_effect_parties_disappearence|liberate_slaves|enslave_discriminated_farm_workers|assign_taiping_states|create_taiping_characters|ai_expedition_simulator_start|ai_expedition_simulator_end|randomize_plague_level_effect|add_plague_modifier_effect|check_the_next_wave|effect_starting_technology_tier_1_tech|effect_starting_technology_tier_2_tech|effect_starting_technology_tier_3_tech|effect_starting_technology_tier_4_tech|effect_starting_technology_tier_5_tech|effect_starting_technology_tier_6_tech|effect_starting_technology_tier_7_tech|effect_starting_pop_literacy_very_high|effect_starting_pop_literacy_high|effect_starting_pop_literacy_middling|effect_starting_pop_literacy_low|effect_starting_pop_literacy_very_low|effect_starting_pop_literacy_baseline|effect_starting_pop_wealth_very_high|effect_starting_pop_wealth_high|effect_starting_pop_wealth_medium|effect_starting_pop_wealth_low|effect_reset_wealth_if_slave|effect_set_non_hostile_mutual_secret_goal_power_difference|effect_set_non_hostile_mutual_secret_goal|effect_set_limited_non_hostile_mutual_secret_goal|strike_state_add_modifier_effect_strong|strike_state_add_modifier_effect_weak|strike_end_effect|)(?-i)\b
       scope: keyword.scripted.effect
     # Generated Scripted Effects
-    - match: \b(?i)(give_claims_on_italy|give_claims_on_germany|build_wheat_building|ig_approval_effect|add_building_level_effect|add_level_spam_effect|ally_in_war_short_on_goods_effect|get_landscape_picture|get_harbor_picture|get_city_picture|)(?-i)\b
+    - match: \b(?i)(give_claims_on_italy|give_claims_on_germany|fix_variable_error|build_wheat_building|ig_approval_effect|add_building_setup|add_building_level_spam|add_building_level_with_tooltip|add_building_level|ally_in_war_short_on_goods_effect|get_landscape_picture|get_harbor_picture|get_city_picture|)(?-i)\b
       scope: keyword.scripted.effect
     # Generated Scripted Values
-    - match: \b(?i)(construction_cost_canal|construction_cost_monument|construction_cost_very_high|construction_cost_high|construction_cost_medium|construction_cost_low|construction_cost_very_low|max_autoexpand_queue_weeks|front_commander_pick_weight|front_country_troop_weight|front_battle_province_weight|province_terrain_infrastructure_force_limit|land_battle_size|land_battle_unit_selection_weight|naval_battle_size|naval_battle_unit_selection_weight|battle_unit_casualty_weight|grand_exhibition_points|small_radicals|medium_radicals|large_radicals|very_large_radicals|momentum_small|momentum_medium|momentum_large|momentum_very_large|momentum_small_decrease|momentum_medium_decrease|momentum_large_decrease|momentum_very_large_decrease|election_event_cooldown_months|day_until_next_expedition_event|expedition_peril_amount_small|expedition_peril_amount_medium|expedition_peril_amount_large|expedition_peril_decrease_small|expedition_peril_decrease_medium|expedition_progress_amount_small|expedition_progress_amount_medium|expedition_progress_amount_large|short_modifier_time|normal_modifier_time|long_modifier_time|very_long_modifier_time|stupidly_long_modifier_time|money_amount_multiplier_very_small|money_amount_multiplier_small|money_amount_multiplier_medium|money_amount_multiplier_large|money_amount_multiplier_very_large|money_amount_multiplier_large_state|poor|middle|rich|none|minimal|partial|full|global_population|country_and_subjects_population|country_and_subjects_population_global_share|state_infrastructure_balance|war_exhaustion_enemy_control|short_cooldown|medium_cooldown|long_cooldown|very_long_cooldown|5_percent_of_credit|subtract_2_percent_of_credit|num_conscription_centers|num_of_clergymen|)(?-i)\b
+    - match: \b(?i)(construction_cost_canal|construction_cost_monument|construction_cost_very_high|construction_cost_high|construction_cost_medium|construction_cost_low|construction_cost_very_low|max_autoexpand_queue_weeks|front_commander_pick_weight|front_country_troop_weight|front_battle_province_weight|province_terrain_infrastructure_force_limit|land_battle_size|land_battle_unit_selection_weight|naval_battle_size|naval_battle_unit_selection_weight|battle_unit_casualty_weight|grand_exhibition_points|small_radicals|medium_radicals|large_radicals|very_large_radicals|momentum_small|momentum_medium|momentum_large|momentum_very_large|momentum_small_decrease|momentum_medium_decrease|momentum_large_decrease|momentum_very_large_decrease|election_event_cooldown_months|day_until_next_expedition_event|expedition_peril_amount_small|expedition_peril_amount_medium|expedition_peril_amount_large|expedition_peril_decrease_small|expedition_peril_decrease_medium|expedition_progress_amount_small|expedition_progress_amount_medium|expedition_progress_amount_large|short_modifier_time|normal_modifier_time|long_modifier_time|very_long_modifier_time|stupidly_long_modifier_time|money_amount_multiplier_very_small|money_amount_multiplier_small|money_amount_multiplier_medium|money_amount_multiplier_large|money_amount_multiplier_very_large|money_amount_multiplier_large_state|poor|middle|rich|none|minimal|partial|full|global_population|country_and_subjects_population|country_and_subjects_population_global_share|state_infrastructure_balance|war_exhaustion_enemy_control|short_cooldown|medium_cooldown|long_cooldown|very_long_cooldown|5_percent_of_credit|subtract_2_percent_of_credit|building_levels_temp_value|num_conscription_centers|num_of_clergymen|)(?-i)\b
       scope: storage.type.script.value
     # Generated Ai Strategies
     - match: \b(?i)(ai_strategy_default|ai_strategy_agricultural_expansion|ai_strategy_plantation_economy|ai_strategy_resource_expansion|ai_strategy_industrial_expansion|ai_strategy_placate_population|ai_strategy_maintain_power_balance|ai_strategy_territorial_expansion|ai_strategy_colonial_expansion|ai_strategy_armed_isolationism|ai_strategy_economic_imperialism|ai_strategy_unify_germany|ai_strategy_unify_italy|ai_strategy_unify_ethiopia|ai_strategy_unify_china|ai_strategy_conservative_agenda|ai_strategy_reactionary_agenda|ai_strategy_progressive_agenda|ai_strategy_egalitarian_agenda|ai_strategy_nationalist_agenda|ai_strategy_maintain_mandate_of_heaven|)(?-i)\b
@@ -852,10 +884,10 @@ contexts:
     - match: \b(?i)(iltizam_abolished|new_system_old_faces|retained_taxation_rights|rescinded_taxation_rights|governors_pleased|governors_satisfied|traditional_land_system_retained|reformed_land_code|modern_land_code|mobilizing_the_militia|deploying_the_army|peasant_unrest|expanding_holdings|cizye_tax|draft_exemption_tax|equality_under_the_law|promises_of_reform_ott|establishment_favours_reform|high_food_prices|alms_for_the_poor|well_connected|imperious_upstart|principled_pacifist|martyrized_pacifist|patrons_of_prosperity|fiscally_irresponsible|champion_of_prosperity|jingoist_rhetoric|dove_of_peace_in_time_of_war|indifferent_to_destitution|defender_of_the_downtrodden|united_in_righteousness|revere_the_emperor|wartime_production_act|machine_gun_expertise_low|machine_gun_expertise_high|modern_rifle_arsenal|arsenal_proving_ground|ramming_doctrine|armoured_doctrine|armoured_high_seas_fleet|safer_shores|defensive_doctrine|quantity_over_quality|decree_manufacturing_throughput|decree_minimum_wealth|decree_agricultural_throughput|decree_resource_throughput|decree_manufacturing_industrialist_attraction|decree_manufacturing_trade_attraction|decree_manufacturing_petty_bourgeoisie_attraction|decree_agricultural_landowners_attraction|decree_agricultural_rural_folk_attraction|decree_agricultural_devout_attraction|decree_resource_industrialists_attraction|decree_resource_landowners_attraction|decree_resource_trade_union_attraction|decree_resentful_military|decree_increased_pay|decree_tatics_to_ce|decree_let_them_riot|decree_put_the_riot_down|decree_break_it_up|decree_protests_dispersed|decree_let_them_protest|decree_protests_handled|conscription_starting|keep_marching_on|conscription_debate|no_slowing_down|conscription_stalled|more_soldiers|listen_to_the_troops|farming_accidents_mort|)(?-i)\b
       scope: entity.name.modifier
     # Generated Modifiers
-    - match: \b(?i)(farming_accident_chance|government_in_bed|forced_legitimacy|health_tax|industrialist_tax|government_health_tax|taxing_health|health_bureaucracy|more_healthcare|healthcare_rights|right_to_care|republic_representation|fate_of_the_monarchy|the_kings_speech|exile_the_monarch|speech_opposition|speech_supporters|opening_up_healthcare|healthcare_debate_ig_ignored|healthcare_debate_ig_heard|commander_fired|commander_kept|free_state_mort|taiping_god_worshippers|taiping_taiping_revolution|taiping_taiping_rebellion|taiping_land_socialization|taiping_army_modifier|modifier_accepted_new_treatise|modifier_new_treatise_on_administration|modifier_second_conversion|modifier_conversion_of_china|modifier_second_crusade_against_manchu|modifier_relations_with_west|modifier_ruler_of_the_east|modifier_ruler_of_the_east_navy|modifier_vladivostok_navy_country|modifier_vladivostok_navy|modifier_vladivostok_civilian|modifier_slavery_forgotten|modifier_slavery_whitewashing|modifier_slavery_forgotten_bad|modifier_industrial_barriers_nat_supremacy|modifier_industrial_barriers_against_nat_supremacy|supported_railway_company_approval|supported_railway_company_disapproval|rail_company_state_mod|spent_money_on_rail_company|brazilian_rubber_boom_mod|golden_laws_enacted_mod|belo_horizonte_mod|teresina_mod|columbian_coffee_boom|hardwood_center_of_the_world_mod|persian_silk_production|focus_on_columbian_industrial_development|industrialists_trade_policy_approval_mod|industrialists_trade_policy_disapproval_mod|suppressed_newspaper_mod|free_flowing_publications_mod|workers_committee_mod|workers_committee_demands_mod|workers_committee_disallowed_mod|local_management_conflict_mod|public_meeting_ig_mod|public_meeting_mod|public_meeting_disaster_mod|attacked_warehouse_mod|professor_supported_mod|professor_suppressed_mod|bread_riot_sol_mod|bread_riot_concessions_given_mod|buissness_failed_state_mod|state_buissness_supported_mod|)(?-i)\b
+    - match: \b(?i)(farming_accident_chance|government_in_bed|forced_legitimacy|health_tax|industrialist_tax|government_health_tax|taxing_health|health_bureaucracy|more_healthcare|healthcare_rights|right_to_care|republic_representation|fate_of_the_monarchy|the_kings_speech|exile_the_monarch|speech_opposition|speech_supporters|opening_up_healthcare|healthcare_debate_ig_ignored|healthcare_debate_ig_heard|commander_fired|commander_kept|free_state_mort|taiping_god_worshippers|taiping_taiping_revolution|taiping_taiping_rebellion|taiping_land_socialization|taiping_army_modifier|modifier_accepted_new_treatise|modifier_new_treatise_on_administration|modifier_second_conversion|modifier_conversion_of_china|modifier_second_crusade_against_manchu|modifier_relations_with_west|modifier_ruler_of_the_east|modifier_ruler_of_the_east_navy|modifier_vladivostok_navy_country|modifier_vladivostok_navy|modifier_vladivostok_civilian|modifier_slavery_forgotten|modifier_slavery_whitewashing|modifier_slavery_forgotten_bad|modifier_industrial_barriers_nat_supremacy|modifier_industrial_barriers_against_nat_supremacy|supported_railway_company_approval|supported_railway_company_disapproval|rail_company_state_mod|spent_money_on_rail_company|industrialists_trade_policy_approval_mod|industrialists_trade_policy_disapproval_mod|suppressed_newspaper_mod|free_flowing_publications_mod|workers_committee_mod|workers_committee_demands_mod|workers_committee_disallowed_mod|local_management_conflict_mod|public_meeting_ig_mod|public_meeting_mod|public_meeting_disaster_mod|attacked_warehouse_mod|professor_supported_mod|professor_suppressed_mod|bread_riot_sol_mod|bread_riot_concessions_given_mod|buissness_failed_state_mod|state_buissness_supported_mod|state_recruitment_drive_mod|ig_devout_bribed_mod|bribed_interest_group_mod|free_trade_support_mod|free_trade_denied_mod|censorship_bureau_supported_mod|censorship_supported_ig_mod|censorship_bureau_denied_funds_mod|)(?-i)\b
       scope: entity.name.modifier
     # Generated Modifiers
-    - match: \b(?i)(state_recruitment_drive_mod|ig_devout_bribed_mod|bribed_interest_group_mod|free_trade_support_mod|free_trade_denied_mod|censorship_bureau_supported_mod|censorship_supported_ig_mod|censorship_bureau_denied_funds_mod|censorship_denied_funds_ig_mod|local_poet_mod|market_protectionism_mod|national_tradgedy_mod|struggling_munitions_plant_mod|supported_munitions_plant_mod|bovine_fever_aid_mod|blood_and_iron_aid_mod|explosive_explosion_aid_mod|bovine_fever_state_mod|iron_and_blood_building_mod|iron_and_blood_building_fuck_em_mod|cotton_quality_problems_mod|sent_livestock_to_help_mod|oil_boon_diverted_mod|oil_boon_building_mod|fish_boon_building_mod|fish_boon_state_mod|elegant_furniture_mod|elegant_furniture_sol_mod|robbed_tea_station_mod|fertilizer_factory_supported_mod|local_restrictions_on_fertilizer_mod|naval_school_mod|world_renowned_clippers|radio_component_shortage_mod|supporting_state_with_radio_components_mod|)(?-i)\b
+    - match: \b(?i)(censorship_denied_funds_ig_mod|local_poet_mod|market_protectionism_mod|national_tradgedy_mod|struggling_munitions_plant_mod|supported_munitions_plant_mod|bovine_fever_aid_mod|blood_and_iron_aid_mod|explosive_explosion_aid_mod|bovine_fever_state_mod|iron_and_blood_building_mod|iron_and_blood_building_fuck_em_mod|cotton_quality_problems_mod|sent_livestock_to_help_mod|oil_boon_diverted_mod|oil_boon_building_mod|fish_boon_building_mod|fish_boon_state_mod|elegant_furniture_mod|elegant_furniture_sol_mod|robbed_tea_station_mod|fertilizer_factory_supported_mod|local_restrictions_on_fertilizer_mod|naval_school_mod|world_renowned_clippers|radio_component_shortage_mod|supporting_state_with_radio_components_mod|MFE_lots_of_bullets_mod|)(?-i)\b
       scope: entity.name.modifier
     # Generated Decrees
     - match: \b(?i)(decree_road_maintenance|decree_violent_suppression|decree_emergency_relief|decree_promote_social_mobility|decree_promote_national_values|decree_encourage_manufacturing_industry|decree_encourage_agricultural_industry|decree_encourage_resource_industry|decree_greener_grass_campaign|decree_enlistment_efforts|)(?-i)\b
@@ -898,9 +930,6 @@ contexts:
       scope: entity.name.journal.entry
     # Generated Journal Entries
     - match: \b(?i)(je_tutorial_make_interest_group_happy|je_tutorial_enact_institution_law|je_tutorial_invest_into_an_institution|je_tutorial_reform_government|je_tutorial_increase_relations|je_tutorial_improve_rank|je_tutorial_prevent_revolution|je_tutorial_earn_obligation|je_tutorial_expand_military|je_tutorial_recruit_promote_commander|je_tutorial_mobilize_army|je_tutorial_send_general_to_front|je_tutorial_convoy_raiding|je_tutorial_recover_from_default|je_tutorial_start_diplomatic_play|je_tutorial_is_play_target|je_tutorial_capacity_deficit|je_tutorial_incorporate_state|je_tutorial_declare_an_interest|je_tutorial_colonize_state|je_tutorial_make_peace|je_tutorial_reach_end_date|je_tutorial_research_technology|je_electric_underground_railway|je_veiled_protectorate|je_victoria|je_warlord_china|je_war_crimes|je_munitions_factories|je_west_america_expedition|fail|je_dialectics|je_realism|je_academia|je_splitting_oman|je_acw_countdown|je_acw_war|je_acw_reconstruction|je_acw_reincorporate|je_acw_equality|je_acw_wild_wild_west|je_alaska|je_assassination|central_america_falls_apart|ragamuffin_war|je_flamethrowers|je_grand_exhibition|je_hawaii|je_hawaiian_interest|je_ig_suppression_1|je_indian_removal|je_krakatoa|je_famine|je_war_nursing|je_oregon|je_conquer_oregon|je_springtime_of_the_peoples|je_prohibition|scramble_for_africa|je_avert_sepoy_mutiny|je_sepoy_mutiny|slave_owner_paranoia|je_airships|je_romanticism|je_sol_1|je_heavenly_kingdom_main|je_taiping|je_taiping_revolution|je_texas_tex|je_texas_usa|je_urbanization_events_1|je_urbanization_events_2|je_the_eastern_border|je_central_archives|)(?-i)\b
-      scope: entity.name.journal.entry
-    # Generated Journal Entries
-    - match: \b(?i)(je_columbia_coffee|)(?-i)\b
       scope: entity.name.journal.entry
     # Generated Law Groups
     - match: \b(?i)(lawgroup_governance_principles|lawgroup_distribution_of_power|lawgroup_citizenship|lawgroup_church_and_state|lawgroup_bureaucracy|lawgroup_army_model|lawgroup_internal_security|lawgroup_economic_system|lawgroup_trade_policy|lawgroup_taxation|lawgroup_colonization|lawgroup_policing|lawgroup_education_system|lawgroup_health_system|lawgroup_free_speech|lawgroup_labor_rights|lawgroup_childrens_rights|lawgroup_rights_of_women|lawgroup_welfare|lawgroup_migration|lawgroup_slavery|)(?-i)\b
