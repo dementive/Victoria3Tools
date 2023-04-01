@@ -2028,6 +2028,11 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					self.state_region = True
 					view.run_command("auto_complete")
 					break
+		if "s:" in line:
+			idx = line.index("s:") + view.line(point).a + 2
+			if idx == point:
+				self.state_region = True
+				view.run_command("auto_complete")
 
 	def check_for_complex_completions(self, view, point):
 		view_str = view.substr(sublime.Region(0, view.size()))
