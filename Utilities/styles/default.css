@@ -1,0 +1,44 @@
+/* default css for non-documentation popups */
+body {
+	font-family: system;
+	margin: 0;
+	padding: 0.35rem;
+	background-color: rgb(25, 25, 25);
+}
+p {
+	font-size: 1.0rem;
+	margin-top: 5;
+	margin-bottom: 5;
+}
+h1 {
+	font-size: 1.2rem;
+	margin: 0;
+	padding-bottom: 0.05rem;
+}
+h2 {
+	font-size: 1.0rem;
+	margin: 0;
+}
+a {
+	font-size: 1.0rem;
+}
+span {
+	padding-right: 0.3rem;
+}
+div {
+	padding: 0.1rem;
+}
+.icon {
+	text-decoration: none;
+	font-size: 1em;
+}
+.variable {
+	font-size: 1.0rem;
+	color: rgb(150, 150, 150);
+}
+
+br {
+	display: block;
+	content: "";
+	margin-bottom: 0.20rem;
+}

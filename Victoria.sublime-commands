@@ -20,4 +20,8 @@
 		"caption": "Victoria 3: Clear Image Cache",
 		"command": "v3_clear_image_cache",
 	},
+	{
+		"caption": "Victoria 3: Show All Textures",
+		"command": "v3_show_all_textures",
+	},
 ]

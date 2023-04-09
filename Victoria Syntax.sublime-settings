@@ -12,6 +12,17 @@
 		//"C:\\Users\\ADDYOURUSERNAMEHERE\\Documents\\Paradox Interactive\\Victoria 3\\mod\\MOD2"
 	],
 
+	// GUI has seperate paths because the GUI syntax can be used in any jomini game
+	// The path to game files to use for gui
+	"GuiBaseGamePath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Victoria 3\\game",
+
+	// The path to your mods files that contain gui changes.
+	"PathsToGuiModFiles":
+	[
+		//"C:\\Users\\ADDYOURUSERNAMEHERE\\Documents\\Paradox Interactive\\Victoria 3\\mod\\MOD1",
+		//"C:\\Users\\ADDYOURUSERNAMEHERE\\Documents\\Paradox Interactive\\Victoria 3\\mod\\MOD2"
+	],
+
 	// Should documentation show up on hover for script files?
 	// true = will show docs
 	// false = won't show docs
@@ -75,5 +86,5 @@
 
 
 	// Match IfDef statements in shaders and show the block with a popup on hover.
-	"IfDefMatchEnabled": true
+	"IfDefMatchEnabled": true,
 }

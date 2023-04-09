@@ -6,27 +6,30 @@ import webbrowser
 import threading
 import subprocess
 import time
+from struct import unpack
 from collections import deque
 from .jomini import GameObjectBase, PdxScriptObjectType, PdxScriptObject
 from .Utilities.game_data import GameData
+from .Utilities.css import CSS
 
 # ----------------------------------
 # -          Plugin Setup          -
 # ----------------------------------
 settings = None
-v3_files_path = None
-v3_mod_files = None
+v3_files_path = ""
+v3_mod_files = []
+gui_files_path = ""
+gui_mod_files = []
 
-# Setup Paths for Objects, get set on plugin_loaded
-# This is the unified paths with all mod paths + base game path at the end
-file_paths = []
+css = CSS()
+
+# Game Data class
+GameData = GameData()
 
 # Gui Game Class implementations
-
-
 class GuiType(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(gui_mod_files, gui_files_path)
 		self.get_data("gui")
 
 	def get_pdx_object_list(self, path: str) -> PdxScriptObjectType:
@@ -55,7 +58,7 @@ class GuiType(GameObjectBase):
 
 class GuiTemplate(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(gui_mod_files, gui_files_path)
 		self.get_data("gui")
 
 	def get_pdx_object_list(self, path: str) -> PdxScriptObjectType:
@@ -82,226 +85,221 @@ class GuiTemplate(GameObjectBase):
 		return re.search("template\s[A-Za-z_][A-Za-z_0-9]*", x)
 
 # Victoria 3 Game Object Class implementations
-
-
 class V3AiStrategy(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\ai_strategies")
 
 
 class V3BuildingGroup(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\building_groups")
 
 
 class V3Building(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\building")
 
 
 class V3CharacterTrait(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\character_traits")
 
 
 class V3Culture(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\cultures")
 
 
 class V3Decree(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\decrees")
 
 
 class V3DiplomaticAction(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\diplomatic_actions")
 
 
 class V3DiplomaticPlay(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\diplomatic_plays")
 
 
 class V3GameRules(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\game_rules")
 
 
 class V3Goods(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\goods")
 
 
 class V3GovernmentType(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\government_types")
 
 
 class V3Ideology(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\ideologies")
 
 
 class V3Institutions(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\institutions")
 
 
 class V3Ideology(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\ideologies")
 
 
 class V3InterestGroupTrait(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\interest_group_traits")
 
 
 class V3InterestGroup(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\interest_groups")
 
 
 class V3JournalEntry(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\journal_entries")
 
 
 class V3LawGroup(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\law_groups")
 
 
 class V3Law(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\laws")
 
 
 class V3Modifier(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\modifiers")
 
 
 class V3Party(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\parties")
 
 
 class V3PopNeed(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\pop_needs")
 
 
 class V3PopType(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\pop_types")
 
 
 class V3ProductionMethodGroup(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\production_method_groups")
 
 
 class V3ProductionMethod(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\production_methods")
 
 
 class V3Religion(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\religions")
 
 
 class V3ScriptValue(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\script_values")
 
 
 class V3ScriptedEffect(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\scripted_effects")
 
 
 class V3ScriptedModifier(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\scripted_modifiers")
 
 
 class V3ScriptedTrigger(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\scripted_triggers")
 
 
 class V3StateTrait(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\state_traits")
 
 
 class V3StrategicRegion(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\strategic_regions")
 
 
 class V3SubjectType(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\subject_types")
 
 
 class V3Technology(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\technology")
 
 
 class V3Terrain(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\terrain")
 
 
 class V3StateRegion(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("map_data\\state_regions")
 
-
-# Game Data class
-GameData = GameData()
 
 # Gui globals
 
@@ -427,13 +425,12 @@ def load_gui_objects():
 
 
 def plugin_loaded():
-	global settings, v3_files_path, v3_mod_files, file_paths
+	global settings, v3_files_path, v3_mod_files, gui_files_path, gui_mod_files
 	settings = sublime.load_settings("Victoria Syntax.sublime-settings")
 	v3_files_path = settings.get("Victoria3FilesPath")
 	v3_mod_files = settings.get("PathsToModFiles")
-	out_file_paths = v3_mod_files
-	out_file_paths.append(v3_files_path)
-	file_paths = out_file_paths
+	gui_files_path = settings.get("GuiBaseGamePath")
+	gui_mod_files = settings.get("PathsToGuiModFiles")
 	sublime.set_timeout_async(lambda: get_mod_data(), 0)
 	sublime.set_timeout_async(lambda: load_game_objects(), 0)
 
@@ -441,7 +438,6 @@ def plugin_loaded():
 class V3ReloadPluginCommand(sublime_plugin.WindowCommand):
 	def run(self):
 		plugin_loaded()
-
 
 def get_mod_data():
 	for mod in v3_mod_files:
@@ -506,9 +502,8 @@ def write_data_to_syntax():
 
 
 def write_syntax(li, header, scope):
-	string = ""
 	count = 0
-	string += f"\n    # Generated {header}\n    - match: \\b(?i)("
+	string = f"\n    # Generated {header}\n    - match: \\b(?i)("
 	for i in li:
 		count += 1
 		# Count is needed to split because columns are waaay too long for syntax regex
@@ -524,87 +519,6 @@ def write_syntax(li, header, scope):
 	string += f")(?-i)\\b\n      scope: {scope}"
 	return string
 
-
-# css for non-documentation popups
-css_basic_style = """
-	body {
-		font-family: system;
-		margin: 0;
-		padding: 0.35rem;
-		background-color: rgb(25, 25, 25);
-	}
-	p {
-		font-size: 1.0rem;
-		margin-top: 5;
-		margin-bottom: 5;
-	}
-	h1 {
-		font-size: 1.2rem;
-		margin: 0;
-		padding-bottom: 0.05rem;
-	}
-	h2 {
-		font-size: 1.0rem;
-		margin: 0;
-	}
-	a {
-		font-size: 1.0rem;
-	}
-	span {
-		padding-right: 0.3rem;
-	}
-	div {
-		padding: 0.1rem;
-	}
-	.icon {
-		text-decoration: none;
-		font-size: 1em;
-	}
-	.variable {
-		font-size: 1.0rem;
-		color: rgb(150, 150, 150);
-	}
-"""
-
-# KIND_ID_AMBIGUOUS - transparent
-# KIND_ID_KEYWORD - red
-# KIND_ID_TYPE - purple
-# KIND_ID_FUNCTION - red
-# KIND_ID_NAMESPACE - light blue
-# KIND_ID_NAVIGATION - yellow
-# KIND_ID_MARKUP - orange
-# KIND_ID_VARIABLE - light greenish blue
-# KIND_ID_SNIPPET - green
-KIND_EFFECT = (sublime.KIND_ID_FUNCTION, "E", "Effect")
-KIND_TRIGGER = (sublime.KIND_ID_NAVIGATION, "T", "Trigger")
-KIND_AI_STRAT = (sublime.KIND_ID_MARKUP, "A", "Ai Strategy")
-KIND_BUILDING = (sublime.KIND_ID_VARIABLE, "B", "Building")
-KIND_BUILDING_GROUP = (sublime.KIND_ID_VARIABLE, "B", "Building Group")
-KIND_CHAR_TRAIT = (sublime.KIND_ID_VARIABLE, "C", "Character Trait")
-KIND_CULTURE = (sublime.KIND_ID_NAMESPACE, "C", "Culture")
-KIND_DECREE = (sublime.KIND_ID_MARKUP, "D", "Decree")
-KIND_DIPLO_ACTION = (sublime.KIND_ID_SNIPPET, "D", "Diplomatic Action")
-KIND_DIPLO_PLAY = (sublime.KIND_ID_SNIPPET, "D", "Diplomatic Play")
-KIND_GAME_RULE = (sublime.KIND_ID_FUNCTION, "G", "Game Rule")
-KIND_GOOD = (sublime.KIND_ID_NAMESPACE, "G", "Trade Good")
-KIND_GOV_TYPE = (sublime.KIND_ID_SNIPPET, "G", "Government Type")
-KIND_IDEOLOGY = (sublime.KIND_ID_NAVIGATION, "I", "Ideology")
-KIND_INSTITUTION = (sublime.KIND_ID_NAVIGATION, "I", "Institution")
-KIND_INTEREST_GROUP = (sublime.KIND_ID_MARKUP, "I", "Interest Group")
-KIND_JOURNAL = (sublime.KIND_ID_TYPE, "J", "Journal Entry")
-KIND_LAW_GROUP = (sublime.KIND_ID_VARIABLE, "L", "Law Group")
-KIND_LAW = (sublime.KIND_ID_VARIABLE, "L", "Law")
-KIND_MODIFIER = (sublime.KIND_ID_SNIPPET, "M", "Modifier")
-KIND_PARTY = (sublime.KIND_ID_TYPE, "P", "Political Party")
-KIND_POP_TYPE = (sublime.KIND_ID_VARIABLE, "P", "Pop Type")
-KIND_PRODUCTION_METHOD = (sublime.KIND_ID_NAVIGATION, "P", "Production Method")
-KIND_RELIGION = (sublime.KIND_ID_NAMESPACE, "R", "Religion")
-KIND_STATE_TRAIT = (sublime.KIND_ID_VARIABLE, "S", "State Trait")
-KIND_STRATEGIC_REGION = (sublime.KIND_ID_SNIPPET, "S", "Strategic Region")
-KIND_SUBJECT_TYPE = (sublime.KIND_ID_TYPE, "S", "Subject Type")
-KIND_TECH = (sublime.KIND_ID_VARIABLE, "T", "Technology")
-KIND_TERRAIN = (sublime.KIND_ID_NAVIGATION, "T", "Terrain")
-KIND_STATE_REGION = (sublime.KIND_ID_NAMESPACE, "S", "State Region")
 
 FIND_SIMPLE_DECLARATION_RE = "\s?=\s?(\")?"
 FIND_ERROR_RE = "\s?=\s?\"?([A-Za-z_][A-Za-z_0-9]*)\"?"
@@ -908,7 +822,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_AI_STRAT,
+						kind=(sublime.KIND_ID_MARKUP, "A", "Ai Strategy"),
 						details=" "
 					)
 					# Calling sorted() twice makes it so completions are ordered by
@@ -927,7 +841,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_BUILDING,
+						kind=(sublime.KIND_ID_VARIABLE, "B", "Building"),
 						details=" "
 					)
 					for key in sorted(b)
@@ -943,7 +857,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_BUILDING_GROUP,
+						kind=(sublime.KIND_ID_VARIABLE, "B", "Building Group"),
 						details=" "
 					)
 					for key in sorted(bg)
@@ -959,7 +873,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_CHAR_TRAIT,
+						kind=(sublime.KIND_ID_VARIABLE, "C", "Character Trait"),
 						details=" "
 					)
 					for key in sorted(ct)
@@ -975,7 +889,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_CULTURE,
+						kind=(sublime.KIND_ID_NAMESPACE, "C", "Culture"),
 						details=" "
 					)
 					for key in sorted(cu)
@@ -991,7 +905,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_DECREE,
+						kind=(sublime.KIND_ID_MARKUP, "D", "Decree"),
 						details=" "
 					)
 					for key in sorted(de)
@@ -1007,7 +921,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_DIPLO_ACTION,
+						kind=(sublime.KIND_ID_SNIPPET, "D", "Diplomatic Action"),
 						details=" "
 					)
 					for key in sorted(da)
@@ -1023,7 +937,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_DIPLO_PLAY,
+						kind=(sublime.KIND_ID_SNIPPET, "D", "Diplomatic Play"),
 						details=" "
 					)
 					for key in sorted(dp)
@@ -1039,7 +953,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_GAME_RULE,
+						kind=(sublime.KIND_ID_FUNCTION, "G", "Game Rule"),
 						details=" "
 					)
 					for key in sorted(gr)
@@ -1055,7 +969,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_GOOD,
+						kind=(sublime.KIND_ID_NAMESPACE, "G", "Trade Good"),
 						details=" "
 					)
 					for key in sorted(go)
@@ -1071,7 +985,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_GOV_TYPE,
+						kind=(sublime.KIND_ID_SNIPPET, "G", "Government Type"),
 						details=" "
 					)
 					for key in sorted(gov)
@@ -1087,7 +1001,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_IDEOLOGY,
+						kind=(sublime.KIND_ID_NAVIGATION, "I", "Ideology"),
 						details=" "
 					)
 					for key in sorted(idea)
@@ -1103,7 +1017,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_INSTITUTION,
+						kind=(sublime.KIND_ID_NAVIGATION, "I", "Institution"),
 						details=" "
 					)
 					for key in sorted(ins)
@@ -1119,7 +1033,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_INTEREST_GROUP,
+						kind=(sublime.KIND_ID_MARKUP, "I", "Interest Group"),
 						details=" "
 					)
 					for key in sorted(interest)
@@ -1135,7 +1049,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_JOURNAL,
+						kind=(sublime.KIND_ID_TYPE, "J", "Journal Entry"),
 						details=" "
 					)
 					for key in sorted(je)
@@ -1151,7 +1065,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_LAW_GROUP,
+						kind=(sublime.KIND_ID_VARIABLE, "L", "Law Group"),
 						details=" "
 					)
 					for key in sorted(lg)
@@ -1167,7 +1081,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_LAW,
+						kind=(sublime.KIND_ID_VARIABLE, "L", "Law"),
 						details=" "
 					)
 					for key in sorted(law)
@@ -1183,7 +1097,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_MODIFIER,
+						kind=(sublime.KIND_ID_SNIPPET, "M", "Modifier"),
 						details=" "
 					)
 					for key in sorted(mod)
@@ -1199,7 +1113,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_PARTY,
+						kind=(sublime.KIND_ID_TYPE, "P", "Political Party"),
 						details=" "
 					)
 					for key in sorted(pa)
@@ -1215,7 +1129,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_POP_TYPE,
+						kind=(sublime.KIND_ID_VARIABLE, "P", "Pop Type"),
 						details=" "
 					)
 					for key in sorted(pop)
@@ -1231,7 +1145,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_PRODUCTION_METHOD,
+						kind=(sublime.KIND_ID_NAVIGATION, "P", "Production Method"),
 						details=" "
 					)
 					for key in sorted(pm)
@@ -1247,7 +1161,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_RELIGION,
+						kind=(sublime.KIND_ID_NAMESPACE, "R", "Religion"),
 						details=" "
 					)
 					for key in sorted(rel)
@@ -1263,7 +1177,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_STATE_TRAIT,
+						kind=(sublime.KIND_ID_VARIABLE, "S", "State Trait"),
 						details=" "
 					)
 					for key in sorted(state_trait)
@@ -1279,7 +1193,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_STRATEGIC_REGION,
+						kind=(sublime.KIND_ID_SNIPPET, "S", "Strategic Region"),
 						details=" "
 					)
 					for key in sorted(sr)
@@ -1295,7 +1209,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_SUBJECT_TYPE,
+						kind=(sublime.KIND_ID_TYPE, "S", "Subject Type"),
 						details=" "
 					)
 					for key in sorted(st)
@@ -1311,7 +1225,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_TECH,
+						kind=(sublime.KIND_ID_VARIABLE, "T", "Technology"),
 						details=" "
 					)
 					for key in sorted(te)
@@ -1327,7 +1241,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_TERRAIN,
+						kind=(sublime.KIND_ID_NAVIGATION, "T", "Terrain"),
 						details=" "
 					)
 					for key in sorted(terr)
@@ -1343,7 +1257,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 					sublime.CompletionItem(
 						trigger=key,
 						completion_format=sublime.COMPLETION_FORMAT_TEXT,
-						kind=KIND_STATE_REGION,
+						kind=(sublime.KIND_ID_NAMESPACE, "S", "State Region"),
 						details=" "
 					)
 					for key in sorted(streg)
@@ -1857,13 +1771,13 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 		if "active_law:" in line:
 			idx = line.index("active_law:") + view.line(point).a + 11
 			if idx == point:
-				self.journal = True
+				self.law_group = True
 				view.run_command("auto_complete")
 		# Law Scopes
 		if "law_type:" in line:
 			idx = line.index("law_type:") + view.line(point).a + 9
 			if idx == point:
-				self.journal = True
+				self.law = True
 				view.run_command("auto_complete")
 		# Modifiers
 		for i in modifier_list:
@@ -1938,7 +1852,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 				if r.groups()[0] == "\"":
 					y = 2
 				if idx == point or idx + y == point or idx + 1 == point:
-					self.pm = True
+					self.religion = True
 					view.run_command("auto_complete")
 					break
 		if "rel:" in line:
@@ -2068,7 +1982,6 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 				view.run_command("auto_complete")
 
 		for br in view.find_by_selector("meta.bg.bracket"):
-			print(start_bg_brackets)
 			i = sublime.Region(br.a, self.getIndex(view_str, br.a))
 			s = view.substr(i)
 			if "type = " in s:
@@ -2410,19 +2323,13 @@ class IntrinsicHoverListener(sublime_plugin.EventListener):
 					hoverBody = """
 						<body id=show-intrinsic>
 							<style>
-								body {
-									font-family: system;
-								}
-								p {
-									font-size: 1.0rem;
-									margin: 0;
-								}
+								%s
 							</style>
 							<p>%s</p>
 							<br>
 							<a href="%s">MSDN Link</a>
 						</body>
-					""" % (desc, url)
+					""" % (css.default, desc, url)
 
 					view.show_popup(hoverBody, flags=sublime.HIDE_ON_MOUSE_MOVE_AWAY, location=point, max_width=1024, on_navigate=lambda x: OpenMSDNLink(x))
 					return
@@ -2585,7 +2492,7 @@ class HeaderHoverListener(sublime_plugin.EventListener):
 				<h1>Header File</h1>
 				<a href="subl:open_pdx_shader_header" title="If file does not open add path to package settings">Open %s</a>
 			</body>
-		""" % (css_basic_style, file)
+		""" % (css.default, file)
 
 		view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY |
 										  sublime.COOPERATE_WITH_AUTO_COMPLETE | sublime.HIDE_ON_CHARACTER_EVENT),
@@ -2634,24 +2541,13 @@ class IfDefMatchListener(sublime_plugin.EventListener):
 			hoverBody = """
 				<body id=show-ifdefmatch>
 					<style>
-						body {
-							font-family: system;
-						}
-						h1 {
-							font-size: 1.1rem;
-							font-weight: bold;
-							margin: 0 0 0.25em 0;
-						}
-						p {
-							font-size: 1.0rem;
-							margin: 0;
-						}
+						%s
 					</style>
 					%s
 					%s
 					%s
 				</body>
-			""" % (startSection, seperator, endSection)
+			""" % (css.default, startSection, seperator, endSection)
 
 			view.show_popup(hoverBody, flags=sublime.HIDE_ON_MOUSE_MOVE_AWAY, location=point, max_width=1024, on_navigate=on_navigate)
 
@@ -2750,72 +2646,16 @@ class IfDefMatchListener(sublime_plugin.EventListener):
 def show_hover_docs(view, point, scope, collection):
 	style = settings.get("DocsPopupStyle")
 	if style == "dark":
-		style = """
-					body {
-						font-family: system;
-						margin: 0;
-						padding: 0.35rem;
-						border: 0.2rem solid rgb(46, 46, 46);
-						background-color: rgb(5, 5, 5);
-					}
-					p {
-						font-size: 1.0rem;
-						margin: 0;
-					}
-				"""
+		style = css.dark
 	elif style == "none":
-		style = """
-					body {
-						font-family: system;
-					}
-					p {
-						font-size: 1.0rem;
-						margin: 0;
-					}
-				"""
+		style = css.default
 	elif style == "dynamic":
 		if scope == "keyword.effect":
-			style = """
-						body {
-							font-family: system;
-							margin: 0;
-							padding: 0.35rem;
-							border: 0.15rem solid rgb(128, 26, 0);
-							background-color: rgb(10, 10, 10);
-						}
-						p {
-							font-size: 1.0rem;
-							margin: 0;
-						}
-					"""
+			style = css.effect
 		elif scope == "string.trigger":
-			style = """
-						body {
-							font-family: system;
-							margin: 0;
-							padding: 0.35rem;
-							border: 0.15rem solid rgb(123, 123, 0);
-							background-color: rgb(10, 10, 10);
-						}
-						p {
-							font-size: 1.0rem;
-							margin: 0;
-						}
-					"""
+			style = css.trigger
 		elif scope == "storage.type.scope":
-			style = """
-						body {
-							font-family: system;
-							margin: 0;
-							padding: 0.35rem;
-							border: 0.15rem solid rgb(0, 122, 153);
-							background-color: rgb(10, 10, 10);
-						}
-						p {
-							font-size: 1.0rem;
-							margin: 0;
-						}
-					"""
+			style = css.scope
 	item = view.substr(view.word(point))
 	if item in collection:
 		desc = collection[item]
@@ -3131,7 +2971,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 					<h1>%s</h1>
 					%s
 				</body>
-			""" %(css_basic_style, header, link)
+			""" %(css.default, header, link)
 
 			view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY |sublime.COOPERATE_WITH_AUTO_COMPLETE |sublime.HIDE_ON_CHARACTER_EVENT),
 							location=point, max_width=1024)
@@ -3142,7 +2982,6 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 		word_file = view.file_name().rpartition("\\")[2]
 		definition = ""
 		definitions = []
-
 		if header == "Saved Scope" or header == "Saved Variable":
 			for win in sublime.windows():
 				for i in [v for v in win.views() if v and v.file_name()]:
@@ -3225,18 +3064,20 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 					<h1>%s</h1>
 					%s
 				</body>
-			""" %(css_basic_style, header, link)
+			""" %(css.default, header, link)
 
 			view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY |sublime.COOPERATE_WITH_AUTO_COMPLETE |sublime.HIDE_ON_CHARACTER_EVENT),
 							location=point, max_width=1024)
 
 	def show_texture_hover_popup(self, view, point, texture_name, full_texture_path):
-		args = { "path": full_texture_path }
+		args = {"path": full_texture_path }
 		open_texture_url = sublime.command_url("open_victoria_texture ", args)
-		folder_args = { "path": full_texture_path, "folder": True}
+		folder_args = {"path": full_texture_path, "folder": True}
 		open_folder_url = sublime.command_url("open_victoria_texture ", folder_args)
-		in_sublime_args = { "path": full_texture_path, "mode": "in_sublime"}
+		in_sublime_args = {"path": full_texture_path, "mode": "in_sublime"}
+		inline_args = {"path": full_texture_path, "point": point}
 		open_in_sublime_url = sublime.command_url("open_victoria_texture ", in_sublime_args)
+		open_inline_url = sublime.command_url("v3_show_texture ", inline_args)
 		hoverBody = """
 			<body id=\"vic-body\">
 				<style>%s</style>
@@ -3247,8 +3088,10 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 				<a href="%s" title="Open %s.dds in the default program">Open in default program</a>
 				<br>
 				<a href="%s" title="Convert %s.dds to PNG and open in sublime">Open in sublime</a>
+				<br>
+				<a href="%s" title="Convert %s.dds to PNG show at current selection">Show Inline</a>
 			</body>
-		""" %(css_basic_style, open_folder_url, open_texture_url, texture_name, open_in_sublime_url, texture_name)
+		""" %(css.default, open_folder_url, open_texture_url, texture_name, open_in_sublime_url, texture_name, open_inline_url, texture_name)
 
 		view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY
 						|sublime.COOPERATE_WITH_AUTO_COMPLETE |sublime.HIDE_ON_CHARACTER_EVENT),
@@ -3265,7 +3108,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 				<div></div>
 				<a href="%s" title="Replace current event sound with a new one...">Browse event audio</a>
 			</body>
-		""" % (css_basic_style, browse_url)
+		""" % (css.default, browse_url)
 
 		view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY |
 										  sublime.COOPERATE_WITH_AUTO_COMPLETE | sublime.HIDE_ON_CHARACTER_EVENT),
@@ -3284,7 +3127,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 				<br>
 				<span>•</span><a href="%s" title="Browse videos for a video to replace current video path and then play the new video.">Browse, Replace, and Play</a>&nbsp;
 			</body>
-		""" % (css_basic_style, word, browse_and_play_url)
+		""" % (css.default, word, browse_and_play_url)
 
 		view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY | sublime.COOPERATE_WITH_AUTO_COMPLETE | sublime.HIDE_ON_CHARACTER_EVENT), location=point, max_width=802)
 
@@ -3343,7 +3186,8 @@ class OpenVictoriaTextureCommand(sublime_plugin.WindowCommand):
 
 				if not os.path.exists(output_file):
 					# Run dds to png converter
-					subprocess.call([exe_path, path, output_file])
+					self.window.run_command("exec", {"cmd": [exe_path, path, output_file], "quiet": True})
+					self.window.destroy_output_panel("exec")
 					sublime.active_window().open_file(output_file)
 				else:
 					# File is already in cache, don't need to convert
@@ -3358,6 +3202,77 @@ class V3ClearImageCacheCommand(sublime_plugin.WindowCommand):
 			if item.endswith(".png"):
 				os.remove(os.path.join(dir_name, item))
 		sublime.status_message("Cleared Image Cache")
+
+
+shown_textures = []
+
+
+class ShowTextureBase:
+
+	def show_texture(self, path, point):
+		window = sublime.active_window()
+		simple_path = path.rpartition("\\")[2].replace(".dds", ".png")
+		output_file = sublime.packages_path() + "\\Victoria3Tools\\Convert DDS\\cache\\" + simple_path
+		exe_path = sublime.packages_path() + "\\Victoria3Tools\\Convert DDS\\src\\ConvertDDS.exe"
+		if not os.path.exists(output_file):
+			window.run_command("exec", {"cmd": [exe_path, path, output_file], "quiet": True})
+			window.destroy_output_panel("exec")
+			# Wait 150ms for conversion to finish
+			sublime.set_timeout_async(lambda: self.toggle_async(output_file, simple_path, point, window), 150)
+		else:
+			self.toggle_async(output_file, simple_path, point, window)
+
+	def toggle_async(self, output_file, simple_path, point, window):
+		image = f"file://{output_file}"
+		dimensions = ShowTextureBase.get_png_dimensions(output_file)
+		width = dimensions[0]
+		height = dimensions[1]
+		html = f'<img src="{image}" width="{width}" height="{height}">'
+		view = window.active_view()
+		self.toggle(simple_path, view, html, point)
+
+	def toggle(self, key, view, html, point):
+		pid = key + str(view.line(point).a)  # TODO - need to make this something unique that won't change
+		if pid in shown_textures:
+			shown_textures.remove(pid)
+			view.erase_phantoms(key)
+		else:
+			shown_textures.append(pid)
+			line_region = view.line(point)
+			# Find region of texture path declaration
+			# Ex: [start]texture = "gfx/interface/icons/goods_icons/meat.dds"[end]
+			start = view.find("[A-Za-z_][A-Za-z_0-9]*\s?=\s?\"?gfx", line_region.a).a
+			end = view.find("\"|\n", start).a
+			phantom_region = sublime.Region(start, end)
+			view.add_phantom(key, phantom_region, html, sublime.LAYOUT_BELOW)
+
+	@staticmethod
+	def get_png_dimensions(path):
+		if not path.endswith(".png"):
+			return
+		with open(path, 'rb') as f:
+			data = f.read()
+		w, h = unpack('>LL', data[16:24])
+		return int(w), int(h)
+
+class V3ShowTextureCommand(sublime_plugin.ApplicationCommand, ShowTextureBase):
+
+	def run(self, path, point):
+		self.show_texture(path, point)
+
+
+class V3ShowAllTexturesCommand(sublime_plugin.WindowCommand, ShowTextureBase):
+
+	def run(self):
+		view = self.window.active_view()
+		for line in (x for x in view.lines(sublime.Region(0, view.size())) if ".dds" in view.substr(x)):
+			texture_raw_start = view.find("gfx", line.a)
+			texture_raw_end = view.find(".dds", line.a)
+			texture_raw_region = sublime.Region(texture_raw_start.a, texture_raw_end.b)
+			texture_raw_path = view.substr(texture_raw_region)
+			full_texture_path = v3_files_path + "\\" + texture_raw_path
+			full_texture_path = full_texture_path.replace("/", "\\")
+			self.show_texture(full_texture_path, texture_raw_start)
 
 
 class PlayBinkVideoCommand(sublime_plugin.WindowCommand):
@@ -3460,3 +3375,35 @@ class SoundInputHandler(sublime_plugin.ListInputHandler):
 		for x in GameData.EventSoundsList:
 			keys.append(x.replace("event:/SFX/Events/", ""))
 		return sorted(keys)
+
+
+# with open("C:\\Users\\demen\\Documents\\Paradox Interactive\\Victoria 3\\logs\\data_types\\data_types_common.txt", "r") as file:
+# 	file_lines = file.read()
+
+# lines = file_lines.split("-----------------------")
+# lines = [x for x in lines if x.strip()]
+# exclude = ["Definition type: Global promote", "Definition type: Global function", "Definition type: Type"]
+# read_functions = [x for x in lines if x not in exclude]
+# read_global_prompts = [x for x in lines if "Definition type: Global promote" in x]
+# read_global_functions = [x for x in lines if "Definition type: Global function" in x]
+# read_types = [x for x in lines if "Definition type: Type" in x]
+
+# functions = []
+# for i in read_functions:
+# 	x = i.strip().split("\n")
+# 	functions.append(x)
+
+# with open("C:\\Users\\demen\\Documents\\Paradox Interactive\\Victoria 3\\logs\\data_types\\data_types_common.txt", "r") as file:
+# 	file_lines = file.readlines()
+
+
+
+
+# class GuiFunction:
+# 	def __init__(self, file, name, line, def_type, return_type=None, description=None):
+# 		self.file = file
+# 		self.name = name
+# 		self.line = line
+# 		self.def_type = def_type
+# 		self.return_type = return_type
+# 		self.description = description
