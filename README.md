@@ -24,21 +24,23 @@ C:\Users\YOURUSERNAME\AppData\Roaming\Sublime Text 3\Packages\Victoria3Tools
 - Localize command that will automatically create localization entries from a script file. Accessed from the command palette, opened with `ctrl+shift+p` and then type in `Victoria 3`.
 - Browse Video command that will allow you to play .bk2 videos directly from the command palette. Also shows a popup when hovering over a video file in an event that will let you play the video, replace the video with a new one, or replace and play the new video. Note that the [Rad Game Tools Bink Player](http://www.radgametools.com/bnkdown.htm) is required to play the games .bk2 files.
 - Hovering over texture paths will show a popup to open it.
+- Textures can be show in sublime either in a new tab or directly in script files. To show textures either hover over the path and show inline or use `ctrl+alt+t` to show all the textures in the current file.
 - Hovering over event sounds will show a popup that allows you to quickly browse and replace event sounds with the command palette.
 - Goto Definition for all game objects, saved scopes, and saved variables
 - Simple validator that will check for common easy to find errors and alert you when they happen when a script file is saved. These include: mismatched brackets, mismatched quotes, and encoding errors.
 - Full syntax highlighting of all relevant terms you may come across in Vic3 modding.
 
 ![Script Screenshot](/images/script.png)
+![Script Screenshot2](/images/textures.png)
 
 #### Gui 
 - Syntax highlighting for .gui files with a similar style to script
-- Hovering over texture paths will show a popup to open it.
+- Hovering over texture paths will show a popup to open it. Textures can be show in sublime.
 - Goto definition for types and templates.
 
 ![Gui Screenshot](/images/gui.png)
 
-#### For shaders (.fxh and .shader) there are multiple IDE like features these include:
+#### For shaders (.fxh and .shader) there are multiple features that include:
 - Open header files with a popup that shows up when hovering over an included files name.
 - Documentation for common HLSL functions and links to MSDN documentation on hover.
 - Ifdef block matching on hover that makes it easy to navigate big blocks.

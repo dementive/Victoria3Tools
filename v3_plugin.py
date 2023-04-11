@@ -2,11 +2,11 @@ import sublime
 import sublime_plugin
 import os
 import re
-import webbrowser
 import threading
-import subprocess
 import time
-from struct import unpack
+import struct
+import Default.exec
+from webbrowser import open as openwebsite
 from collections import deque
 from .jomini import GameObjectBase, PdxScriptObjectType, PdxScriptObject
 from .Utilities.game_data import GameData
@@ -100,7 +100,7 @@ class V3BuildingGroup(GameObjectBase):
 class V3Building(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
-		self.get_data("common\\building")
+		self.get_data("common\\buildings")
 
 
 class V3CharacterTrait(GameObjectBase):
@@ -324,8 +324,6 @@ def load_game_objects():
 		ai_strats = V3AiStrategy()
 		bgs = V3BuildingGroup()
 		buildings = V3Building()
-		for i in [x for x in buildings.keys() if "bg_" in x]:
-			buildings.remove(i)
 		char_traits = V3CharacterTrait()
 		cultures = V3Culture()
 		decrees = V3Decree()
@@ -433,6 +431,14 @@ def plugin_loaded():
 	gui_mod_files = settings.get("PathsToGuiModFiles")
 	sublime.set_timeout_async(lambda: get_mod_data(), 0)
 	sublime.set_timeout_async(lambda: load_game_objects(), 0)
+
+	cache_size_limit = settings.get("MaxImageCacheSize")
+	cache = sublime.packages_path() + "\\Victoria3Tools\\Convert DDS\\cache\\"
+	cache_files = [x for x in os.listdir(cache) if x.endswith(".png")]
+	if len(cache_files) > cache_size_limit:
+		for i in cache_files:
+			os.remove(os.path.join(cache, i))
+		sublime.status_message("Cleared Image Cache")
 
 
 class V3ReloadPluginCommand(sublime_plugin.WindowCommand):
@@ -2297,7 +2303,7 @@ def OpenMSDNLink(text):
 	elif openStyleSetting == "new_window":
 		openStyle = 1
 
-	webbrowser.open(text, openStyle)
+	openwebsite(text, openStyle)
 
 
 class IntrinsicHoverListener(sublime_plugin.EventListener):
@@ -3194,6 +3200,48 @@ class OpenVictoriaTextureCommand(sublime_plugin.WindowCommand):
 					sublime.active_window().open_file(output_file)
 
 
+class QuietExecuteCommand(sublime_plugin.WindowCommand):
+	"""
+		Simple version of Default.exec.py that only runs the process and shows no panel or messages
+	"""
+
+	def __init__(self, window):
+		super().__init__(window)
+		self.proc = None
+
+	def run(
+		self,
+		cmd=None,
+		shell_cmd=None,
+		working_dir="",
+		encoding="utf-8",
+		env={},
+		**kwargs):
+
+		self.encoding = encoding
+		merged_env = env.copy()
+		if self.window.active_view():
+			user_env = self.window.active_view().settings().get('build_env')
+			if user_env:
+				merged_env.update(user_env)
+
+		if working_dir != "":
+			os.chdir(working_dir)
+
+		try:
+			# Forward kwargs to AsyncProcess
+			self.proc = Default.exec.AsyncProcess(cmd, shell_cmd, merged_env, self, **kwargs)
+			self.proc.start()
+		except Exception as e:
+			sublime.status_message("Build error")
+
+	def on_data(self, proc, data):
+		return
+
+	def on_finished(self, proc):
+		return
+
+
 class V3ClearImageCacheCommand(sublime_plugin.WindowCommand):
 	def run(self):
 		dir_name = sublime.packages_path() + "\\Victoria3Tools\\Convert DDS\\cache\\"
@@ -3204,10 +3252,69 @@ class V3ClearImageCacheCommand(sublime_plugin.WindowCommand):
 		sublime.status_message("Cleared Image Cache")
 
 
-shown_textures = []
+class V3TextureFileLoadEventListener(sublime_plugin.EventListener):
+	def on_load_async(self, view):
+		if not view:
+			return None
 
+		try:
+			if view.syntax().name != "Victoria Script" and view.syntax().name != "PdxPython" and view.syntax().name != "Victoria Gui":
+				return None
+		except AttributeError:
+			return None
+
+		if settings.get("ShowInlineTexturesOnLoad"):
+			sublime.active_window().run_command("v3_show_all_textures")
+
+
+class V3TextureEventListener(sublime_plugin.EventListener):
+	def on_post_text_command(self, view, command_name, args):
+		if command_name in ("left_delete", "insert"):
+			if view.file_name() and view.syntax().name == "Victoria Script" or view.syntax().name == "PdxPython" or view.syntax().name == "Victoria Gui":
+				x = [v for v in views_with_shown_textures if v.id() == view.id()]
+				if x:
+					x[0].update_line_count(view.rowcol(view.size())[0] + 1)
+
+
+views_with_shown_textures = set()
+
+
+class V3ViewTextures(sublime.View):
+	def __init__(self, id):
+		super(V3ViewTextures, self).__init__(id)
+		self.textures = []
+		self.line_count = self.rowcol(self.size())[0] + 1
+
+	def update_line_count(self, new_count):
+		diff = new_count - self.line_count
+		self.line_count += diff
+		to_update = []
+		for i, tex in enumerate(self.textures):
+			tex = tex.split("|")
+			key = tex[0]
+			line = int(tex[1])
+			point = self.text_point(line, 1)
+			if self.find(key, point):
+				# Texture is still on the same line, dont need to update
+				return
+			else:
+				current_selection_line = self.rowcol(self.sel()[0].a)[0] + 1
+				if current_selection_line < line:
+					line += diff
+					out = key + "|" + str(line)
+					to_update.append((i, out))
+		for i in to_update:
+			index = i[0]
+			replacement = i[1]
+			views_with_shown_textures.discard(self)
+			self.textures[index] = replacement
+			views_with_shown_textures.add(self)
 
 class ShowTextureBase:
+
+	png_iterations = 0
+	conversion_iterations = 0
+	ran_converter = False
 
 	def show_texture(self, path, point):
 		window = sublime.active_window()
@@ -3215,54 +3322,113 @@ class ShowTextureBase:
 		output_file = sublime.packages_path() + "\\Victoria3Tools\\Convert DDS\\cache\\" + simple_path
 		exe_path = sublime.packages_path() + "\\Victoria3Tools\\Convert DDS\\src\\ConvertDDS.exe"
 		if not os.path.exists(output_file):
-			window.run_command("exec", {"cmd": [exe_path, path, output_file], "quiet": True})
-			window.destroy_output_panel("exec")
-			# Wait 150ms for conversion to finish
-			sublime.set_timeout_async(lambda: self.toggle_async(output_file, simple_path, point, window), 150)
+			if not self.ran_converter:
+				window.run_command("quiet_execute", {"cmd": [exe_path, path, output_file]})
+				self.ran_converter = True
+			# Wait 50ms for conversion to finish
+			sublime.set_timeout_async(lambda: self.toggle_async(output_file, simple_path, point, window, path), 50)
 		else:
-			self.toggle_async(output_file, simple_path, point, window)
+			self.ran_converter = False
+			self.toggle_async(output_file, simple_path, point, window, path)
 
-	def toggle_async(self, output_file, simple_path, point, window):
-		image = f"file://{output_file}"
-		dimensions = ShowTextureBase.get_png_dimensions(output_file)
-		width = dimensions[0]
-		height = dimensions[1]
-		html = f'<img src="{image}" width="{width}" height="{height}">'
-		view = window.active_view()
-		self.toggle(simple_path, view, html, point)
+	def toggle_async(self, output_file, simple_path, point, window, original_path):
+		if not os.path.exists(output_file) and self.conversion_iterations < 6:
+			# Try to convert for 250ms
+			self.conversion_iterations += 1
+			self.show_texture(original_path, point)
+			return
+		else:
+			self.conversion_iterations = 0
+			image = f"file://{output_file}"
+			dimensions = self.get_png_dimensions(output_file)
+			width = dimensions[0]
+			height = dimensions[1]
+			html = f'<img src="{image}" width="{width}" height="{height}">'
+			view = window.active_view()
+			if os.path.exists(output_file):
+				self.toggle(simple_path, view, html, point)
 
 	def toggle(self, key, view, html, point):
-		pid = key + str(view.line(point).a)  # TODO - need to make this something unique that won't change
-		if pid in shown_textures:
-			shown_textures.remove(pid)
+		pid = key + "|" + str(view.rowcol(point)[0] + 1)
+		x = V3ViewTextures(view.id())
+		views_with_shown_textures.add(x)
+		x = [v for v in views_with_shown_textures if v.id() == view.id()]
+		if x:
+			current_view = x[0]
+		if pid in current_view.textures:
+			current_view.textures.remove(pid)
 			view.erase_phantoms(key)
 		else:
-			shown_textures.append(pid)
+			current_view.textures.append(pid)
 			line_region = view.line(point)
 			# Find region of texture path declaration
 			# Ex: [start]texture = "gfx/interface/icons/goods_icons/meat.dds"[end]
-			start = view.find("[A-Za-z_][A-Za-z_0-9]*\s?=\s?\"?gfx", line_region.a).a
+			start = view.find("[A-Za-z_][A-Za-z_0-9]*\s?=\s?\"?/?gfx", line_region.a).a
 			end = view.find("\"|\n", start).a
 			phantom_region = sublime.Region(start, end)
 			view.add_phantom(key, phantom_region, html, sublime.LAYOUT_BELOW)
 
-	@staticmethod
-	def get_png_dimensions(path):
-		if not path.endswith(".png"):
-			return
-		with open(path, 'rb') as f:
-			data = f.read()
-		w, h = unpack('>LL', data[16:24])
-		return int(w), int(h)
+	def get_png_dimensions(self, path):
+		height = 150
+		width = 150
+		file = open(path, 'rb')
+		try:
+			head = file.read(31)
+			size = len(head)
+			if size >= 24 and head.startswith(b'\211PNG\r\n\032\n') and head[12:16] == b'IHDR':
+				try:
+					width, height = struct.unpack(">LL", head[16:24])
+				except struct.error:
+					pass
+			elif size >= 16 and head.startswith(b'\211PNG\r\n\032\n'):
+				try:
+					width, height = struct.unpack(">LL", head[8:16])
+				except struct.error:
+					pass
+		finally:
+			file.close()
+
+		# Scale down so image doens't take up entire viewport
+		if width > 150 and height > 150:
+			width /= 1.75
+			height /= 1.75
+		return int(width), int(height)
+
 
 class V3ShowTextureCommand(sublime_plugin.ApplicationCommand, ShowTextureBase):
-
 	def run(self, path, point):
 		self.show_texture(path, point)
 
 
-class V3ShowAllTexturesCommand(sublime_plugin.WindowCommand, ShowTextureBase):
+class V3ToggleAllTexturesCommand(sublime_plugin.ApplicationCommand):
+	def __init__(self):
+		self.shown = False
 
+	def run(self):
+		window = sublime.active_window()
+		if self.shown or len(views_with_shown_textures) > 0:
+			self.shown = False
+			window.run_command("v3_clear_all_textures")
+		else:
+			self.shown = True
+			window.run_command("v3_show_all_textures")
+
+
+class V3ClearAllTexturesCommand(sublime_plugin.ApplicationCommand):
+	def run(self):
+		keys = []
+		for view in views_with_shown_textures:
+			for i in view.textures:
+				tex = i.split("|")
+				key = tex[0]
+				keys.append(key)
+		for view in sublime.active_window().views():
+			for i in keys:
+				view.erase_phantoms(i)
+		views_with_shown_textures.clear()
+
+
+class V3ShowAllTexturesCommand(sublime_plugin.WindowCommand, ShowTextureBase):
 	def run(self):
 		view = self.window.active_view()
 		for line in (x for x in view.lines(sublime.Region(0, view.size())) if ".dds" in view.substr(x)):
@@ -3272,7 +3438,7 @@ class V3ShowAllTexturesCommand(sublime_plugin.WindowCommand, ShowTextureBase):
 			texture_raw_path = view.substr(texture_raw_region)
 			full_texture_path = v3_files_path + "\\" + texture_raw_path
 			full_texture_path = full_texture_path.replace("/", "\\")
-			self.show_texture(full_texture_path, texture_raw_start)
+			self.show_texture(full_texture_path, texture_raw_start.a)
 
 
 class PlayBinkVideoCommand(sublime_plugin.WindowCommand):
