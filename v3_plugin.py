@@ -90,210 +90,174 @@ class V3AiStrategy(GameObjectBase):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\ai_strategies")
 
-
 class V3BuildingGroup(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\building_groups")
-
 
 class V3Building(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\buildings")
 
-
 class V3CharacterTrait(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\character_traits")
-
 
 class V3Culture(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\cultures")
 
-
 class V3Decree(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\decrees")
-
 
 class V3DiplomaticAction(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\diplomatic_actions")
 
-
 class V3DiplomaticPlay(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\diplomatic_plays")
-
 
 class V3GameRules(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\game_rules")
 
-
 class V3Goods(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\goods")
-
 
 class V3GovernmentType(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\government_types")
 
-
 class V3Ideology(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\ideologies")
-
 
 class V3Institutions(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\institutions")
 
-
 class V3Ideology(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\ideologies")
-
 
 class V3InterestGroupTrait(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\interest_group_traits")
 
-
 class V3InterestGroup(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\interest_groups")
-
 
 class V3JournalEntry(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\journal_entries")
 
-
 class V3LawGroup(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\law_groups")
-
 
 class V3Law(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\laws")
 
-
 class V3Modifier(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\modifiers")
-
 
 class V3Party(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\parties")
 
-
 class V3PopNeed(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\pop_needs")
-
 
 class V3PopType(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\pop_types")
 
-
 class V3ProductionMethodGroup(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\production_method_groups")
-
 
 class V3ProductionMethod(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\production_methods")
 
-
 class V3Religion(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\religions")
-
 
 class V3ScriptValue(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\script_values")
 
-
 class V3ScriptedEffect(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\scripted_effects")
 
-
 class V3ScriptedModifier(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\scripted_modifiers")
-
-
 class V3ScriptedTrigger(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\scripted_triggers")
-
 
 class V3StateTrait(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\state_traits")
 
-
 class V3StrategicRegion(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\strategic_regions")
-
 
 class V3SubjectType(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\subject_types")
 
-
 class V3Technology(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\technology")
 
-
 class V3Terrain(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\terrain")
-
 
 class V3StateRegion(GameObjectBase):
 	def __init__(self):
@@ -509,20 +473,20 @@ def write_data_to_syntax():
 
 def write_syntax(li, header, scope):
 	count = 0
-	string = f"\n    # Generated {header}\n    - match: \\b(?i)("
+	string = f"\n    # Generated {header}\n    - match: \\b("
 	for i in li:
 		count += 1
 		# Count is needed to split because columns are waaay too long for syntax regex
 		if count == 0:
-			string = f")(?-i)\\b\n      scope: {scope}\n"
-			string += f"    # Generated {header}\n    - match: \\b(?i)({i}|"
+			string = f")\\b\n      scope: {scope}\n"
+			string += f"    # Generated {header}\n    - match: \\b({i}|"
 		elif count == 75:
-			string += f")(?-i)\\b\n      scope: {scope}\n"
-			string += f"    # Generated {header}\n    - match: \\b(?i)({i}|"
+			string += f")\\b\n      scope: {scope}\n"
+			string += f"    # Generated {header}\n    - match: \\b({i}|"
 			count = 1
 		else:
 			string += f"{i}|"
-	string += f")(?-i)\\b\n      scope: {scope}"
+	string += f")\\b\n      scope: {scope}"
 	return string
 
 
@@ -3192,8 +3156,7 @@ class OpenVictoriaTextureCommand(sublime_plugin.WindowCommand):
 
 				if not os.path.exists(output_file):
 					# Run dds to png converter
-					self.window.run_command("exec", {"cmd": [exe_path, path, output_file], "quiet": True})
-					self.window.destroy_output_panel("exec")
+					self.window.run_command("quiet_execute", {"cmd": [exe_path, path, output_file]})
 					sublime.active_window().open_file(output_file)
 				else:
 					# File is already in cache, don't need to convert
@@ -3229,7 +3192,7 @@ class QuietExecuteCommand(sublime_plugin.WindowCommand):
 			os.chdir(working_dir)
 
 		try:
-			# Forward kwargs to AsyncProcess
+			# Run process
 			self.proc = Default.exec.AsyncProcess(cmd, shell_cmd, merged_env, self, **kwargs)
 			self.proc.start()
 		except Exception as e:
@@ -3406,6 +3369,16 @@ class V3ToggleAllTexturesCommand(sublime_plugin.ApplicationCommand):
 
 	def run(self):
 		window = sublime.active_window()
+		view = window.active_view()
+		if not view:
+			return None
+
+		try:
+			if view.syntax().name != "Victoria Script" and view.syntax().name != "PdxPython" and view.syntax().name != "Victoria Gui":
+				return None
+		except AttributeError:
+			return None
+
 		if self.shown or len(views_with_shown_textures) > 0:
 			self.shown = False
 			window.run_command("v3_clear_all_textures")

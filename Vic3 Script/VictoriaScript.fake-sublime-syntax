@@ -46,6 +46,7 @@ contexts:
 
     - include: manually-entered-content
     - include: auto-generated-content
+    - include: logical-operators
 
   comments:
     - match: (#).*$\n?
@@ -74,11 +75,12 @@ contexts:
           pop: 3
 
   variable-usage:
-    - match: \bvar\b|\blocal_var\b|\bglobal_var\b
+    - match: \bvar\b|\blocal_var\b|\bglobal_var\b|\bflag\b
       scope: storage.type.scope
       push:
         - include: line_ending_space
         - match: ':'
+          scope: keyword.operator.comparison.victoria
           push:
             - match: \n|\s
               pop: 2
@@ -118,6 +120,7 @@ contexts:
       push:
         - include: line_ending_space
         - match: ':'
+          scope: keyword.operator.comparison.victoria
           push:
             - match: \n|\s
               pop: 2
@@ -156,6 +159,7 @@ contexts:
       scope: keyword.effect
       push:
         - match: =
+          scope: keyword.operator.comparison.victoria
           push:
             - match: \n
               pop: 2
@@ -195,6 +199,7 @@ contexts:
       scope: keyword.effect
       push:
         - match: =
+          scope: keyword.operator.comparison.victoria
           push:
             - match: \n
               pop: 2
@@ -234,6 +239,7 @@ contexts:
       scope: string.trigger
       push:
         - match: =
+          scope: keyword.operator.comparison.victoria
           push:
             - match: \n
               pop: 2
@@ -272,7 +278,9 @@ contexts:
     - match: set_(local_|global_)?variable
       scope: keyword.effect
       push:
-        - match: =\s?\{
+        - match: =
+          scope: keyword.operator.comparison.victoria
+        - match: \{\n?+
           push:
             - match: (#).*$\n?
               scope: comment.line
@@ -281,6 +289,8 @@ contexts:
             - match: name
               scope: constant.numeric
               push:
+                - match: =
+                  scope: keyword.operator.comparison.victoria
                 - match: \n
                   pop: 3
                 - match: (#).*$\n?
@@ -314,6 +324,7 @@ contexts:
                     - match: \n
                       pop: 4
         - match: =
+          scope: keyword.operator.comparison.victoria
           push:
             - match: \n
               pop: 2
@@ -329,7 +340,9 @@ contexts:
       scope: keyword.effect
       push:
         - include: line_ending
-        - match: = \{\n?+
+        - match: =
+          scope: keyword.operator.comparison.victoria
+        - match: \{\n?+
           push:
             - match: (#).*$\n?
               scope: comment.line
@@ -338,6 +351,8 @@ contexts:
             - match: name
               scope: constant.numeric
               push:
+                - match: =
+                  scope: keyword.operator.comparison.victoria
                 - match: \n
                   pop: 3
                 - match: (#).*$\n?
@@ -378,6 +393,7 @@ contexts:
       scope: string.trigger.block.start
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{
           scope: meta.trigger.bracket
           pop: true
@@ -387,6 +403,7 @@ contexts:
       scope: keyword.effect.block.start
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{
           scope: meta.effect.bracket
           pop: true
@@ -396,6 +413,7 @@ contexts:
       scope: storage.type.value.block.start
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{
           scope: meta.value.bracket
           pop: true
@@ -405,6 +423,7 @@ contexts:
       scope: string.modifier.start
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{
           scope: meta.modifier.bracket
           pop: true
@@ -414,6 +433,7 @@ contexts:
       scope: string.trigger
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{
           scope: meta.bg.bracket
           pop: true
@@ -423,6 +443,7 @@ contexts:
       scope: keyword.effect
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{
           scope: meta.char.trait.bracket
           pop: true
@@ -432,6 +453,7 @@ contexts:
       scope: string.trigger
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{
           scope: meta.da.bracket
           pop: true
@@ -441,6 +463,7 @@ contexts:
       scope: keyword.effect
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{
           scope: meta.da.bracket
           pop: true
@@ -450,6 +473,7 @@ contexts:
       scope: keyword.effect
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{
           scope: meta.dp.bracket
           pop: true
@@ -459,6 +483,7 @@ contexts:
       scope: keyword.effect
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{
           scope: meta.goods.bracket
           pop: true
@@ -468,6 +493,7 @@ contexts:
       scope: string.trigger
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{
           scope: meta.goods.simple.bracket
           pop: true
@@ -477,6 +503,7 @@ contexts:
       scope: keyword.effect
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{
           scope: meta.ig.bracket
           pop: true
@@ -486,6 +513,7 @@ contexts:
       scope: keyword.effect
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{
           scope: meta.je.bracket
           pop: true
@@ -495,6 +523,7 @@ contexts:
       scope: keyword.effect
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{
           scope: meta.mods.bracket
           pop: true
@@ -504,6 +533,7 @@ contexts:
       scope: string.trigger
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{
           scope: meta.subjects.bracket
           pop: true
@@ -513,6 +543,7 @@ contexts:
       scope: string.trigger
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{
           scope: meta.law.bracket
           pop: true
@@ -522,6 +553,7 @@ contexts:
       scope: string.trigger
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{
           scope: meta.tech.bracket
           pop: true
@@ -531,6 +563,7 @@ contexts:
       scope: string.trigger
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{
           scope: meta.ideology.bracket
           pop: true
@@ -562,9 +595,20 @@ contexts:
     - match: $\n|\s
       pop: 2
 
+  equal_sign:
+    - match: =
+      scope: keyword.operator.comparison.victoria
+
+  logical-operators:
+    - match: \b(?i)(nand|nor|not|or|and)(?-i)\b
+      scope: storage.type.logical.operator
+
   manually-entered-content:
+    # Math Operators
+    - match: (\?=|<=|<|!=|>=|>|=|:)
+      scope: keyword.operator.comparison.victoria
     # Essential Scipt Functions
-    - match: \b(toggle_map_object_layers|created_material|materials|label|textures|path|dynamic_texture_postfix|open_popup|background|law_group_category|scripted_button|background_texture|propose_string|break_string|ask_to_end_string|pact|center_icon|triggered_desc|minor_left_icon|minor_right_icon|right_icon|namespace|parent_group|default_building|chance|mode|adjective|default|popup_name|male_ruler|female_ruler|male_heir|female_heir|ethnicities|ai_weight|group|building_group|entity_not_constructed|city_gfx_interactions|entity_under_construction|entity_constructed|gui_window|left_icon|base|progress|status_desc|progress_desc|how_tutorial|why_tutorial|timeout|first_name|last_name|texture|icon|placement|title|desc|flavor|event_image|duration|default_option|months|days|years|hidden|id|text|log_loc_errors|name|country_type|tier|flag_definition|allow_overlord_canton|order_by|qualifications_growth_desc)\b
+    - match: \b(default_rank|default_subject_type|toggle_map_object_layers|created_material|materials|label|textures|path|dynamic_texture_postfix|open_popup|background|law_group_category|scripted_button|background_texture|propose_string|break_string|ask_to_end_string|pact|center_icon|triggered_desc|minor_left_icon|minor_right_icon|right_icon|namespace|parent_group|default_building|chance|mode|adjective|default|popup_name|male_ruler|female_ruler|male_heir|female_heir|ethnicities|ai_weight|group|building_group|entity_not_constructed|city_gfx_interactions|entity_under_construction|entity_constructed|gui_window|left_icon|base|progress|status_desc|progress_desc|how_tutorial|why_tutorial|timeout|first_name|last_name|texture|icon|placement|title|desc|flavor|event_image|duration|default_option|months|days|years|hidden|id|text|log_loc_errors|name|country_type|tier|flag_definition|allow_overlord_canton|order_by|qualifications_growth_desc)\b
       scope: constant.numeric
     # Math/Sound/Video
     - match: \b(range|factor|percent|nearest|multiplier|amount|add|subtract|max|min|round|ceiling|floor|divide|modulo|multiply|divide|video|on_created_soundeffect|on_opened_soundeffect|integer_range|clicksound)\b
@@ -573,21 +617,18 @@ contexts:
     - match: \b(Return type|on_character_ig_membership|weekly_effect|commander_usage|break_effect|accept_effect|on_start|on_enable|on_disable|on_war_begins|on_enact|on_activate|on_deactivate|add_war_goal|activate_production_methods|set_secret_goal|on_created|on_yearly_pulse|on_weekly_pulse|on_fail|on_invalid|on_timeout|on_monthly_pulse|on_complete|effect|immediate|option|after|when_taken)\b
       scope: keyword.effect
     # Triggers
-    - match: \b(created_terrain|terrain_mask|preferred_terrain|diplomatic_action|gives_prestige_to_overlord|subservient_to_overlord|can_start_own_diplomatic_plays|breaks_if_subject_not_protected|join_overlord_wars|overlord_must_be_higher_rank|overlord_must_be_same_country_type|use_for_release_country|allow_change_country_flag|use_overlord_map_color|use_overlord_ruler|is_default|has_dynamic_texture|unemployment|final_subgoal|blocking_subgoals_none_of|objective_subgoals|recommended_tags|recommended_game_rules|blocking_subgoals_not_all|objective_subgoals|recommended_tags|recommended_game_rules|unlocking_subgoals_all|unlocking_subgoals_any|is_exclusive|is_repeatable|neutral|boolean|good|character_ideology|add_infamy_for_starting_initiator_wargoals|add_infamy_for_starting_target_wargoals|is_epic|subject_relation|annex_on_country_formation|is_breaking_hostile|is_target_breaking_hostile|actor_requires_approval_to_break|counts_for_tech_spread|show_confirmation_box|is_hostile|required_techs_for_colonization|disabling_technologies|city|port|farm|mine|naval_exit_id|impassable|subsistence_building|arable_resources|capped_resources|resource|naval_exit_iddynamic_country_name|language_accepted|cooldown|clear_size_area|inheritable_construction|is_military|is_subsistence|hires_unemployed_only|subsidized|stateregion_max_level|created_by_trade_routes|land_usage|always_possible|capped_by_resources|economy_of_scale|auto_place_buildings|discoverable_resource|depletable_resource|pays_taxes|fired_pops_become_radical|can_use_slaves|timed_modifiers|fail|valid_country_types|general_modifier|admiral_modifier|role|earliest_usage_date|latest_usage_date|country_trigger|happened|filter|dna|enable_switch_sides|allow_negotiated_peace|initiator_can_add_war_goals|target_can_add_war_goals|is_alliance|additional_involvement_trigger|show_effect_in_tooltip|recipient_gets_income_transfer|income_transfer_based_on_recipient|check_acceptance_for_will_break|will_propose|actor_can_break|target_can_break|should_notify_third_parties|target_requires_approval_to_break|has_junior_participant|recipient_pays_maintenance|is_customs_union|subject_type|check_acceptance_for_will_propose|transfer_pact|reverse_pact|will_break|is_about_to_auto_break|should_auto_break|should_invalidate|requires_approval|can_use_obligations|mapmode|special_selection|special_selection|textured_emblem|technology_cost|era|capital_province|graphical_culture|ai_is_valid|is_valid|unlocking_production_methods|building_modifiers|ai_selection|production_methods|entry|notification_type|ideologies|pop_potential|enable|transfer_of_power|fixed_price|tradeable|category|war_goal|requires_interest_marker|mirror_war_goal|selectable_in_lens|modifier|valid|cost|male_common_first_names|female_common_first_names|common_last_names|male_noble_first_names|female_noble_first_names|noble_last_names|male_regal_first_names|female_regal_first_names|regal_last_names|valid_for_country|available_for_interest_group|can_enact|religious_acceptance_rule|tariff_modifier_very_low|tariff_modifier_low|tariff_modifier_medium|tariff_modifier_high|tariff_modifier_very_high|cultural_acceptance_rule|build_from_investment_pool|tax_modifier_very_low|tax_modifier_low|tax_modifier_medium|tax_modifier_high|tax_modifier_very_high|unlocking_laws|disallowing_laws|possible_political_movements|institution_modifier|recruits_combat_unit|has_max_level|canal|terrain_manipulator|should_auto_expand|city_type|levels_per_mesh|buildable|expandable|downsizeable|unique|locator|production_method_groups|unlocking_technologies|required_construction|can_build|character_modifier|command_modifier|country_modifier|interest_group_modifier|state_type|building_type|production_method|is_general|is_admiral|use_culture_states|required_num_states|birth_date|tag|origin|ai_chance|weight_multiplier|coastal|technology|popup|highlighted_option|localization_key|first_valid|random_valid|can_deactivate|should_be_pinned_by_default|inheritable|progressbar|invalid|is_shown_when_inactive|trigger|limit|complete|ig_leader|owned_provinces|ideology|traits|potential|law|is_shown|possible|cultures|coa|subject_canton|coa_with_overlord_canton|colored_emblem|sub|fallback)\b
+    - match: \b(is_colonizable|is_unrecognized|uses_prestige|has_events|has_military|has_economy|has_politics|enforce_subject_rank_check|is_named_from_capital|join_violator|created_terrain|terrain_mask|preferred_terrain|diplomatic_action|gives_prestige_to_overlord|subservient_to_overlord|can_start_own_diplomatic_plays|breaks_if_subject_not_protected|join_overlord_wars|overlord_must_be_higher_rank|overlord_must_be_same_country_type|use_for_release_country|allow_change_country_flag|use_overlord_map_color|use_overlord_ruler|is_default|has_dynamic_texture|unemployment|final_subgoal|blocking_subgoals_none_of|objective_subgoals|recommended_tags|recommended_game_rules|blocking_subgoals_not_all|objective_subgoals|recommended_tags|recommended_game_rules|unlocking_subgoals_all|unlocking_subgoals_any|is_exclusive|is_repeatable|neutral|boolean|good|character_ideology|add_infamy_for_starting_initiator_wargoals|add_infamy_for_starting_target_wargoals|is_epic|subject_relation|annex_on_country_formation|is_breaking_hostile|is_target_breaking_hostile|actor_requires_approval_to_break|counts_for_tech_spread|show_confirmation_box|is_hostile|required_techs_for_colonization|disabling_technologies|city|port|farm|mine|naval_exit_id|impassable|subsistence_building|arable_resources|capped_resources|resource|naval_exit_iddynamic_country_name|language_accepted|cooldown|clear_size_area|inheritable_construction|is_military|is_subsistence|hires_unemployed_only|subsidized|stateregion_max_level|created_by_trade_routes|land_usage|always_possible|capped_by_resources|economy_of_scale|auto_place_buildings|discoverable_resource|depletable_resource|pays_taxes|fired_pops_become_radical|can_use_slaves|timed_modifiers|fail|valid_country_types|general_modifier|admiral_modifier|role|earliest_usage_date|latest_usage_date|country_trigger|happened|filter|dna|enable_switch_sides|allow_negotiated_peace|initiator_can_add_war_goals|target_can_add_war_goals|is_alliance|additional_involvement_trigger|show_effect_in_tooltip|recipient_gets_income_transfer|income_transfer_based_on_recipient|check_acceptance_for_will_break|will_propose|actor_can_break|target_can_break|should_notify_third_parties|target_requires_approval_to_break|has_junior_participant|recipient_pays_maintenance|is_customs_union|subject_type|check_acceptance_for_will_propose|transfer_pact|reverse_pact|will_break|is_about_to_auto_break|should_auto_break|should_invalidate|requires_approval|can_use_obligations|mapmode|special_selection|special_selection|textured_emblem|technology_cost|era|capital_province|graphical_culture|ai_is_valid|is_valid|unlocking_production_methods|building_modifiers|ai_selection|production_methods|entry|notification_type|ideologies|pop_potential|enable|transfer_of_power|fixed_price|tradeable|category|war_goal|requires_interest_marker|mirror_war_goal|selectable_in_lens|modifier|valid|cost|male_common_first_names|female_common_first_names|common_last_names|male_noble_first_names|female_noble_first_names|noble_last_names|male_regal_first_names|female_regal_first_names|regal_last_names|valid_for_country|available_for_interest_group|can_enact|religious_acceptance_rule|tariff_modifier_very_low|tariff_modifier_low|tariff_modifier_medium|tariff_modifier_high|tariff_modifier_very_high|cultural_acceptance_rule|build_from_investment_pool|tax_modifier_very_low|tax_modifier_low|tax_modifier_medium|tax_modifier_high|tax_modifier_very_high|unlocking_laws|disallowing_laws|possible_political_movements|institution_modifier|recruits_combat_unit|has_max_level|canal|terrain_manipulator|should_auto_expand|city_type|levels_per_mesh|buildable|expandable|downsizeable|unique|locator|production_method_groups|unlocking_technologies|required_construction|can_build|character_modifier|command_modifier|country_modifier|interest_group_modifier|state_type|building_type|production_method|is_general|is_admiral|use_culture_states|required_num_states|birth_date|tag|origin|ai_chance|weight_multiplier|coastal|technology|popup|highlighted_option|localization_key|first_valid|random_valid|can_deactivate|should_be_pinned_by_default|inheritable|progressbar|invalid|is_shown_when_inactive|trigger|limit|complete|ig_leader|owned_provinces|ideology|traits|potential|law|is_shown|possible|cultures|coa|subject_canton|coa_with_overlord_canton|colored_emblem|sub|fallback)\b
       scope: string.trigger
     # Scripted Triggers that also have a hover doc entry
     - match: \b(MFE_has_building)\b
       scope: string.trigger
     # Scopes
-    - match: \b(actor|risk|debug_color|pollution_mask_strength|devastation_mask_strength|convoy_contribution|pollution_generation|education_access|start_quality_of_life|wage_weight|literacy_target|consumption_mult|dependent_wage|political_engagement_base|unemployment_wealth|political_engagement_literacy_factor|unemployment_wealth|num_decimals|threshold|base_enactment_days|enactment_approval_mult|progressive_movement_chance|regressive_movement_chance|progressiveness|min_approval|max_approval|pop_weight|hiring_rate|proportionality_limit|infrastructure_usage_per_level|cash_reserves_max|throughput_scaled|opinion|decay|tile_size|nr_of_tiles|multiplier|is_decaying|consumption_tax_cost|convoy_cost_multiplier|traded_quantity|accept_break_score|attitude|income_transfer|ai|relations_progress_per_day|relations_improvement_max|propose_score|propose_break_score|use_obligation_chance|owe_obligation_chance|accept_score|junior_accept_score|who|country|target_state|target_country|color4|color5|map_color|mask|saved_scopes|ai_value|unscaled|workforce_scaled|level_scaled|max_weight|min_weight|obsession_chance|trade_route_revenue_multiplier|convoy_shipping_multiplier|prestige_factor|count|join_weight|show_in_list|leader_weight|leader_ideology|pop_support|residence_points_per_level|enable_air_connection|override_centerpiece_mesh|lens|replace|min_raise_to_hire|severity|direction|holder|reserves|secret_goal|states|provinces|setting|color1|current_value|goal_add_value|female|noble|color2|size|color3|pattern|color|priority|overlord_canton_offset|overlord_canton_scale|instance|scale|position|offset|parent|suffix)\b
+    - match: \b(icon_index|diplo_pact_cost|prestige_average_threshold|prestige_relative_threshold|infamy_aggressor_scaling|infamy_target_scaling|violator|actor|risk|debug_color|pollution_mask_strength|devastation_mask_strength|convoy_contribution|pollution_generation|education_access|start_quality_of_life|wage_weight|literacy_target|consumption_mult|dependent_wage|political_engagement_base|unemployment_wealth|political_engagement_literacy_factor|unemployment_wealth|num_decimals|threshold|base_enactment_days|enactment_approval_mult|progressive_movement_chance|regressive_movement_chance|progressiveness|min_approval|max_approval|pop_weight|hiring_rate|proportionality_limit|infrastructure_usage_per_level|cash_reserves_max|throughput_scaled|opinion|decay|tile_size|nr_of_tiles|multiplier|is_decaying|consumption_tax_cost|convoy_cost_multiplier|traded_quantity|accept_break_score|attitude|income_transfer|ai|relations_progress_per_day|relations_improvement_max|propose_score|propose_break_score|use_obligation_chance|owe_obligation_chance|accept_score|junior_accept_score|who|country|target_state|target_country|color4|color5|map_color|mask|saved_scopes|ai_value|unscaled|workforce_scaled|level_scaled|max_weight|min_weight|obsession_chance|trade_route_revenue_multiplier|convoy_shipping_multiplier|prestige_factor|count|join_weight|show_in_list|leader_weight|leader_ideology|pop_support|residence_points_per_level|enable_air_connection|override_centerpiece_mesh|lens|replace|min_raise_to_hire|severity|direction|holder|reserves|secret_goal|states|provinces|setting|color1|current_value|goal_add_value|female|noble|color2|size|color3|pattern|color|priority|overlord_canton_offset|overlord_canton_scale|instance|scale|position|offset|parent|suffix)\b
       scope: storage.type.scope
     # Other Stuff
     - match: \b(events|random_events|R G B)\b
       scope: entity.name
   auto-generated-content:
-    - match: \b(?i)(nand|nor|not|or|and)(?-i)\b
-      scope: storage.type.scope
-
     # Scopes
     - match: \b(?i)(religion|region|building|commander|defense|demoralized|manpower|mobilization|morale|offense|mg|participants|trade_center|interest_group|num_battalions|num_mobilized_battalions|num_units|num_units_not_in_battle|opposing_commander|popularity|battle|province|front|actor_market|exporter|importer|target_market|average_defense|average_offense|front_length|num_defending_battalions|num_enemy_units|num_total_battalions|num_provinces|state|active_diplomatic_play|array_define|c|cd|compare_complex_value|compare_value|cu|define|flag|g|global_gdp|global_var|infamy_threshold|is_setup|je_tutorial|law_type|local_var|named_script_value|no|p|player|pop_type|prev|rank_value|rel|relations_threshold|root|s|scope|sr|tension_threshold|this|value|var|yes|modifier|combat_width|land_hq|naval_hq|active_law|ai_army_comparison|ai_gdp_comparison|ai_ideological_opinion|ai_navy_comparison|army_size|building_levels|capital|civil_war_origin_country|colonial_growth_per_colony|country_definition|credit|currently_enacting_law|decree_cost|government_size|heir|ig|income|infamy|institution|je|legitimacy|market_capital|navy_size|num_active_declared_interests|num_active_interests|num_active_natural_interests|num_active_plays|num_admirals|num_alliances|num_alliances_and_defensive_pacts_with_allies|num_alliances_and_defensive_pacts_with_rivals|num_characters|num_colony_projects|num_commanders|num_convoys_available|num_convoys_required|num_declared_interests|num_defensive_pacts|num_generals|num_income_transfer_pacts|num_incorporated_states|num_interests|num_mutual_trade_route_levels_with_country|num_natural_interests|num_obligations_earned|num_politicians|num_positive_relations|num_rivals|num_ruling_igs|num_states|num_trade_routes|num_treaty_ports|num_unincorporated_states|overlord|py|relations|ruler|technology_being_researched|techs_researched|tension|top_overlord|pop_weight_modifier_scale|workplace|target|level|investment|investment_max|player_owed_obligation_days_left|scope_relations|scope_tension|attacker_side|defender_side|market|owner|diplomatic_pact_other_country|first_country|second_country|attacker_warleader|defender_warleader|slaves_role|desired_law|leader|party|type|goods|momentum|b|nf|state_region|num_export_trade_routes|num_import_trade_routes|region_state|goal_value|num_garrison_units|controller|average_expected_sol|average_sol|gdp|initiator|war|culture|)(?-i)\b
       scope: storage.type.scope
