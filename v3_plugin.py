@@ -9,8 +9,12 @@ import Default.exec
 from webbrowser import open as openwebsite
 from collections import deque
 from .jomini import GameObjectBase, PdxScriptObjectType, PdxScriptObject
+from .jomini import dict_to_game_object as make_object
 from .Utilities.game_data import GameData
 from .Utilities.css import CSS
+from .object_cache import GameObjectCache
+from .mod_cache import remake_cache
+
 
 # ----------------------------------
 # -          Plugin Setup          -
@@ -20,16 +24,13 @@ v3_files_path = ""
 v3_mod_files = []
 gui_files_path = ""
 gui_mod_files = []
-
 css = CSS()
-
-# Game Data class
 GameData = GameData()
 
-# Gui Game Class implementations
+# Gui Class implementations
 class GuiType(GameObjectBase):
 	def __init__(self):
-		super().__init__(gui_mod_files, gui_files_path)
+		super().__init__(gui_mod_files, settings.get("GuiBaseGamePath"))
 		self.get_data("gui")
 
 	def get_pdx_object_list(self, path: str) -> PdxScriptObjectType:
@@ -55,10 +56,9 @@ class GuiType(GameObjectBase):
 		# Check if a line should be read
 		return re.search("type\s[A-Za-z_][A-Za-z_0-9]*\s?=", x)
 
-
 class GuiTemplate(GameObjectBase):
 	def __init__(self):
-		super().__init__(gui_mod_files, gui_files_path)
+		super().__init__(settings.get("PathsToGuiModFiles"), settings.get("GuiBaseGamePath"))
 		self.get_data("gui")
 
 	def get_pdx_object_list(self, path: str) -> PdxScriptObjectType:
@@ -182,7 +182,7 @@ class V3Law(GameObjectBase):
 
 class V3Modifier(GameObjectBase):
 	def __init__(self):
-		super().__init__(v3_mod_files, v3_files_path)
+		super().__init__(v3_mod_files, v3_files_path, ignored_files=["00_static_modifiers.txt"])
 		self.get_data("common\\modifiers")
 
 class V3Party(GameObjectBase):
@@ -229,6 +229,7 @@ class V3ScriptedModifier(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("common\\scripted_modifiers")
+
 class V3ScriptedTrigger(GameObjectBase):
 	def __init__(self):
 		super().__init__(v3_mod_files, v3_files_path)
@@ -266,7 +267,6 @@ class V3StateRegion(GameObjectBase):
 
 
 # Gui globals
-
 gui_types = gui_templates = ""
 
 # Global Object Variables that get set on plugin_loaded
@@ -280,7 +280,141 @@ script_values = scripted_effects = scripted_modifiers = scripted_triggers = ""
 # so loading it all in on plugin init makes popups actually responsive
 
 
-def load_game_objects():
+def check_mod_for_changes():
+	"""
+		Check if any changes have been made to mod files
+		if changes have been made new game objects need to be generated and cached
+	"""
+	object_cache_path = sublime.packages_path() + f"\\Victoria3Tools\\object_cache.py"
+	if os.stat(object_cache_path).st_size < 200:
+		# If there are no objects in the cache, they need to be created
+		return True
+	mod_cache_path = sublime.packages_path() + f"\\Victoria3Tools\\mod_cache.py"
+	with open(mod_cache_path, "r") as f:
+		# Save lines without remake_cache function
+		mod_cache = f.readlines()
+		mod_cache = "".join(mod_cache[0:len(mod_cache) - 2])
+	with open(mod_cache_path, "w") as f:
+		# Clear
+		f.write("")
+
+	for path in v3_mod_files:
+		stats_dict = dict()
+		mod_name = path.rpartition("\\")[2]
+		mod_class_name = mod_name.replace(" ", "")
+		for dirpath, dirnames, filenames in os.walk(path):
+			mod_files = [x for x in filenames if x.endswith(".txt") or x.endswith(".gui")]
+			if mod_files:
+				full_path = dirpath + "\\" + mod_files[0]
+				stats_dict[full_path] = os.stat(full_path).st_mtime
+
+		with open(mod_cache_path, "a") as f:
+			# Write mod class
+			f.write(f"class {mod_class_name}:\n\tdef __init__(self):")
+			for i in stats_dict:
+				key = re.sub('\W|^(?=\d)', '_', i.split(mod_name)[1])
+				value = stats_dict[i]
+				f.write(f"\n\t\tself.{key} = {value}")
+			f.write("\n")
+
+	with open(mod_cache_path, "r") as f:
+		# Save written mod classes
+		new_mod_cache = "".join(f.readlines())
+	with open(mod_cache_path, "a") as f:
+		# Write remake_cache function that indicates if new game objects need to be made
+		f.write(f"def remake_cache():\n\treturn {True if mod_cache != new_mod_cache else False}")
+	return remake_cache()
+
+def get_objects_from_cache():
+	global igs, ai_strats, bgs, buildings, char_traits, cultures, mods, decrees, diplo_actions, diplo_plays, game_rules, goods
+	global gov_types, ideologies, institutions, ig_traits, igs, jes, law_groups, laws, parties, pop_needs, pop_types, pm_groups
+	global pms, religions, state_traits, strategic_regions, subject_types, technologies, terrains, state_regions, script_values, scripted_effects, scripted_modifiers, scripted_triggers
+	global gui_types, gui_templates
+
+	object_cache = GameObjectCache()
+
+	ai_strats = make_object(object_cache.ai_strats)
+	bgs = make_object(object_cache.bgs)
+	buildings = make_object(object_cache.buildings)
+	char_traits = make_object(object_cache.char_traits)
+	cultures = make_object(object_cache.cultures)
+	mods = make_object(object_cache.mods)
+	decrees = make_object(object_cache.decrees)
+	diplo_actions = make_object(object_cache.diplo_actions)
+	diplo_plays = make_object(object_cache.diplo_plays)
+	game_rules = make_object(object_cache.game_rules)
+	goods = make_object(object_cache.goods)
+	gov_types = make_object(object_cache.gov_types)
+	ideologies = make_object(object_cache.ideologies)
+	institutions = make_object(object_cache.institutions)
+	ig_traits = make_object(object_cache.ig_traits)
+	igs = make_object(object_cache.igs)
+	jes = make_object(object_cache.jes)
+	law_groups = make_object(object_cache.law_groups)
+	laws = make_object(object_cache.laws)
+	parties = make_object(object_cache.parties)
+	pop_needs = make_object(object_cache.pop_needs)
+	pop_types = make_object(object_cache.pop_types)
+	pm_groups = make_object(object_cache.pm_groups)
+	pms = make_object(object_cache.pms)
+	religions = make_object(object_cache.religions)
+	state_traits = make_object(object_cache.state_traits)
+	strategic_regions = make_object(object_cache.strategic_regions)
+	subject_types = make_object(object_cache.subject_types)
+	technologies = make_object(object_cache.technologies)
+	terrains = make_object(object_cache.terrains)
+	state_regions = make_object(object_cache.state_regions)
+	script_values = make_object(object_cache.script_values)
+	scripted_effects = make_object(object_cache.scripted_effects)
+	scripted_modifiers = make_object(object_cache.scripted_modifiers)
+	scripted_triggers = make_object(object_cache.scripted_triggers)
+	gui_types = make_object(object_cache.gui_types)
+	gui_templates = make_object(object_cache.gui_templates)
+
+def cache_all_objects():
+	# Write all generated objects to cache
+	path = sublime.packages_path() + f"\\Victoria3Tools\\object_cache.py"
+	with open(path, "w") as f:
+		f.write("class GameObjectCache:\n\tdef __init__(self):")
+		f.write(f"\n\t\tself.ai_strats = {ai_strats.to_json()}")
+		f.write(f"\n\t\tself.bgs = {bgs.to_json()}")
+		f.write(f"\n\t\tself.buildings = {buildings.to_json()}")
+		f.write(f"\n\t\tself.char_traits = {char_traits.to_json()}")
+		f.write(f"\n\t\tself.cultures = {cultures.to_json()}")
+		f.write(f"\n\t\tself.mods = {mods.to_json()}")
+		f.write(f"\n\t\tself.decrees = {decrees.to_json()}")
+		f.write(f"\n\t\tself.diplo_actions = {diplo_actions.to_json()}")
+		f.write(f"\n\t\tself.diplo_plays = {diplo_plays.to_json()}")
+		f.write(f"\n\t\tself.game_rules = {game_rules.to_json()}")
+		f.write(f"\n\t\tself.goods = {goods.to_json()}")
+		f.write(f"\n\t\tself.gov_types = {gov_types.to_json()}")
+		f.write(f"\n\t\tself.ideologies = {ideologies.to_json()}")
+		f.write(f"\n\t\tself.institutions = {institutions.to_json()}")
+		f.write(f"\n\t\tself.ig_traits = {ig_traits.to_json()}")
+		f.write(f"\n\t\tself.igs = {igs.to_json()}")
+		f.write(f"\n\t\tself.jes = {jes.to_json()}")
+		f.write(f"\n\t\tself.law_groups = {law_groups.to_json()}")
+		f.write(f"\n\t\tself.laws = {laws.to_json()}")
+		f.write(f"\n\t\tself.parties = {parties.to_json()}")
+		f.write(f"\n\t\tself.pop_needs = {pop_needs.to_json()}")
+		f.write(f"\n\t\tself.pop_types = {pop_types.to_json()}")
+		f.write(f"\n\t\tself.pm_groups = {pm_groups.to_json()}")
+		f.write(f"\n\t\tself.pms = {pms.to_json()}")
+		f.write(f"\n\t\tself.religions = {religions.to_json()}")
+		f.write(f"\n\t\tself.state_traits = {state_traits.to_json()}")
+		f.write(f"\n\t\tself.strategic_regions = {strategic_regions.to_json()}")
+		f.write(f"\n\t\tself.subject_types = {subject_types.to_json()}")
+		f.write(f"\n\t\tself.technologies = {technologies.to_json()}")
+		f.write(f"\n\t\tself.terrains = {terrains.to_json()}")
+		f.write(f"\n\t\tself.state_regions = {state_regions.to_json()}")
+		f.write(f"\n\t\tself.script_values = {script_values.to_json()}")
+		f.write(f"\n\t\tself.scripted_effects = {scripted_effects.to_json()}")
+		f.write(f"\n\t\tself.scripted_modifiers = {scripted_modifiers.to_json()}")
+		f.write(f"\n\t\tself.scripted_triggers = {scripted_triggers.to_json()}")
+		f.write(f"\n\t\tself.gui_types = {gui_types.to_json()}")
+		f.write(f"\n\t\tself.gui_templates = {gui_templates.to_json()}\n")
+
+def create_game_objects():
 	t0 = time.time()
 
 	def load_first():
@@ -356,11 +490,10 @@ def load_game_objects():
 	sublime.set_timeout_async(lambda: load_gui_objects(), 0)
 
 	t1 = time.time()
-	print("Time taken to load Victoria 3 objects: {:.3f} seconds".format(t1 - t0))
+	print("Time taken to create Victoria 3 objects: {:.3f} seconds".format(t1 - t0))
 
 
 def load_gui_objects():
-	# t0 = time.time()
 
 	def load_first():
 		global gui_types
@@ -381,10 +514,10 @@ def load_gui_objects():
 	thread2 = threading.Thread(target=load_second)
 	thread1.start()
 	thread2.start()
-
-	# t1 = time.time()
-	# print("Time taken to load pdx GUI objects: {:.3f} seconds".format(t1 - t0))
-
+	thread1.join()
+	thread2.join()
+	# Cache created objects
+	sublime.set_timeout_async(lambda: cache_all_objects(), 0)
 
 def plugin_loaded():
 	global settings, v3_files_path, v3_mod_files, gui_files_path, gui_mod_files
@@ -393,9 +526,12 @@ def plugin_loaded():
 	v3_mod_files = settings.get("PathsToModFiles")
 	gui_files_path = settings.get("GuiBaseGamePath")
 	gui_mod_files = settings.get("PathsToGuiModFiles")
-	sublime.set_timeout_async(lambda: get_mod_data(), 0)
-	sublime.set_timeout_async(lambda: load_game_objects(), 0)
-
+	if check_mod_for_changes():
+		# Create new objects
+		sublime.set_timeout_async(lambda: create_game_objects(), 0)
+	else:
+		# Load cached objects
+		get_objects_from_cache()
 	cache_size_limit = settings.get("MaxImageCacheSize")
 	cache = sublime.packages_path() + "\\Victoria3Tools\\Convert DDS\\cache\\"
 	cache_files = [x for x in os.listdir(cache) if x.endswith(".png")]
@@ -407,16 +543,12 @@ def plugin_loaded():
 
 class V3ReloadPluginCommand(sublime_plugin.WindowCommand):
 	def run(self):
-		plugin_loaded()
-
-def get_mod_data():
-	for mod in v3_mod_files:
-		# Populate GameData.EventVideos list from gfx files
-		if os.path.exists(mod + "\\gfx\\event_pictures"):
-			for file in [x for x in os.scandir(mod + "\\gfx\\event_pictures") if x.name.endswith(".bk2")]:
-				path = file.path
-				path = path.split("game\\")[1].replace("\\", "/")
-				GameData.EventVideos.append(path)
+		if check_mod_for_changes():
+			# Create new objects
+			sublime.set_timeout_async(lambda: create_game_objects(), 0)
+		else:
+			# Load cached objects
+			get_objects_from_cache()
 
 
 def write_data_to_syntax():
