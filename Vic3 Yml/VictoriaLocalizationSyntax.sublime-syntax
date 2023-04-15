@@ -1,0 +1,104 @@
+%YAML 1.2
+---
+name: Victoria Localization
+file_extensions: [yml]
+scope: vic.yml
+
+variables:
+  localization_key: '([A-Za-z_0-9\.][A-Za-z_0-9\.]*)'
+  valid_variable: '[A-Za-z_][A-Za-z_0-9]*'
+  languages: '(english|braz_por|french|german|polish|russian|spanish|japanese|simp_chinese|korean|turkish)'
+
+contexts:
+  main:
+    - include: comments
+    - include: file-header
+    - include: key-version
+    - include: description-zone
+
+  comments:
+    - match: (#).*$\n?
+      scope: comment
+
+  file-header:
+    - match: 'l_({{languages}})'
+      scope: constant.numeric.language.header
+      push:
+        - match: ':'
+          scope: keyword.operator
+          pop: true
+
+  key-version:
+    - match: ':'
+      scope: keyword.operator
+      push:
+        - include: line_ending_space
+        - match: \d+
+          scope: constant.numeric
+          pop: 2
+
+  description-zone:
+    - match: '"'
+      scope: string
+      push:
+        - include: dollar-zone
+        - include: function-zone
+        - include: loc-key-call
+        - include: text-formatting
+        - include: symbols
+        - meta_content_scope: string
+        - match: '"'
+          scope: string
+          pop: true
+
+  symbols:
+    - match: '\\n'
+      scope: constant.numeric.control
+
+  dollar-zone:
+    - match: \$
+      scope: keyword.operator
+      push:
+        - meta_content_scope: variable.language
+        - match: \$
+          scope: keyword.operator
+          pop: true
+
+  function-zone:
+    - match: \[
+      scope: keyword.operator
+      push:
+        - match: \]
+          scope: keyword.operator
+          pop: true
+
+  loc-key-call:
+    - match: \@
+      scope: keyword.operator
+      push:
+        - meta_content_scope: variable.language
+        - match: \!
+          scope: keyword.operator
+          pop: true
+
+  text-formatting:
+    - match: (#)({{valid_variable}}\s)
+      scope: storage.type.text-format-start
+      push:
+        - include: dollar-zone
+        - include: function-zone
+        - include: loc-key-call
+        - include: text-formatting
+        - match: (#\!)
+          scope: storage.type.end
+          pop: true
+
+
+  line_ending:
+    - include: comments
+    - match: $\n
+      pop: 3
+
+  line_ending_space:
+    - match: $\n|\s
+      pop: 3

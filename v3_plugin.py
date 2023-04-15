@@ -3407,9 +3407,7 @@ class V3ViewTextures(sublime.View):
 
 class ShowTextureBase:
 
-	png_iterations = 0
 	conversion_iterations = 0
-	ran_converter = False
 
 	def show_texture(self, path, point):
 		window = sublime.active_window()
@@ -3417,22 +3415,18 @@ class ShowTextureBase:
 		output_file = sublime.packages_path() + "\\Victoria3Tools\\Convert DDS\\cache\\" + simple_path
 		exe_path = sublime.packages_path() + "\\Victoria3Tools\\Convert DDS\\src\\ConvertDDS.exe"
 		if not os.path.exists(output_file):
-			if not self.ran_converter:
-				window.run_command("quiet_execute", {"cmd": [exe_path, path, output_file]})
-				self.ran_converter = True
+			window.run_command("quiet_execute", {"cmd": [exe_path, path, output_file]})
 			# Wait 50ms for conversion to finish
 			sublime.set_timeout_async(lambda: self.toggle_async(output_file, simple_path, point, window, path), 50)
 		else:
-			self.ran_converter = False
 			self.toggle_async(output_file, simple_path, point, window, path)
 
 	def toggle_async(self, output_file, simple_path, point, window, original_path):
+		# Try to convert for 250ms
 		if not os.path.exists(output_file) and self.conversion_iterations < 6:
-			# Try to convert for 250ms
 			self.conversion_iterations += 1
 			self.show_texture(original_path, point)
-			return
-		else:
+		elif os.path.exists(output_file):
 			self.conversion_iterations = 0
 			image = f"file://{output_file}"
 			dimensions = self.get_png_dimensions(output_file)

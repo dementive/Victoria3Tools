@@ -1,3 +1,6 @@
 *.vs
 Updating.md
+object_cache.py
+mod_cache.py
 /Convert DDS/cache/*.png
+Vic3 Script/VictoriaScript.sublime-syntax
