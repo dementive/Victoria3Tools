@@ -305,8 +305,9 @@ def check_mod_for_changes():
 		for dirpath, dirnames, filenames in os.walk(path):
 			mod_files = [x for x in filenames if x.endswith(".txt") or x.endswith(".gui")]
 			if mod_files:
-				full_path = dirpath + "\\" + mod_files[0]
-				stats_dict[full_path] = os.stat(full_path).st_mtime
+				for i, j in enumerate(mod_files):
+					full_path = dirpath + "\\" + mod_files[i]
+					stats_dict[full_path] = os.stat(full_path).st_mtime
 
 		with open(mod_cache_path, "a") as f:
 			# Write mod class
