@@ -539,16 +539,24 @@ def plugin_loaded():
 		for i in cache_files:
 			os.remove(os.path.join(cache, i))
 		sublime.status_message("Cleared Image Cache")
+	add_color_scheme_scopes()
+
+def add_color_scheme_scopes():
+	# Add scopes for yml text formatting to color scheme
+	DEFAULT_CS = "Packages/Color Scheme - Default/Monokai.sublime-color-scheme"
+	prefs = sublime.load_settings("Preferences.sublime-settings")
+	cs = prefs.get("color_scheme", DEFAULT_CS)
+	scheme_cache_path = os.path.join(sublime.packages_path(), "User", "PdxTools", cs).replace("tmTheme", "sublime-color-scheme")
+	if not os.path.exists(scheme_cache_path):
+		os.makedirs(os.path.dirname(scheme_cache_path), exist_ok=True)
+		rules = """{"variables": {}, "globals": {},"rules": [{"scope": "text.format.white.yml","foreground": "rgb(250, 250, 250)",},{"scope": "text.format.grey.yml","foreground": "rgb(173, 165, 160)",},{"scope": "text.format.red.yml","foreground": "rgb(210, 40, 40)",},{"scope": "text.format.green.yml","foreground": "rgb(40, 210, 40)",},{"scope": "text.format.yellow.yml","foreground": "rgb(255, 255, 0)",},{"scope": "text.format.blue.yml","foreground": "rgb(51, 214, 255)",},{"scope": "text.format.gold.yml","foreground": "#ffb027",},{"scope": "text.format.bold.yml","font_style": "bold"},{"scope": "text.format.italic.yml","font_style": "italic"}]}"""
+		with open(scheme_cache_path, "w") as f:
+			f.write(rules)
 
 
 class V3ReloadPluginCommand(sublime_plugin.WindowCommand):
 	def run(self):
-		if check_mod_for_changes():
-			# Create new objects
-			sublime.set_timeout_async(lambda: create_game_objects(), 0)
-		else:
-			# Load cached objects
-			get_objects_from_cache()
+		plugin_loaded()
 
 
 def write_data_to_syntax():
@@ -3416,13 +3424,13 @@ class ShowTextureBase:
 		exe_path = sublime.packages_path() + "\\Victoria3Tools\\Convert DDS\\src\\ConvertDDS.exe"
 		if not os.path.exists(output_file):
 			window.run_command("quiet_execute", {"cmd": [exe_path, path, output_file]})
-			# Wait 50ms for conversion to finish
-			sublime.set_timeout_async(lambda: self.toggle_async(output_file, simple_path, point, window, path), 50)
+			# Wait 100ms for conversion to finish
+			sublime.set_timeout_async(lambda: self.toggle_async(output_file, simple_path, point, window, path), 100)
 		else:
 			self.toggle_async(output_file, simple_path, point, window, path)
 
 	def toggle_async(self, output_file, simple_path, point, window, original_path):
-		# Try to convert for 250ms
+		# Try to convert for 500ms
 		if not os.path.exists(output_file) and self.conversion_iterations < 6:
 			self.conversion_iterations += 1
 			self.show_texture(original_path, point)
@@ -3642,27 +3650,57 @@ class SoundInputHandler(sublime_plugin.ListInputHandler):
 		return sorted(keys)
 
 
-# with open("C:\\Users\\demen\\Documents\\Paradox Interactive\\Victoria 3\\logs\\data_types\\data_types_common.txt", "r") as file:
+# def get_keys(gui_functions):
+# 	keys = dict()
+# 	for i in gui_functions:
+# 		keys[i.name] = i.name
+# 	return keys
+
+# datatypefile = "C:\\Users\\demen\\Documents\\Paradox Interactive\\Victoria 3\\logs\\data_types\\data_types_common.txt"
+
+# with open(datatypefile, "r") as file:
 # 	file_lines = file.read()
 
 # lines = file_lines.split("-----------------------")
 # lines = [x for x in lines if x.strip()]
-# exclude = ["Definition type: Global promote", "Definition type: Global function", "Definition type: Type"]
-# read_functions = [x for x in lines if x not in exclude]
-# read_global_prompts = [x for x in lines if "Definition type: Global promote" in x]
-# read_global_functions = [x for x in lines if "Definition type: Global function" in x]
-# read_types = [x for x in lines if "Definition type: Type" in x]
 
 # functions = []
-# for i in read_functions:
+# type_definitions = []
+
+# for i in lines:
+# 	description = ""
+# 	definition_type = ""
+# 	return_type = ""
 # 	x = i.strip().split("\n")
-# 	functions.append(x)
+# 	function_name = x[0].split("(")[0]
+# 	if len(function_name) == 2:
+# 		# Type definition
+# 		definition_type = function_name[1]
+# 		type_definitions.append(function_name[0])
+# 	if len(function_name) == 3:
+# 		# Function without description
+# 		definition_type = function_name[1]
+# 		return_type = function_name[2]
+# 	if len(function_name) == 4:
+# 		# Function with description
+# 		description = function_name[1]
+# 		definition_type = function_name[2]
+# 		return_type = function_name[3]
+
+# 	gui_function = GuiFunction(datatypefile, function_name, 0, definition_type, return_type, description)
+# 	functions.append(gui_function)
 
 # with open("C:\\Users\\demen\\Documents\\Paradox Interactive\\Victoria 3\\logs\\data_types\\data_types_common.txt", "r") as file:
 # 	file_lines = file.readlines()
+# 	for count, i in enumerate(file_lines):
+# 		name = i.strip()
+# 		keys_dict = get_keys(functions)
+# 		if name in keys_dict:
+# 			for j, fun in enumerate(functions):
+# 				if fun.name == name:
+# 					functions[j].line = count + 1
 
-
-
+# print(functions[0].name)
 
 # class GuiFunction:
 # 	def __init__(self, file, name, line, def_type, return_type=None, description=None):

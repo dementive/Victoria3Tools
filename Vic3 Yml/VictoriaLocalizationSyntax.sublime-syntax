@@ -22,7 +22,7 @@ contexts:
 
   file-header:
     - match: 'l_({{languages}})'
-      scope: constant.numeric.language.header
+      scope: entity.name
       push:
         - match: ':'
           scope: keyword.operator
@@ -47,7 +47,7 @@ contexts:
         - include: text-formatting
         - include: symbols
         - meta_content_scope: string
-        - match: '"'
+        - match: '\n'
           scope: string
           pop: true
 
@@ -59,6 +59,7 @@ contexts:
     - match: \$
       scope: keyword.operator
       push:
+        - include: line_ending
         - meta_content_scope: variable.language
         - match: \$
           scope: keyword.operator
@@ -68,6 +69,9 @@ contexts:
     - match: \[
       scope: keyword.operator
       push:
+        - clear_scopes: true
+        - meta_content_scope: empty.scope
+        - include: line_ending
         - match: \]
           scope: keyword.operator
           pop: true
@@ -76,26 +80,142 @@ contexts:
     - match: \@
       scope: keyword.operator
       push:
+        - include: line_ending
         - meta_content_scope: variable.language
         - match: \!
           scope: keyword.operator
           pop: true
 
-  text-formatting:
-    - match: (#)({{valid_variable}}\s)
-      scope: storage.type.text-format-start
+  text-formatting-white:
+    - match: (#)(?i)(variable|V|default_text|outliner_header|tooltip_sub_header|S|tooltip_header|T|concept|zero_value|Y|Z|header|h1|clickable|white|darker_white)(?-i)\s
+      scope: text.format.white.yml
       push:
+        - meta_content_scope: text.format.white.yml
         - include: dollar-zone
         - include: function-zone
         - include: loc-key-call
         - include: text-formatting
         - match: (#\!)
-          scope: storage.type.end
+          scope: text.format.white.yml
           pop: true
 
+  text-formatting-grey:
+    - match: (#)(?i)(maximum|grey|title|lore)(?-i)\s
+      scope: text.format.grey.yml
+      push:
+        - meta_content_scope: text.format.grey.yml
+        - include: dollar-zone
+        - include: function-zone
+        - include: loc-key-call
+        - include: text-formatting
+        - match: (#\!)
+          scope: text.format.grey.yml
+          pop: true
+
+  text-formatting-red:
+    - match: (#)(?i)(red|negative_value|N|R)(?-i)\s
+      scope: text.format.red.yml
+      push:
+        - meta_content_scope: text.format.red.yml
+        - include: dollar-zone
+        - include: function-zone
+        - include: loc-key-call
+        - include: text-formatting
+        - match: (#\!)
+          scope: text.format.red.yml
+          pop: true
+
+  text-formatting-green:
+    - match: (#)(?i)(green|G|light_green|positive_value|P|instruction|I)(?-i)\s
+      scope: text.format.green.yml
+      push:
+        - meta_content_scope: text.format.green.yml
+        - include: dollar-zone
+        - include: function-zone
+        - include: loc-key-call
+        - include: text-formatting
+        - match: (#\!)
+          scope: text.format.green.yml
+          pop: true
+
+  text-formatting-yellow:
+    - match: (#)(?i)(yellow|tooltippable_name)(?-i)\s
+      scope: text.format.yellow.yml
+      push:
+        - meta_content_scope: text.format.yellow.yml
+        - include: dollar-zone
+        - include: function-zone
+        - include: loc-key-call
+        - include: text-formatting
+        - match: (#\!)
+          scope: text.format.yellow.yml
+          pop: true
+
+  text-formatting-blue:
+    - match: (#)(?i)(blue|U)(?-i)\s
+      scope: text.format.blue.yml
+      push:
+        - meta_content_scope: text.format.blue.yml
+        - include: dollar-zone
+        - include: function-zone
+        - include: loc-key-call
+        - include: text-formatting
+        - match: (#\!)
+          scope: text.format.blue.yml
+          pop: true
+
+  text-formatting-gold:
+    - match: (#)(?i)(gold|O|tooltippable_concept)(?-i)\s
+      scope: text.format.gold.yml
+      push:
+        - meta_content_scope: text.format.gold.yml
+        - include: dollar-zone
+        - include: function-zone
+        - include: loc-key-call
+        - include: text-formatting
+        - match: (#\!)
+          scope: text.format.gold.yml
+          pop: true
+
+  text-formatting-bold:
+    - match: (#)(?i)(active|tooltippable|b|bold)(?-i)\s
+      scope: text.format.bold.yml
+      push:
+        - meta_content_scope: text.format.bold.yml
+        - include: dollar-zone
+        - include: function-zone
+        - include: loc-key-call
+        - include: text-formatting
+        - match: (#\!)
+          scope: text.format.bold.yml
+          pop: true
+
+  text-formatting-italic:
+    - match: (#)(?i)(italic|inactive)(?-i)\s
+      scope: text.format.italic.yml
+      push:
+        - meta_content_scope: text.format.italic.yml
+        - include: dollar-zone
+        - include: function-zone
+        - include: loc-key-call
+        - include: text-formatting
+        - match: (#\!)
+          scope: text.format.italic.yml
+          pop: true
+
+  text-formatting:
+    - include: line_ending
+    - include: text-formatting-white
+    - include: text-formatting-grey
+    - include: text-formatting-red
+    - include: text-formatting-green
+    - include: text-formatting-yellow
+    - include: text-formatting-blue
+    - include: text-formatting-gold
+    - include: text-formatting-bold
+    - include: text-formatting-italic
 
   line_ending:
-    - include: comments
     - match: $\n
       pop: 3
 
