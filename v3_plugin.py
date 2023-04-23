@@ -6,6 +6,7 @@ import threading
 import time
 import struct
 import Default.exec
+from colorsys import hsv_to_rgb
 from webbrowser import open as openwebsite
 from collections import deque
 from .jomini import GameObjectBase, PdxScriptObjectType, PdxScriptObject
@@ -265,6 +266,179 @@ class V3StateRegion(GameObjectBase):
 		super().__init__(v3_mod_files, v3_files_path)
 		self.get_data("map_data\\state_regions")
 
+class V3Country(GameObjectBase):
+	def __init__(self):
+		super().__init__(v3_mod_files, v3_files_path)
+		self.get_data("common\\country_definitions")
+
+class V3CountryRank(GameObjectBase):
+	def __init__(self):
+		super().__init__(v3_mod_files, v3_files_path)
+		self.get_data("common\\country_ranks")
+
+class V3CountryType(GameObjectBase):
+	def __init__(self):
+		super().__init__(v3_mod_files, v3_files_path)
+		self.get_data("common\\country_types")
+
+class PdxColorObject(PdxScriptObject):
+	def __init__(self, key, path, line, color):
+		super().__init__(key, path, line)
+		self.color = color
+		self.rgb_color = self.get_rgb_color()
+
+	def get_rgb_color(self):
+		"""
+		Color Formats:
+			color1 = hsv { 1.0 1.0 1.0 }
+			color2 = hsv360 { 360 100 100 }
+			color3 = { 255 255 255 }
+			color4 = rgb { 255 255 255 }
+			color5 = hex { aabbccdd }
+		This function merges all of these formats into one and returns (r, g, b) tuple
+		"""
+		object_color = self.color
+		r = 255
+		g = 255
+		b = 0
+		if object_color.startswith("rgb") or object_color.startswith("{"):
+			split_color = object_color.split("{")[1].replace(" }", "")
+			split_color = split_color.split(" ")
+			r = float(split_color[1]) * 255
+			g = float(split_color[2]) * 255
+			b = float(split_color[3]) * 255
+		if re.search(r"\bhsv\b", object_color):
+			split_color = object_color.split("{")[1].replace(" }", "")
+			split_color = object_color.split(" ")
+			h = float(split_color[2])
+			s = float(split_color[3])
+			v = float(split_color[4])
+			rgb = self.hsv2rgb(h, s, v)
+			r = rgb[0]
+			g = rgb[1]
+			b = rgb[2]
+		if re.search(r"\bhsv360\b", object_color):
+			split_color = object_color.split("{")[1].replace(" }", "")
+			split_color = object_color.split(" ")
+			h = float(split_color[2]) / 360
+			s = float(split_color[3]) / 100
+			v = float(split_color[4]) / 100
+			rgb = self.hsv2rgb(h, s, v)
+			r = rgb[0]
+			g = rgb[1]
+			b = rgb[2]
+			if split_color[2] == "187" and split_color[3] == "83" and split_color[4] == "146":
+				r = 230
+				g = 0
+				b = 230
+		if re.search(r"\bhex\b", object_color):
+			split_color = object_color.split("{")[1].replace(" }", "")
+			split_color = split_color.split("#").replace(" ", "")
+			return tuple(int(split_color[i:i + 2], 16) for i in (0, 2, 4))
+
+		return (r, g, b)
+
+	def hsv2rgb(self, h, s, v):
+		return tuple(round(i * 255) for i in hsv_to_rgb(h, s, v))
+
+	def __eq__(self, other):
+		if isinstance(other, V3NamedColor):
+			return (self.key == other.key)
+		elif isinstance(other, str):
+			return (self.key == other)
+		else:
+			return False
+
+	def __lt__(self, other):
+		if isinstance(other, V3NamedColor):
+			return (self.key < other.key)
+		elif isinstance(other, str):
+			return (self.key < other)
+		else:
+			return False
+
+	def __gt__(self, other):
+		if isinstance(other, V3NamedColor):
+			return (self.key > other.key)
+		elif isinstance(other, str):
+			return (self.key > other)
+		else:
+			return False
+
+def make_named_color_object(objects: dict) -> GameObjectBase:
+	obj_list = list()
+	for i in objects:
+		obj_list.append(PdxColorObject(i, objects[i][0], objects[i][1], objects[i][2]))
+	game_object = GameObjectBase()
+	game_object.main = PdxScriptObjectType(obj_list)
+	return game_object
+
+class V3NamedColor(GameObjectBase):
+	def __init__(self):
+		super().__init__(v3_mod_files, v3_files_path, level=1)
+		self.get_data("common\\named_colors")
+
+	def to_dict(self) -> dict:
+		d = dict()
+		for i in self.main.objects:
+			d[i.key] = [i.path, i.line, i.color]
+		return d
+
+	def get_pdx_object_list(self, path: str) -> PdxScriptObjectType:
+		obj_list = list()
+		for dirpath, dirnames, filenames in os.walk(path):
+			for filename in [f for f in filenames if f.endswith(".txt")]:
+				if filename in self.ignored_files:
+					continue
+				file_path = os.path.join(dirpath, filename)
+				if self.included_files:
+					if filename not in self.included_files:
+						continue
+				with open(file_path, "r", encoding='utf-8-sig') as file:
+					for i, line in enumerate(file):
+						if self.should_read(line):
+							found_item = re.search(r"([A-Za-z_][A-Za-z_0-9]*)\s*=(.*)", line)
+							if found_item and found_item.groups()[0]:
+								item_color = found_item.groups()[1]
+								found_item = found_item.groups()[0]
+								item_color = item_color.strip().split("#")[0]
+								item_color = item_color.rpartition("}")[0]
+								if not item_color:
+									continue
+								else:
+									item_color = item_color.replace("\t", " ") + " }"
+									item_color = re.sub(r"\s+", " ", item_color)
+									obj_list.append(PdxColorObject(found_item, file_path, i + 1, item_color))
+		return PdxScriptObjectType(obj_list)
+
+	def should_read(self, x: str) -> bool:
+		# Check if a line should be read
+		return re.search(r"([A-Za-z_][A-Za-z_0-9]*)\s*=", x)
+
+class V3BattleCondition(GameObjectBase):
+	def __init__(self):
+		super().__init__(v3_mod_files, v3_files_path)
+		self.get_data("common\\battle_conditions")
+
+class V3CommanderRank(GameObjectBase):
+	def __init__(self):
+		super().__init__(v3_mod_files, v3_files_path)
+		self.get_data("common\\commander_ranks")
+
+class V3CultureGraphics(GameObjectBase):
+	def __init__(self):
+		super().__init__(v3_mod_files, v3_files_path)
+		self.get_data("common\\culture_graphics")
+
+class V3ProposalType(GameObjectBase):
+	def __init__(self):
+		super().__init__(v3_mod_files, v3_files_path)
+		self.get_data("common\\proposal_types")
+
+class V3DiscriminationTrait(GameObjectBase):
+	def __init__(self):
+		super().__init__(v3_mod_files, v3_files_path)
+		self.get_data("common\\discrimination_traits")
 
 # Gui globals
 gui_types = gui_templates = ""
@@ -275,6 +449,8 @@ game_rules = goods = gov_types = ideologies = institutions = ig_traits = igs = j
 parties = pop_needs = pop_types = pm_groups = pms = religions = state_traits = strategic_regions = ""
 subject_types = technologies = terrains = state_regions = ""
 script_values = scripted_effects = scripted_modifiers = scripted_triggers = ""
+countries = country_ranks = country_types = named_colors = battle_conditions = commander_ranks = culture_graphics = ""
+proposal_types = discrimination_traits = ""
 # Function to fill all global game objects that get set in non-blocking async function on plugin_loaded
 # Setting all the objects can be slow and doing it on every hover (when they are actually used) is even slower,
 # so loading it all in on plugin init makes popups actually responsive
@@ -331,9 +507,16 @@ def get_objects_from_cache():
 	global gov_types, ideologies, institutions, ig_traits, igs, jes, law_groups, laws, parties, pop_needs, pop_types, pm_groups
 	global pms, religions, state_traits, strategic_regions, subject_types, technologies, terrains, state_regions, script_values, scripted_effects, scripted_modifiers, scripted_triggers
 	global gui_types, gui_templates
-
+	global countries, country_ranks, country_types, culture_graphics, named_colors, battle_conditions, commander_ranks, proposal_types, discrimination_traits
 	object_cache = GameObjectCache()
 
+	countries = make_object(object_cache.countries)
+	country_ranks = make_object(object_cache.country_ranks)
+	country_types = make_object(object_cache.country_types)
+	culture_graphics = make_object(object_cache.culture_graphics)
+	named_colors = make_named_color_object(object_cache.named_colors)
+	battle_conditions = make_object(object_cache.battle_conditions)
+	commander_ranks = make_object(object_cache.commander_ranks)
 	ai_strats = make_object(object_cache.ai_strats)
 	bgs = make_object(object_cache.bgs)
 	buildings = make_object(object_cache.buildings)
@@ -371,6 +554,8 @@ def get_objects_from_cache():
 	scripted_triggers = make_object(object_cache.scripted_triggers)
 	gui_types = make_object(object_cache.gui_types)
 	gui_templates = make_object(object_cache.gui_templates)
+	proposal_types = make_object(object_cache.proposal_types)
+	discrimination_traits = make_object(object_cache.discrimination_traits)
 
 def cache_all_objects():
 	# Write all generated objects to cache
@@ -413,7 +598,16 @@ def cache_all_objects():
 		f.write(f"\n\t\tself.scripted_modifiers = {scripted_modifiers.to_json()}")
 		f.write(f"\n\t\tself.scripted_triggers = {scripted_triggers.to_json()}")
 		f.write(f"\n\t\tself.gui_types = {gui_types.to_json()}")
-		f.write(f"\n\t\tself.gui_templates = {gui_templates.to_json()}\n")
+		f.write(f"\n\t\tself.gui_templates = {gui_templates.to_json()}")
+		f.write(f"\n\t\tself.countries = {countries.to_json()}")
+		f.write(f"\n\t\tself.country_ranks = {country_ranks.to_json()}")
+		f.write(f"\n\t\tself.country_types = {country_types.to_json()}")
+		f.write(f"\n\t\tself.culture_graphics = {culture_graphics.to_json()}")
+		f.write(f"\n\t\tself.battle_conditions = {battle_conditions.to_json()}")
+		f.write(f"\n\t\tself.commander_ranks = {commander_ranks.to_json()}")
+		f.write(f"\n\t\tself.proposal_types = {proposal_types.to_json()}")
+		f.write(f"\n\t\tself.discrimination_traits = {discrimination_traits.to_json()}")
+		f.write(f"\n\t\tself.named_colors = {named_colors.to_json()}")
 
 def create_game_objects():
 	t0 = time.time()
@@ -451,38 +645,53 @@ def create_game_objects():
 		pm_groups = V3ProductionMethodGroup()
 
 	def load_fourth():
-		global pms, religions, script_values, scripted_effects, scripted_modifiers, scripted_triggers
+		global pms, religions, script_values, scripted_effects, scripted_modifiers, scripted_triggers, proposal_types, discrimination_traits
 		pms = V3ProductionMethod()
 		religions = V3Religion()
 		script_values = V3ScriptValue()
 		scripted_effects = V3ScriptedEffect()
 		scripted_modifiers = V3ScriptedModifier()
 		scripted_triggers = V3ScriptedTrigger()
+		proposal_types = V3ProposalType()
+		discrimination_traits = V3DiscriminationTrait()
 
 	def load_fifth():
-		global state_traits, strategic_regions, subject_types, technologies, terrains, state_regions
+		global state_traits, strategic_regions, subject_types, technologies, terrains, state_regions, countries
 		state_traits = V3StateTrait()
 		strategic_regions = V3StrategicRegion()
 		subject_types = V3SubjectType()
 		technologies = V3Technology()
 		terrains = V3Terrain()
 		state_regions = V3StateRegion()
+		countries = V3Country()
+
+	def load_sixth():
+		global country_ranks, country_types, culture_graphics, named_colors, battle_conditions, commander_ranks
+		country_ranks = V3CountryRank()
+		country_types = V3CountryType()
+		culture_graphics = V3CultureGraphics()
+		named_colors = V3NamedColor()
+		battle_conditions = V3BattleCondition()
+		commander_ranks = V3CommanderRank()
 
 	thread1 = threading.Thread(target=load_first)
 	thread2 = threading.Thread(target=load_second)
 	thread3 = threading.Thread(target=load_third)
 	thread4 = threading.Thread(target=load_fourth)
 	thread5 = threading.Thread(target=load_fifth)
+	thread6 = threading.Thread(target=load_sixth)
 	thread1.start()
 	thread2.start()
 	thread3.start()
 	thread4.start()
 	thread5.start()
+	thread6.start()
 	thread1.join()
 	thread2.join()
 	thread3.join()
 	thread4.join()
 	thread5.join()
+	thread6.join()
 
 	# Write syntax data after creating objects so they actually exist when writing
 	sublime.set_timeout_async(lambda: write_data_to_syntax(), 0)
@@ -492,7 +701,6 @@ def create_game_objects():
 
 	t1 = time.time()
 	print("Time taken to create Victoria 3 objects: {:.3f} seconds".format(t1 - t0))
-
 
 def load_gui_objects():
 
@@ -554,12 +762,6 @@ def add_color_scheme_scopes():
 		with open(scheme_cache_path, "w") as f:
 			f.write(rules)
 
-
-class V3ReloadPluginCommand(sublime_plugin.WindowCommand):
-	def run(self):
-		plugin_loaded()
-
-
 def write_data_to_syntax():
 	fake_syntax_path = sublime.packages_path() + "\\Victoria3Tools\\Vic3 Script\\VictoriaScript.fake-sublime-syntax"
 	real_syntax_path = sublime.packages_path() + "\\Victoria3Tools\\Vic3 Script\\VictoriaScript.sublime-syntax"
@@ -603,6 +805,15 @@ def write_data_to_syntax():
 	lines += write_syntax(technologies.keys(), "Technologies", "entity.name.tech")
 	lines += write_syntax(terrains.keys(), "Terrains", "entity.name.terrain")
 	lines += write_syntax(state_regions.keys(), "State Regions", "entity.name.state.region")
+	lines += write_syntax(countries.keys(), "Countries", "entity.name.countries")
+	lines += write_syntax(country_ranks.keys(), "Country Ranks", "entity.name.country.ranks")
+	lines += write_syntax(country_types.keys(), "Country Types", "entity.name.country.types")
+	lines += write_syntax(culture_graphics.keys(), "Culture Graphics", "entity.name.culture.graphics")
+	lines += write_syntax(named_colors.keys(), "Named Colors", "entity.name.named.colors")
+	lines += write_syntax(battle_conditions.keys(), "Battle Conditions", "entity.name.battle.conditions")
+	lines += write_syntax(commander_ranks.keys(), "Commander Ranks", "entity.name.commander.ranks")
+	lines += write_syntax(proposal_types.keys(), "Proposal Types", "entity.name.proposal.type")
+	lines += write_syntax(discrimination_traits.keys(), "Discrimination Traits", "entity.name.discrimination.trait")
 
 	with open(real_syntax_path, "r") as file:
 		real_lines = file.read()
@@ -705,6 +916,25 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 		self.terrain_views = []
 		self.state_region = False
 		self.state_region_views = []
+		self.countries = False
+		self.countries_views = []
+		self.country_ranks = False
+		self.country_ranks_views = []
+		self.country_types = False
+		self.country_types_views = []
+		self.culture_graphics = False
+		self.culture_graphics_views = []
+		self.named_colors = False
+		self.named_colors_views = []
+		self.battle_conditions = False
+		self.battle_conditions_views = []
+		self.commander_ranks = False
+		self.commander_ranks_views = []
+
+		self.proposal_types = False
+		self.proposal_types_views = []
+		self.discrimination_traits = False
+		self.discrimination_traits_views = []
 
 		self.error_words = []
 
@@ -811,6 +1041,33 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 		if self.state_region:
 			self.state_region = False
 			self.state_region_views.append(vid)
+		if self.countries:
+			self.countries = False
+			self.countries_views.append(vid)
+		if self.country_ranks:
+			self.country_ranks = False
+			self.country_ranks_views.append(vid)
+		if self.country_types:
+			self.country_types = False
+			self.country_types_views.append(vid)
+		if self.culture_graphics:
+			self.culture_graphics = False
+			self.culture_graphics_views.append(vid)
+		if self.named_colors:
+			self.named_colors = False
+			self.named_colors_views.append(vid)
+		if self.battle_conditions:
+			self.battle_conditions = False
+			self.battle_conditions_views.append(vid)
+		if self.commander_ranks:
+			self.commander_ranks = False
+			self.commander_ranks_views.append(vid)
+		if self.proposal_types:
+			self.proposal_types = False
+			self.proposal_types_views.append(vid)
+		if self.discrimination_traits:
+			self.discrimination_traits = False
+			self.discrimination_traits_views.append(vid)
 
 	def on_activated_async(self, view):
 		vid = view.id()
@@ -910,6 +1167,33 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 		if self.state_region_views:
 			self.state_region = True
 			self.state_region_views.remove(vid)
+		if self.countries_views:
+			self.countries = True
+			self.countries_views.remove(vid)
+		if self.country_ranks_views:
+			self.country_ranks = True
+			self.country_ranks_views.remove(vid)
+		if self.country_types_views:
+			self.country_types = True
+			self.country_types_views.remove(vid)
+		if self.culture_graphics_views:
+			self.culture_graphics = True
+			self.culture_graphics_views.remove(vid)
+		if self.named_colors_views:
+			self.named_colors = True
+			self.named_colors_views.remove(vid)
+		if self.battle_conditions_views:
+			self.battle_conditions = True
+			self.battle_conditions_views.remove(vid)
+		if self.commander_ranks_views:
+			self.commander_ranks = True
+			self.commander_ranks_views.remove(vid)
+		if self.proposal_types_views:
+			self.proposal_types = True
+			self.proposal_types_views.remove(vid)
+		if self.discrimination_traits_views:
+			self.discrimination_traits = True
+			self.discrimination_traits_views.remove(vid)
 
 	def on_query_completions(self, view, prefix, locations):
 
@@ -1375,6 +1659,149 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 				],
 				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
 			)
+		if self.countries:
+			self.countries = False
+			c = countries.keys()
+			c = sorted(c)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=(sublime.KIND_ID_NAMESPACE, "C", "Country"),
+						details=" "
+					)
+					for key in sorted(c)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.country_ranks:
+			self.country_ranks = False
+			cr = country_ranks.keys()
+			cr = sorted(cr)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=(sublime.KIND_ID_NAMESPACE, "C", "Country Ranks"),
+						details=" "
+					)
+					for key in sorted(cr)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.country_types:
+			self.country_types = False
+			ct = country_types.keys()
+			ct = sorted(ct)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=(sublime.KIND_ID_NAMESPACE, "C", "Country Types"),
+						details=" "
+					)
+					for key in sorted(ct)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.culture_graphics:
+			self.culture_graphics = False
+			cg = culture_graphics.keys()
+			cg = sorted(cg)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=(sublime.KIND_ID_NAMESPACE, "C", "Country Types"),
+						details=" "
+					)
+					for key in sorted(cg)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.named_colors:
+			self.named_colors = False
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=obj.key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=(sublime.KIND_ID_VARIABLE, "C", "Named Color"),
+						details=" ",
+						annotation=obj.color
+					)
+					for obj in named_colors
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.battle_conditions:
+			self.battle_conditions = False
+			bc = battle_conditions.keys()
+			bc = sorted(bc)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=(sublime.KIND_ID_VARIABLE, "B", "Battle Condition"),
+						details=" "
+					)
+					for key in sorted(bc)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.commander_ranks:
+			self.commander_ranks = False
+			crk = commander_ranks.keys()
+			crk = sorted(crk)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=(sublime.KIND_ID_VARIABLE, "C", "Commander Rank"),
+						details=" "
+					)
+					for key in sorted(crk)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.proposal_types:
+			self.proposal_types = False
+			prt = proposal_types.keys()
+			prt = sorted(prt)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=(sublime.KIND_ID_VARIABLE, "P", "Proposal Types"),
+						details=" "
+					)
+					for key in sorted(prt)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		if self.discrimination_traits:
+			self.discrimination_traits = False
+			dit = discrimination_traits.keys()
+			dit = sorted(dit)
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=(sublime.KIND_ID_VARIABLE, "D", "Discrimination Traits"),
+						details=" "
+					)
+					for key in sorted(dit)
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
+			)
 
 		else:
 			if "script_values" in fname or "scripted_modifiers" in fname:
@@ -1579,6 +2006,15 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 		self.tech = False
 		self.terrain = False
 		self.state_region = False
+		self.countries = False
+		self.country_ranks = False
+		self.country_types = False
+		self.culture_graphics = False
+		self.named_colors = False
+		self.battle_conditions = False
+		self.commander_ranks = False
+		self.proposal_types = False
+		self.discrimination_traits = False
 
 	def check_for_simple_completions(self, view, point):
 		"""
@@ -1636,6 +2072,15 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 		tech_list = ["technology", "add_technology_researched", "can_research", "has_technology_progress", "has_technology_researched", "is_researching_technology", "is_researching_technology_category"]
 		terrain_list = ["has_terrain"]
 		state_regions_list = ["set_capital", "set_market_capital", "country_or_subject_owns_entire_state_region", "has_state_in_state_region", "owns_entire_state_region", "owns_treaty_port_in"]
+
+		country_types = ["is_country_type", "country_type"]
+		culture_graphics = ["has_culture_graphics", "graphics"]
+		named_colors = ["color", "color1", "color2", "color3", "color4", "color5"]
+		battle_conditions = ["has_battle_condition"]
+
+		proposal_types_list = ["post_proposal"]
+		discrimination_traits_list = ["has_discrimination_trait"]
+
 		# Ai Strats
 		for i in ai_list:
 			# Error checking if I end up wanting it
@@ -2058,6 +2503,103 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 			if idx == point:
 				self.state_region = True
 				view.run_command("auto_complete")
+		# Country Scopes
+		if "c:" in line:
+			idx = line.index("c:") + view.line(point).a + 2
+			if idx == point:
+				self.countries = True
+				view.run_command("auto_complete")
+		# Country Ranks
+		if "rank_value:" in line:
+			idx = line.index("rank_value:") + view.line(point).a + 11
+			if idx == point:
+				self.country_ranks = True
+				view.run_command("auto_complete")
+		# Country Types
+		for i in country_types:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.country_types = True
+					view.run_command("auto_complete")
+					break
+		# Culture Graphics
+		for i in culture_graphics:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.culture_graphics = True
+					view.run_command("auto_complete")
+					break
+		# Named Colors
+		for i in named_colors:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.named_colors = True
+					view.run_command("auto_complete")
+					break
+		# Battle Conditions
+		for i in battle_conditions:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.battle_conditions = True
+					view.run_command("auto_complete")
+					break
+		# Commander Ranks
+		for i in commander_ranks:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.commander_ranks = True
+					view.run_command("auto_complete")
+					break
+
+		# Proposal Types
+		for i in proposal_types_list:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.proposal_types = True
+					view.run_command("auto_complete")
+					break
+		# Discrimination Traits
+		for i in discrimination_traits_list:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.discrimination_traits = True
+					view.run_command("auto_complete")
+					break			
 
 	def check_for_complex_completions(self, view, point):
 		view_str = view.substr(sublime.Region(0, view.size()))
@@ -2158,7 +2700,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
 			return
 
 		self.simple_scope_match(view)
-		# Only do when there is 1 selections, doens't make sense with multiple selections
+		# Only do when there is 1 selection, doens't make sense with multiple selections
 		if len(view.sel()) == 1:
 			self.check_for_simple_completions(view, view.sel()[0].a)
 			self.check_for_complex_completions(view, view.sel()[0].a)
@@ -2259,8 +2801,6 @@ class ValidatorOnSaveListener(sublime_plugin.EventListener):
 		self.view = view
 		self.view_str = view.substr(sublime.Region(0, view.size()))
 
-		self.bracket_check()
-		self.quote_check()
 		self.encoding_check()
 
 	def encoding_check(self):
@@ -2299,56 +2839,6 @@ class ValidatorOnSaveListener(sublime_plugin.EventListener):
 					panel.add_regions("encoding", [sublime.Region(len(panel) - 21, len(panel) - 16)], "underline.good", flags=(sublime.DRAW_SOLID_UNDERLINE | sublime.DRAW_NO_FILL | sublime.DRAW_NO_OUTLINE))
 					panel.set_read_only(True)
 
-	def bracket_check(self):
-		# Check for mismatched brackets and shows an error message at the line of the error
-		check = checker(self.view_str)
-		if not check:
-			return
-
-		self.view.show(check)
-		line = self.view.rowcol(check)
-		line_num = line[0]
-		line_a = int(len(str(line_num)))
-		error_message = f"BracketError: There is a mismatched bracket near line {line_num}"
-
-		panel = self.create_error_panel()
-		panel.set_read_only(False)
-		panel.run_command("append", {"characters": error_message})
-		panel.add_regions("line_num", [sublime.Region(len(panel) - line_a, len(panel))], "region.redish", flags=(sublime.DRAW_SOLID_UNDERLINE | sublime.DRAW_NO_FILL | sublime.DRAW_NO_OUTLINE))
-		panel.set_read_only(True)
-
-	def quote_check(self):
-		# Check for mismatched quotes and shows an error message at the line of the error
-		lines = self.view_str.splitlines()
-
-		total_quote_count = 0
-		potential_errors = []
-		for index, line in enumerate(lines, start=1):
-			count = line.count("\"")
-			total_quote_count += count
-			if count == 2 or count == 0:
-				continue
-			if count % 2 == 1:
-				# add line number to potential errors, will show first potential error if total count is not even
-				potential_errors.append(index)
-
-		# NOTE: If quotes on separate lines is actually allowed change the 'or' to an 'and'
-		try:
-			if total_quote_count % 2 == 1 or potential_errors[0] is not None:
-				line_num = potential_errors[0]
-		except IndexError:
-			return
-
-		self.view.run_command("goto_line", {"line": line_num})
-		line_a = int(len(str(line_num)))
-		error_message = f"QuoteError: There is an extra quotation near line {line_num}"
-
-		panel = self.create_error_panel()
-		panel.set_read_only(False)
-		panel.run_command("append", {"characters": error_message})
-		panel.add_regions("line_num", [sublime.Region(len(panel) - line_a, len(panel))], "region.redish", flags=(sublime.DRAW_SOLID_UNDERLINE | sublime.DRAW_NO_FILL | sublime.DRAW_NO_OUTLINE))
-		panel.set_read_only(True)
-
 	def create_error_panel(self):
 		window = sublime.active_window()
 		panel = window.create_output_panel("error", unlisted=True)
@@ -2359,41 +2849,6 @@ class ValidatorOnSaveListener(sublime_plugin.EventListener):
 		window.focus_view(panel)
 		return panel
 
-
-class Bracket:
-	def __init__(self, bracket_type, position):
-		self.bracket_type = bracket_type
-		self.position = position
-
-	def match(self, char):
-		if self.bracket_type == '[' and char == ']':
-			return True
-		if self.bracket_type == '{' and char == '}':
-			return True
-		if self.bracket_type == '(' and char == ')':
-			return True
-		return False
-
-
-def checker(text):
-	stack = []
-	for index, char in enumerate(text, start=1):
-
-		if char in ("[", "(", "{"):
-			stack.append(Bracket(char, index))
-
-		elif char in ("]", ")", "}"):
-			if not stack:
-				return index
-
-			top = stack.pop()
-			if not top.match(char):
-				return index
-	if stack:
-		top = stack.pop()
-		return top.position
-
-	return False  # file is all good
 
 # ----------------------------------
 # -     Shader Intrinsic Hover     -
@@ -2864,7 +3319,10 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 					texture_raw_end = view.find(".dds", posLine.a)
 					texture_raw_region = sublime.Region(texture_raw_start.a, texture_raw_end.b)
 					texture_raw_path = view.substr(texture_raw_region)
-					full_texture_path = v3_files_path + "\\" + texture_raw_path
+					if view.syntax().name == "Victoria Gui":
+						full_texture_path = gui_files_path + "\\" + texture_raw_path
+					else:
+						full_texture_path = v3_files_path + "\\" + texture_raw_path
 					if not os.path.exists(full_texture_path):
 						# Check mod paths if it's not vanilla
 						for mod in v3_mod_files:
@@ -3024,6 +3482,33 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 		if state_regions.contains(word):
 			self.show_popup_default(view, point, word, state_regions.access(word), "State Region")
 
+		if countries.contains(word):
+			self.show_popup_default(view, point, word, countries.access(word), "Country")
+
+		if country_ranks.contains(word):
+			self.show_popup_default(view, point, word, country_ranks.access(word), "Country Rank")
+
+		if country_types.contains(word):
+			self.show_popup_default(view, point, word, country_types.access(word), "Country Type")
+
+		if culture_graphics.contains(word):
+			self.show_popup_default(view, point, word, culture_graphics.access(word), "Culture Graphic")
+
+		if named_colors.contains(word):
+			self.show_popup_named_color(view, point, word, named_colors.access(word), "Named Color")
+
+		if battle_conditions.contains(word):
+			self.show_popup_default(view, point, word, battle_conditions.access(word), "Battle Condition")
+
+		if commander_ranks.contains(word):
+			self.show_popup_default(view, point, word, commander_ranks.access(word), "Commander Rank")
+
+		if proposal_types.contains(word):
+			self.show_popup_default(view, point, word, proposal_types.access(word), "Proposal Type")
+
+		if discrimination_traits.contains(word):
+			self.show_popup_default(view, point, word, discrimination_traits.access(word), "Discrimination Trait")
+
 	def show_gui_popup(self, view, point, word, PdxObject, header):
 		word_line_num = view.rowcol(point)[0] + 1
 		word_file = view.file_name().rpartition("\\")[2]
@@ -3033,10 +3518,10 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 			definition = f"<p><b>Definition of&nbsp;&nbsp;</b><tt class=\"variable\">{PdxObject.key}</tt></p>"
 			goto_args = {"path": PdxObject.path, "line": PdxObject.line}
 			goto_url = sublime.command_url("goto_script_object_definition", goto_args)
-			definition += """<a href="%s" title="Open %s and goto line %d">%s:%d</a>&nbsp;"""%(goto_url, PdxObject.path.rpartition("\\")[2], PdxObject.line, PdxObject.path.rpartition("\\")[2], PdxObject.line)
+			definition += """<a href="%s" title="Open %s and goto line %d">%s:%d</a>&nbsp;""" % (goto_url, PdxObject.path.rpartition("\\")[2], PdxObject.line, PdxObject.path.rpartition("\\")[2], PdxObject.line)
 			goto_right_args = {"path": PdxObject.path, "line": PdxObject.line}
 			goto_right_url = sublime.command_url("goto_script_object_definition_right", goto_right_args)
-			definition += """<a class="icon" href="%s"title="Open Tab to Right of Current Selection">◨</a>&nbsp;<br>"""%(goto_right_url)
+			definition += """<a class="icon" href="%s"title="Open Tab to Right of Current Selection">◨</a>&nbsp;<br>""" % (goto_right_url)
 
 		references = []
 		ref = ""
@@ -3067,12 +3552,12 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 				fname = i.split("|")[0]
 				shortname = fname.rpartition("\\")[2]
 				line = i.split("|")[1]
-				goto_args = { "path": fname, "line": line}
+				goto_args = {"path": fname, "line": line}
 				goto_url = sublime.command_url("goto_script_object_definition", goto_args)
-				ref += """<a href="%s" title="Open %s and goto line %s">%s:%s</a>&nbsp;"""%(goto_url, shortname, line, shortname, line)
+				ref += """<a href="%s" title="Open %s and goto line %s">%s:%s</a>&nbsp;""" % (goto_url, shortname, line, shortname, line)
 				goto_right_args = {"path": fname, "line": line}
 				goto_right_url = sublime.command_url("goto_script_object_definition_right", goto_right_args)
-				ref += """<a class="icon" href="%s"title="Open Tab to Right of Current Selection">◨</a>&nbsp;<br>"""%(goto_right_url)
+				ref += """<a class="icon" href="%s"title="Open Tab to Right of Current Selection">◨</a>&nbsp;<br>""" % (goto_right_url)
 
 		link = definition + ref
 		if link:
@@ -3082,13 +3567,12 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 					<h1>%s</h1>
 					%s
 				</body>
-			""" %(css.default, header, link)
+			""" % (css.default, header, link)
 
-			view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY |sublime.COOPERATE_WITH_AUTO_COMPLETE |sublime.HIDE_ON_CHARACTER_EVENT),
+			view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY | sublime.COOPERATE_WITH_AUTO_COMPLETE | sublime.HIDE_ON_CHARACTER_EVENT),
 							location=point, max_width=1024)
 
-	def show_popup_default(self, view, point, word, PdxObject, header):
-
+	def get_definitions_for_popup(self, view, point, PdxObject, header, def_value=""):
 		word_line_num = view.rowcol(point)[0] + 1
 		word_file = view.file_name().rpartition("\\")[2]
 		definition = ""
@@ -3109,50 +3593,54 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 
 			if len(definitions) == 1:
 				definition = f"<p><b>Definition of&nbsp;&nbsp;</b><tt class=\"variable\">{PdxObject.key}</tt></p>"
+				if def_value:
+					definition += f"<br>{def_value}<br><br>"
 			elif len(definitions) > 1:
 				definition = f"<p><b>Definitions of&nbsp;&nbsp;</b><tt class=\"variable\">{PdxObject.key}</tt></p>"
+				if def_value:
+					definition += f"<br>{def_value}<br><br>"
 			for obj in definitions:
 				goto_args = {"path": obj.path, "line": obj.line}
 				goto_url = sublime.command_url("goto_script_object_definition", goto_args)
-				definition += """<a href="%s" title="Open %s and goto line %d">%s:%d</a>&nbsp;"""%(goto_url, obj.path.rpartition("\\")[2], obj.line, obj.path.rpartition("\\")[2], obj.line)
+				definition += """<a href="%s" title="Open %s and goto line %d">%s:%d</a>&nbsp;""" % (goto_url, obj.path.rpartition("\\")[2], obj.line, obj.path.rpartition("\\")[2], obj.line)
 				goto_right_args = {"path": obj.path, "line": obj.line}
 				goto_right_url = sublime.command_url("goto_script_object_definition_right", goto_right_args)
-				definition += """<a class="icon" href="%s"title="Open Tab to Right of Current Selection">◨</a>&nbsp;<br>"""%(goto_right_url)
+				definition += """<a class="icon" href="%s"title="Open Tab to Right of Current Selection">◨</a>&nbsp;<br>""" % (goto_right_url)
 		else:
 			if word_line_num != PdxObject.line and view.file_name() != PdxObject.path:
 				definition = f"<p><b>Definition of&nbsp;&nbsp;</b><tt class=\"variable\">{PdxObject.key}</tt></p>"
-
+				if def_value:
+					definition += f"<br>{def_value}<br><br>"
 				goto_args = {"path": PdxObject.path, "line": PdxObject.line}
 				goto_url = sublime.command_url("goto_script_object_definition", goto_args)
-				definition += """<a href="%s" title="Open %s and goto line %d">%s:%d</a>&nbsp;"""%(goto_url, PdxObject.path.rpartition("\\")[2], PdxObject.line, PdxObject.path.rpartition("\\")[2], PdxObject.line)
+				definition += """<a href="%s" title="Open %s and goto line %d">%s:%d</a>&nbsp;""" % (goto_url, PdxObject.path.rpartition("\\")[2], PdxObject.line, PdxObject.path.rpartition("\\")[2], PdxObject.line)
 				goto_right_args = {"path": PdxObject.path, "line": PdxObject.line}
 				goto_right_url = sublime.command_url("goto_script_object_definition_right", goto_right_args)
-				definition += """<a class="icon" href="%s"title="Open Tab to Right of Current Selection">◨</a>&nbsp;<br>"""%(goto_right_url)
+				definition += """<a class="icon" href="%s"title="Open Tab to Right of Current Selection">◨</a>&nbsp;<br>""" % (goto_right_url)
 
+		return definition
+
+	def get_references_for_popup(self, view, point, PdxObject, header):
+		word_line_num = view.rowcol(point)[0] + 1
+		word_file = view.file_name().rpartition("\\")[2]
 		references = []
 		ref = ""
 		for win in sublime.windows():
 			for i in [v for v in win.views() if v and v.file_name()]:
-				if i.file_name().endswith(".txt") or i.file_name().endswith(".py"):
+				if i.file_name().endswith(".txt"):
 					view_region = sublime.Region(0, i.size())
 					view_str = i.substr(view_region)
 					for j, line in enumerate(view_str.splitlines()):
-						definition_found = False
-						if PdxObject.key in line:
+						if re.search(r"\b" + re.escape(PdxObject.key) + r"\b", line):
 							filename = i.file_name().rpartition("\\")[2]
-							line_num = j+1
-							if definitions:
-								# Don't do definitions for scopes and variables
-								for obj in definitions:
-									if obj.line == line_num and obj.path == i.file_name():
-										definition_found = True
+							line_num = j + 1
 							if word_line_num == line_num and word_file == filename:
 								# Don't do current word
 								continue
 							elif line_num == PdxObject.line and i.file_name() == PdxObject.path:
 								# Don't do definition
 								continue
-							if not definition_found:
+							else:
 								references.append(f"{i.file_name()}|{line_num}")
 		if references:
 			ref = f"<p><b>References to&nbsp;&nbsp;</b><tt class=\"variable\">{PdxObject.key}</tt></p>"
@@ -3160,14 +3648,20 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 				fname = i.split("|")[0]
 				shortname = fname.rpartition("\\")[2]
 				line = i.split("|")[1]
-				goto_args = { "path": fname, "line": line}
+				goto_args = {"path": fname, "line": line}
 				goto_url = sublime.command_url("goto_script_object_definition", goto_args)
-				ref += """<a href="%s" title="Open %s and goto line %s">%s:%s</a>&nbsp;"""%(goto_url, shortname, line, shortname, line)
+				ref += """<a href="%s" title="Open %s and goto line %s">%s:%s</a>&nbsp;""" % (goto_url, shortname, line, shortname, line)
 				goto_right_args = {"path": fname, "line": line}
 				goto_right_url = sublime.command_url("goto_script_object_definition_right", goto_right_args)
-				ref += """<a class="icon" href="%s"title="Open Tab to Right of Current Selection">◨</a>&nbsp;<br>"""%(goto_right_url)
+				ref += """<a class="icon" href="%s"title="Open Tab to Right of Current Selection">◨</a>&nbsp;<br>""" % (goto_right_url)
 
-		link = definition + ref
+		return ref
+
+	def show_popup_default(self, view, point, word, PdxObject, header):
+		if view.file_name() is None:
+			return
+
+		link = self.get_definitions_for_popup(view, point, PdxObject, header) + self.get_references_for_popup(view, point, PdxObject, header)
 		if link:
 			hoverBody = """
 				<body id="vic-body">
@@ -3175,13 +3669,38 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 					<h1>%s</h1>
 					%s
 				</body>
-			""" %(css.default, header, link)
+			""" % (css.default, header, link)
 
-			view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY |sublime.COOPERATE_WITH_AUTO_COMPLETE |sublime.HIDE_ON_CHARACTER_EVENT),
+			view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY | sublime.COOPERATE_WITH_AUTO_COMPLETE | sublime.HIDE_ON_CHARACTER_EVENT),
+							location=point, max_width=1024)
+
+	def show_popup_named_color(self, view, point, word, PdxObject, header):
+		if view.file_name() is None:
+			return
+
+		object_color = PdxObject.color
+		css_color = PdxObject.rgb_color
+		r = css_color[0]
+		g = css_color[1]
+		b = css_color[2]
+		icon_color = f"rgb({r},{g},{b})"
+		color = f"<a class=\"icon\"style=\"color:{icon_color}\">■</a>\t\t\t<code>{object_color}</code>"
+
+		link = self.get_definitions_for_popup(view, point, PdxObject, header, color)
+		if link:
+			hoverBody = """
+				<body id="vic-body">
+					<style>%s</style>
+					<h1>%s</h1>
+					%s
+				</body>
+			""" % (css.default, header, link)
+
+			view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY | sublime.COOPERATE_WITH_AUTO_COMPLETE | sublime.HIDE_ON_CHARACTER_EVENT),
 							location=point, max_width=1024)
 
 	def show_texture_hover_popup(self, view, point, texture_name, full_texture_path):
-		args = {"path": full_texture_path }
+		args = {"path": full_texture_path}
 		open_texture_url = sublime.command_url("open_victoria_texture ", args)
 		folder_args = {"path": full_texture_path, "folder": True}
 		open_folder_url = sublime.command_url("open_victoria_texture ", folder_args)
@@ -3202,10 +3721,9 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 				<br>
 				<a href="%s" title="Convert %s.dds to PNG show at current selection">Show Inline</a>
 			</body>
-		""" %(css.default, open_folder_url, open_texture_url, texture_name, open_in_sublime_url, texture_name, open_inline_url, texture_name)
+		""" % (css.default, open_folder_url, open_texture_url, texture_name, open_in_sublime_url, texture_name, open_inline_url, texture_name)
 
-		view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY
-						|sublime.COOPERATE_WITH_AUTO_COMPLETE |sublime.HIDE_ON_CHARACTER_EVENT),
+		view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY | sublime.COOPERATE_WITH_AUTO_COMPLETE | sublime.HIDE_ON_CHARACTER_EVENT),
 						location=point, max_width=802)
 
 	def show_event_sound_hover_popup(self, view, point):
@@ -3649,6 +4167,11 @@ class SoundInputHandler(sublime_plugin.ListInputHandler):
 		for x in GameData.EventSoundsList:
 			keys.append(x.replace("event:/SFX/Events/", ""))
 		return sorted(keys)
+
+
+class V3ReloadPluginCommand(sublime_plugin.WindowCommand):
+	def run(self):
+		plugin_loaded()
 
 
 # def get_keys(gui_functions):
