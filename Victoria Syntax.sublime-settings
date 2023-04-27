@@ -34,6 +34,9 @@
 	// The max number of png images that can be in the cache before they are automatically cleared
 	"MaxImageCacheSize": 9999,
 
+	// Max number of textures to show when using the show_all_textures command
+	"MaxToggleTextures": 150,
+
 	// Should .bk2 videos show options for playing, browsing, and replacing when hovering over them in events?
 	// NOTE: Requires RadTools Bink Video Player to actually play the videos
 	// true = will show the video player hover popups

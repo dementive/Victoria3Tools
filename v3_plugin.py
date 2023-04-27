@@ -4085,7 +4085,8 @@ class V3ClearAllTexturesCommand(sublime_plugin.ApplicationCommand):
 class V3ShowAllTexturesCommand(sublime_plugin.WindowCommand, ShowTextureBase):
 	def run(self):
 		view = self.window.active_view()
-		for line in (x for x in view.lines(sublime.Region(0, view.size())) if ".dds" in view.substr(x)):
+		texture_list = [x for x in view.lines(sublime.Region(0, view.size())) if ".dds" in view.substr(x)]
+		for line, i in zip(texture_list, range(settings.get("MaxToggleTextures"))):
 			texture_raw_start = view.find("gfx", line.a)
 			texture_raw_end = view.find(".dds", line.a)
 			texture_raw_region = sublime.Region(texture_raw_start.a, texture_raw_end.b)
