@@ -2867,7 +2867,7 @@ def OpenMSDNLink(text):
 
 class IntrinsicHoverListener(sublime_plugin.EventListener):
 	def on_hover(sef, view, point, hover_zone):
-		if settings.get("IntrinsicHoverEnabled", True) == False:
+		if settings.get("IntrinsicHoverEnabled", True) is False:
 			return
 		if not view:
 			return
@@ -2943,7 +2943,7 @@ class OpenPdxShaderHeaderCommand(sublime_plugin.TextCommand):
 			# Search order is from absolute path of launching file, list order of user paths, finally Unity project paths.
 			basePath = ""
 			curFile = view.file_name()
-			if curFile != None:
+			if curFile is not None:
 				basePath = view.file_name().rsplit('\\', 1)[0] + '\\'
 			paths = [basePath]
 
@@ -2999,7 +2999,7 @@ class OpenPdxShaderHeaderCommand(sublime_plugin.TextCommand):
 
 	def open_or_switch_to(self, targetFile):
 		fileView = sublime.active_window().find_open_file(targetFile)
-		if fileView == None:
+		if fileView is None:
 			fileView = sublime.active_window().open_file(targetFile)
 		sublime.active_window().focus_view(fileView)
 
@@ -3029,7 +3029,7 @@ class HeaderHoverListener(sublime_plugin.EventListener):
 
 	def on_hover(self, view, point, hover_zone):
 		global out_point, out_view
-		if settings.get("OpenHeaderEnabled") == False:
+		if settings.get("OpenHeaderEnabled") is False:
 			return
 
 		try:
@@ -3059,9 +3059,7 @@ class HeaderHoverListener(sublime_plugin.EventListener):
 			</body>
 		""" % (css.default, file)
 
-		view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY |
-										  sublime.COOPERATE_WITH_AUTO_COMPLETE | sublime.HIDE_ON_CHARACTER_EVENT),
-						location=point, max_width=502)
+		view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY | sublime.COOPERATE_WITH_AUTO_COMPLETE | sublime.HIDE_ON_CHARACTER_EVENT), location=point, max_width=502)
 
 # ----------------------------------
 # -          If Def Utils          -
@@ -3086,7 +3084,7 @@ PreprocessorBlockListScanBoth = {
 
 class IfDefMatchListener(sublime_plugin.EventListener):
 	def on_hover(sef, view, point, hover_zone):
-		if settings.get("IfDefMatchEnabled", True) == False:
+		if settings.get("IfDefMatchEnabled", True) is False:
 			return
 		if not view:
 			return
@@ -3255,7 +3253,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 			sublime.set_timeout_async(lambda: self.do_gui_hover_async(view, point), 0)
 
 		if view.syntax().name == "Victoria Script" or view.syntax().name == "PdxPython":
-			if settings.get("DocsHoverEnabled") == True:
+			if settings.get("DocsHoverEnabled") is True:
 				if view.match_selector(point, "keyword.effect"):
 					show_hover_docs(view, point, "keyword.effect", GameData.EffectsList)
 
@@ -3271,7 +3269,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 				sublime.set_timeout_async(lambda: self.do_hover_async(view, point), 0)
 
 			# Event Videos
-			if settings.get("BinkVideoHover") == True:
+			if settings.get("BinkVideoHover") is True:
 				posLine = view.line(point)
 				posa = posLine.a + 1
 				posb = posLine.b - 1
@@ -3296,7 +3294,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 					video_point = None
 
 			# Event Sound
-			if settings.get("EventSoundPopup") == True:
+			if settings.get("EventSoundPopup") is True:
 				posLine = view.line(point)
 				if "event:/SFX/Events" in view.substr(posLine):
 					sound_raw_start = view.find("event:", posLine.a)
@@ -3771,9 +3769,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 			</body>
 		""" % (css.default, browse_url)
 
-		view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY |
-										  sublime.COOPERATE_WITH_AUTO_COMPLETE | sublime.HIDE_ON_CHARACTER_EVENT),
-						location=point, max_width=802)
+		view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY | sublime.COOPERATE_WITH_AUTO_COMPLETE | sublime.HIDE_ON_CHARACTER_EVENT), location=point, max_width=802)
 
 	def show_video_hover_popup(self, view, point, word):
 		args = {"play": True}
@@ -3807,9 +3803,9 @@ class GotoScriptObjectDefinitionCommand(sublime_plugin.WindowCommand):
 			file_path = "{}:{}:{}".format(path, line, 0)
 			self.open_location(self.window, file_path)
 
-	def open_location(self, window, l):
+	def open_location(self, window, location):
 		flags = sublime.ENCODED_POSITION | sublime.FORCE_GROUP
-		view = window.open_file(l, flags)
+		view = window.open_file(location, flags)
 
 
 class GotoScriptObjectDefinitionRightCommand(sublime_plugin.WindowCommand):
@@ -3818,7 +3814,7 @@ class GotoScriptObjectDefinitionRightCommand(sublime_plugin.WindowCommand):
 			file_path = "{}:{}:{}".format(path, line, 0)
 			self.open_location(self.window, file_path, side_by_side=True, clear_to_right=True)
 
-	def open_location(self, window, l, side_by_side=False, replace=False, clear_to_right=False):
+	def open_location(self, window, location, side_by_side=False, replace=False, clear_to_right=False):
 		flags = sublime.ENCODED_POSITION | sublime.FORCE_GROUP
 
 		if side_by_side:
@@ -3828,7 +3824,7 @@ class GotoScriptObjectDefinitionRightCommand(sublime_plugin.WindowCommand):
 
 		elif replace:
 			flags |= sublime.REPLACE_MRU | sublime.SEMI_TRANSIENT
-		view = window.open_file(l, flags)
+		view = window.open_file(location, flags)
 
 
 class OpenVictoriaTextureCommand(sublime_plugin.WindowCommand):
