@@ -1,6 +1,6 @@
 %YAML 1.2
 ---
-name: Victoria Asset Synax
+name: Victoria Asset
 file_extensions: [asset]
 scope: text.asset
 

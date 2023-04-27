@@ -218,7 +218,7 @@ class GameObjectBase:
 		return self
 
 	def __next__(self):
-		if self.start >= self.end:
+		if self.start > self.end:
 			# Reset and stop iteration so it can be looped over again like a normal list
 			self.start = 0
 			self.end = self.length() - 1

@@ -1,6 +1,6 @@
 %YAML 1.2
 ---
-name: Victoria Log Synax
+name: Victoria Logs
 file_extensions: [log]
 scope: text.log
 
