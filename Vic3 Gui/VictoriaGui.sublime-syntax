@@ -75,11 +75,11 @@ contexts:
           pop: true
 
   bracket-zone:
-    - match: GetVariableSystem
+    - match: GetVariableSystem|ScriptedGui|GetScriptedGui
       scope: entity.name.variable.system
-    - match: '\b(?i)(SetOrToggle|Set|ClearIf|Clear|Toggle)(?-i)\b'
+    - match: '\b(?i)(SetOrToggle|Set|ClearIf|Clear|Toggle|Execute)(?-i)\b'
       scope: keyword.variable.system.effect
-    - match: '\b(?i)(Exists|HasValue)(?-i)\b'
+    - match: '\b(?i)(Exists|HasValue|IsShown|IsValid)(?-i)\b'
       scope: string.variable.system.trigger
     - match: '\b(?i)(And|Not|Or)(?-i)\b'
       scope: storage.type.logical.operator.gui

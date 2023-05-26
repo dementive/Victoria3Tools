@@ -3362,7 +3362,23 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 								if os.path.exists(mod_path):
 									full_texture_path = mod_path
 
+						if view.syntax().name == "Victoria Gui" and not os.path.exists(mod_path):
+							for mod in [m for m in gui_mod_files if os.path.exists(m)]:
+								if mod.endswith("mod"):
+									# if it is the path to the mod directory, get all directories in it
+									for directory in [f.path for f in os.scandir(mod) if f.is_dir()]:
+										mod_path = directory + "\\" + texture_raw_path
+										if os.path.exists(mod_path):
+											full_texture_path = mod_path
+								else:
+									mod_path = mod + "\\" + texture_raw_path
+									mod_path = mod_path.replace("/", "\\")
+									if os.path.exists(mod_path):
+										full_texture_path = mod_path
+
+
 					full_texture_path = full_texture_path.replace("/", "\\")
+					
 					# The path exists and the point in the view is inside of the path
 					if texture_raw_region.__contains__(point) and os.path.exists(full_texture_path):
 						texture_name = view.substr(view.word(texture_raw_end.a - 1))

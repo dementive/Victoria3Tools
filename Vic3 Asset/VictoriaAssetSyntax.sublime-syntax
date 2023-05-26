@@ -10,22 +10,22 @@ contexts:
       push: string
 
     #Purple
-    - match: \b(?i)(next_state|name|file|animation)(?-i)\b
+    - match: \b(?i)(shader|attachment_id|node|lod|texture_diffuse|texture_normal|texture_specular|shader_file|next_state|name|file|animation)(?-i)\b
       scope: constant.numeric.example-c
     #Yellow
-    - match: \b(?i)(trigger_once|keep_particle)(?-i)\b
+    - match: \b(?i)(if_current_state|trigger_once|keep_particle)(?-i)\b
       scope: string
     #Red
-    - match: \b(?i)(entity|start_event|pdxmesh)(?-i)\b
+    - match: \b(?i)(attach|entity|start_event|pdxmesh)(?-i)\b
       scope: keyword
     # Green
-    - match: \b(?i)(state|event)(?-i)\b
+    - match: \b(?i)(state|event|lod_percentages|meshsettings)(?-i)\b
       scope: entity.name
     # Blue
-    - match:  \b(?i)(cull_distance|chance|clone|scale|default_state|state_time|looping|time|yes|no)(?-i)\b
+    - match:  \b(?i)(index|cull_distance|chance|clone|scale|default_state|state_time|looping|time|yes|no)(?-i)\b
       scope: storage.type
     # Orange
-    - match: \b(?i)(particle)(?-i)\b
+    - match: \b(?i)(sound|soundeffect|percent|particle)(?-i)\b
       scope: variable.parameter
     # Comments
     - match: (#).*$\n?
