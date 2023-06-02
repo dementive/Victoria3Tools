@@ -3229,9 +3229,64 @@ def show_hover_docs(view, point, scope, collection):
 			</body>
 		""" % (style, desc)
 
-		view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY | sublime.COOPERATE_WITH_AUTO_COMPLETE | sublime.HIDE_ON_CHARACTER_EVENT),
-						location=point, max_width=1024)
+		view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY | sublime.COOPERATE_WITH_AUTO_COMPLETE | sublime.HIDE_ON_CHARACTER_EVENT), location=point, max_width=1024)
 		return
+
+def show_gui_docs_popup(view, point, item):
+
+	data = GameData.GuiContent[item]
+	color = data[0]
+	desc = data[1]
+	example = data[2]
+	if example:
+		example = f"<div class=\"box-for-codebox\"><div class=\"codebox\"><code>{example}</code></div></div>"
+	if item in example:
+		if color == "green":
+			example = example.replace(item, f"<code class=\"green-text\">{item}</code>")
+		if color == "red":
+			example = example.replace(item, f"<code class=\"red-text\">{item}</code>")
+		if color == "yellow":
+			example = example.replace(item, f"<code class=\"yellow-text\">{item}</code>")
+		if color == "blue":
+			example = example.replace(item, f"<code class=\"blue-text\">{item}</code>")
+		if color == "purple":
+			example = example.replace(item, f"<code class=\"purple-text\">{item}</code>")
+		if color == "orange":
+			example = example.replace(item, f"<code class=\"orange-text\">{item}</code>")
+
+	if item == "template" or item == "using":
+		template_example = f"<div class=\"box-for-codebox\"><div class=\"codebox code\">template example_name {{<br>&nbsp;&nbsp;&nbsp;&nbsp;size = {{ 50 50 }}<br>}}<br></div></div>"
+		template_example = template_example.replace("template", f"<code class=\"purple-text\">template</code>")
+		template_example_text = "<p class=\"code-header\">Example template definition:</p>"
+		template_example_text2 = "<br><br><br><p class=\"code-header\">Example template usage:</p>"
+		example = example.replace("using", f"<code class=\"green-text\">using</code>")
+		example = template_example_text + template_example + template_example_text2 + example
+
+	if item == "block" or item == "blockoverride":
+		block_example = f"<div class=\"box-for-codebox\"><div class=\"codebox code\">block \"example_name\" {{<br>&nbsp;&nbsp;&nbsp;&nbsp;visible = no<br>}}<br></div></div>"
+		block_example = block_example.replace("block", f"<code class=\"red-text\">block</code>")
+		block_example_text = "<p class=\"code-header\">Example block definition:</p>"
+		block_example_text2 = "<br><br><br><p class=\"code-header\">Example blockoverride:</p>"
+		example = f"<div class=\"box-for-codebox\"><div class=\"codebox code\">blockoverride \"example_name\" {{<br>&nbsp;&nbsp;&nbsp;&nbsp;visible = yes<br>}}<br></div></div>"
+		example = example.replace("blockoverride", f"<code class=\"red-text\">blockoverride</code>")
+		example = block_example_text + block_example + block_example_text2 + example
+
+	if item == "type" or item == "types":
+		example = f"<div class=\"box-for-codebox\"><div class=\"codebox code\">types My_Types<br>{{<br>&nbsp;&nbsp;&nbsp;&nbsp;type widget_with_size = widget {{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;size = {{ 50 50 }}<br>&nbsp;&nbsp;&nbsp;&nbsp;}}<br>}}<br></div></div>"
+		example = example.replace("types", f"<code class=\"purple-text\">types</code>")
+		example = example.replace("type", f"<code class=\"purple-text\">type</code>")
+		type_example_text = "<p class=\"code-header\">Example type definition:</p>"
+		example = type_example_text + example
+
+	hoverBody = """
+		<body id="vic-body">
+			<style>%s</style>
+			<p class=\"codedesc\">%s</p>
+			%s
+		</body>
+	""" % (css.default, desc, example)
+
+	view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY | sublime.COOPERATE_WITH_AUTO_COMPLETE | sublime.HIDE_ON_CHARACTER_EVENT), location=point, max_width=1024)
 
 
 class ScriptHoverListener(sublime_plugin.EventListener):
@@ -3242,15 +3297,19 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 			return
 
 		try:
-			if view.syntax().name == "Victoria Script" or view.syntax().name == "PdxPython" or view.syntax().name == "Victoria Gui":
-				pass
-			else:
+			if view.syntax().name not in ("Victoria Script", "PdxPython", "Victoria Gui"):
 				return
 		except AttributeError:
 			return
 
+		if view.match_selector(point, "comment.line"):
+			return
+
 		if view.syntax().name == "Victoria Gui":
 			sublime.set_timeout_async(lambda: self.do_gui_hover_async(view, point), 0)
+			item = view.substr(view.word(point))
+			if settings.get("GuiDocsHoverEnabled") is True and item in GameData.GuiContent:
+				sublime.set_timeout_async(lambda: show_gui_docs_popup(view, point, item), 0)
 
 		if view.syntax().name == "Victoria Script" or view.syntax().name == "PdxPython":
 			if settings.get("DocsHoverEnabled") is True:
@@ -3376,9 +3435,8 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 									if os.path.exists(mod_path):
 										full_texture_path = mod_path
 
-
 					full_texture_path = full_texture_path.replace("/", "\\")
-					
+
 					# The path exists and the point in the view is inside of the path
 					if texture_raw_region.__contains__(point) and os.path.exists(full_texture_path):
 						texture_name = view.substr(view.word(texture_raw_end.a - 1))

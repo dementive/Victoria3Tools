@@ -85,12 +85,144 @@ def get_game_data():
 
 # get_game_data()
 
+R = "red"
+Y = "yellow"
+B = "blue"
+O = "orange"
+G = "green"
+P = "purple"
 
 class GameData:
 	""" Class to hold all data generated from the base game logs """
 
 	def __init__(self):
 		# Manually added lists, add custom stuff here
+
+		# Dictionary for all gui parameters and types
+		# <type>: (<color>, "<description>", "<example>")
+		self.GuiContent = {
+			# Default types
+			"button": (G, "Used for player interaction with the game.", ""),
+			"icon": (G, "Used to display textures.", ""),
+			"widget": (G, "Main component of the interface.", ""),
+			"container": (G, "A basic container used to contain other elements.", ""),
+			"flowcontainer": (G, "Container that automatically spaces it’s children.", ""),
+			"vbox": (G, "Vertical layout box.", ""),
+			"hbox": (G, "Horizontal layout box.", ""),
+			"background": (G, "Set a texture or a color as the background of a widget.", ""),
+			"textbox": (G, "Box used to show text.", ""),
+			"editbox": (G, "Box used to take user input as text. These are mostly hardcoded.", ""),
+			"modify_texture": (G, "Modify a texture with another texture. Implementation can be found in pdxgui_sprite_base.fxh.", ""),
+			"template": (P, "Define a reusable template of code.", "using = example_name"),
+			"datacontext": (Y, "Set the data context for the current element", ""),
+
+			# Scrollbar Properties
+			"min": (O, "Minimum fixed point value for a scrollbar.", "min = 0"),
+			"max": (O, "Maximum fixed point value for a scrollbar.", "min = 100"),
+
+			# General Properties
+			"using": (G, "Template usage.", "using = example_name"),
+			"name": (P, "Name of an element. Does nothing in game but is useful when organizing code. Some element names are tied to C++ code so be careful when removing existing names as there may be game code that relies on that name.", "name = \"x\""),
+			"size": (B, "Set element X and Y size.", "size = { 20 20 }"),
+			"minimumsize": (B, "Set element X and Y minimum size.", "minimumsize = { 20 20 }"),
+			"maximumsize": (B, "Set element X and Y maximum size.", "maximumsize = { 20 20 }"),
+			"resizeparent": (B, "Automatically resize the parent of an element. Be careful not to have 2 elements resizing the same parent, this will cause recursion and crash the game.", "resizeparent = yes"),
+			"position": (B, "Set element X and Y position.", "position = { 20 20 }"),
+			"parentanchor": (B, "Set position of element based on a point in it’s parent.", "parentanchor = left/right/center/top/bottom/vcenter/hcenter\nOR\nparentanchor = top|right"),
+			"widgetanchor": (B, "Set position of element based on a point.", "widgetanchor = left/right/center/top/bottom/vcenter/hcenter\nOR\nwidgetanchor = top|right"),
+			"visible": (Y, "Set element visibility.", "visible = &#60;triggers&#62;"),
+			"enabled": (Y, "Determine if a button is clickable.", "enabled = &#60;triggers&#62;"),
+			"checked": (Y, "Determine if a checkbutton is checked.", "checked = \"&#60;triggers&#62;\""),
+			"movable": (B, "Determine if an element can be moved around the UI. Typically only used with top level windows/widgets.", "movable = yes"),
+			"alpha": (B, "Set alpha of an element", "alpha = 0.5"),
+			"alwaystransparent": (B, "Allow an element to be clicked through.", "alwaystransparent = yes"),
+			"allow_outside": (B, "Allow children of this element to be clickable if they end up outside of its bounds.", "allow_outside = yes"),
+			"scissor": (B, "Crops the children of an element if they end up outside of its bounds.", "scissor = yes"),
+			"margin": (B, "Set the margins of a element.", "margin = { 10 10 }"),
+			"margin_top": (B, "Set the top margin of an element.", "margin_top = 4"),
+			"margin_bottom": (B, "Set the bottom margin of an element.", "margin_bottom = 4"),
+			"margin_left": (B, "Set the left margin of an element.", "margin_left = 4"),
+			"margin_right": (B, "Set the right margin of an element.", "margin_right = 4"),
+			"spritetype": (B, "The sprite type of an element.", "spritetype = CorneredTiled/CorneredStretched/Stretched"),
+			"spriteType": (B, "The sprite type of an element.", "spriteType = CorneredTiled/CorneredStretched/Stretched"),
+			"spriteborder": (B, "The sprite border of an element.", "spriteborder = { 110 5 }"),
+			"priority": (B, "Set the priority of a layer. Layers with a higher priority will be shown on top of layers with lower priority.", "priority = 10"),
+			"layer": (B, "The layer the element is placed on. Layers with a higher priority will be shown on top of layers with lower priority.", "layer = top"),
+			"color": (B, "Set the color of an element, only works with elements that have a texture of some kind.", "color = { 0.8 0.2 0.2 1 }"),
+			"block": (R, "Define a block of code within a type or template that can be overriden when it is used with a blockoverride.", ""),
+			"blockoverride": (R, "Override a named block of code in a type or template.", ""),
+			"types": (P, "Definition of a new type that is derived from another type.", ""),
+			"type": (P, "Definition of a new type that is derived from another type.", ""),
+			"pop_out": (B, "Pop out the portrait from a portrait button.", "pop_out = no"),
+			"glow": (R, "Set a glow around an element. Glow can have a set radius and color.", ""),
+			"glow_radius": (B, "Set the radius of the glow around an element.", "glow_radius = 4"),
+			"fonttintcolor": (B, "The font tint color, used only in tooltips. Takes a function that returns a CVector4f", "fonttintcolor = \"[TooltipInfo.GetTintColor]\""),
+
+			# Container Properties
+			"ignoreinvisible": (B, "Ignore invisible elements of a container.", "ignoreinvisible = yes"),
+			"direction": (B, "The direction of a layout.", "direction = vertical/horizontal"),
+			"flipdirection": (B, "Flip the direction of the layout.", "flipdirection = yes"),
+			"spacing": (B, "Set the spacing between child elements of a container.", "spacing = 10"),
+			"layoutpolicy_vertical": (B, "Set the vertical layout behavior of a container.", "layoutpolicy_vertical = expanding/fixed/preferred/growing"),
+			"layoutpolicy_horizontal": (B, "Set the horizontal layout behavior of a container.", "layoutpolicy_horizontal = expanding/fixed/preferred/growing"),
+
+			# Effect Properties
+			"onclick": (R, "Effect to run when a button is clicked.", "onclick = \"&#60;effects&#62;\""),
+			"onrightclick": (R, "Effect to run when a button is right clicked.", "onrightclick = \"&#60;effects&#62;\""),
+			"onmousehierarchyenter": (R, "Effect to run when the element is hovered with a mouse. Only works for some elements, if it doesn't work use the '_mouse_enter' state instead.", "onmousehierarchyenter = \"&#60;effects&#62;\""),
+			"onmousehierarchyleave": (R, "Effect to run when the element is hovered with a mouse. Only works for some elements, if it doesn't work use the '_mouse_leave' state instead.", "onmousehierarchyleave = \"&#60;effects&#62;\""),
+			"shortcut": (B, "Keyboard shortcut that will run the onclick of a button when pressed.", "shortcut = \"close_window\""),
+
+			# Text Properties
+			"text": (P, "Text to display in an element.", "text = \"words\""),
+			"tooltip": (P, "Show text in a tooltip when an element is hovered over.", "tooltip = \"words\""),
+			"tooltip_enabled": (Y, "Determine whether to show the tooltip.", "tooltip_enabled = no"),
+			"max_width": (B, "Set max width of text.", "max_width = 100"),
+			"elide": (B, "Adds 3 dots to the end or start of text if it exceeds max_width.", "elide = left/right"),
+			"font": (B, "Set the font to use to render text.", "font = \"OpenSans\""),
+			"fontsize": (B, "Set the font size of text.", "fontsize = 18"),
+			"fontcolor": (B, "Set the fontcolor of a text. Don't ever hardcode these values into individual textboxes. Always use common font color templates.", "fontcolor = { 1 0 0 1 }"),
+			"autoresize": (B, "Automatically resize text to fit the container it is in.", "autoresize = yes"),
+			"align": (B, "Align text within it’s textbox.", "align = left/right/center/top/bottom/vcenter/hcenter\nOR\nalign = top|right"),
+			"fontsize_min": (B, "Set the minimum possible font size for text.", "fontsize_min = 14"),
+			"multiline": (B, "Set if text will automatically show up on multiple lines.", "multiline = yes"),
+
+			# Animation Properties
+			"animation": (R, "Animate an elements properties. Used inside of a state = {} block.", ""),
+			"state": (B, "Animation state of an element.", ""),
+			"duration": (P, "Time an animation state will take to execute.", "duration = 0.5"),
+			"delay": (P, "Add a delay before an animation state is executed.", "delay = 0.3"),
+			"trigger_when": (Y, "Trigger state when condition is True.", "trigger_when = \"&#60;triggers&#62;\""),
+			"trigger_on_create ": (Y, "Trigger state when the element becomes visible.", "trigger_on_create = yes"),
+			"on_start": (R, "Run effect when state starts.", "on_start = \"&#60;effects&#62;\""),
+			"on_finish": (R, "Run effect when state ends.", "on_finish = \"&#60;effects&#62;\""),
+			"next": (R, "Executes another named state in the same element after this one is finished.", "next = \"state_name\""),
+			"start_sound": (R, "Sound to play when animation starts.", "start_sound  = {\n\tsoundeffect = \"x\"\n}"),
+			"_show": (B, "A state with this name will run its effect when the element becomes visible.", ""),
+			"_hide": (B, "A state with this name will run its effect when the element is hidden.", ""),
+			"_mouse_enter": (B, "A state with this name will run its effect when the mouse is hovered over the element.", ""),
+			"_mouse_leave": (B, "A state with this name will run its effect when the mouse leaves the element.", ""),
+
+			# Texture Properties
+			"texture": (P, "Path to a texture or a function that returns a texture.", "texture = \"x\""),
+			"frame": (B, "Points to the given frame (0-indexed).", "frame = 5"),
+			"framesize": (B, "Subdivides the texture into frames, based on the given dimensions (a 250 by 50 texture will by made into 5 frames left-to-right).", "framesize = { 50 50 }"),
+			"upframe": (B, "Frame to use when a button is clicked and released.", "upframe = 1"),
+			"overframe": (B, "Frame to use when a button is hovered over.", "overframe = 2"),
+			"downframe": (B, "Frame to use when a button is pressed down.", "downframe = 3"),
+			"disableframe": (B, "Frame to use when a button is disabled.", "disableframe = 4"),
+			"blend_mode": (B, "Modify texture blend mode.", "blend_mode = multiply/add/overlay/colordodge/lighten/darken/alphamultiply/mask"),
+			"shaderfile": (P, "Shader file that is used to render the element.", "shaderfile = \"x\""),
+			"effectname": (B, "The effect in the shader file that is used to render the element.", "effectname = \"x\""),
+			"gfxtype": (P, "The gfx type to use for the element. All gfxtype's are hard-coded, but you should always try to use the correct one for the element that is being used so it will render correctly.", "gfxtype = \"x\""),
+			"portrait_texture": (P, "Texture to use for a portrait, usually takes the GetPortrait function.", "portrait_texture = \"[Character.GetPortrait('default', 'looking_right')]\""),
+			"progresstexture": (P, "Texture to use for a progress bar.", "progresstexture = \"x\""),
+
+			# Sound Properties
+			"clicksound": (O, "Sound played when a button is clicked.", "clicksound = \"x\""),
+			"oversound": (O, "Sound played when an element is hovered over, only works with some elements.", "oversound = \"x\""),
+			"soundeffect": (O, "Sound to play inside of a start_sound block of an animation.", "soundeffect = \"x\""),
+		}
 		self.CustomTriggersList = {
 			"MFE_has_building": "Check if scoped object has a building that satisfies the provided triggers.<br>MFE_has_building = {<br>&nbsp;&nbsp;&nbsp;&nbsp;S(scope) = 1(country)/2(state)/3(building)<br>&nbsp;&nbsp;&nbsp;&nbsp;T(trigger) = \"Trigger\"<br>&nbsp;&nbsp;&nbsp;&nbsp;K(kind) = 1(poor)/2(rich)/3(any)<br>}"
 		}
