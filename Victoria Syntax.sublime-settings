@@ -23,6 +23,10 @@
 		//"C:\\Users\\ADDYOURUSERNAMEHERE\\Documents\\Paradox Interactive\\Victoria 3\\mod\\MOD2"
 	],
 
+	// Should all features for script be disabled? Can be useful if you are only using the plugin for the gui or shader syntax.
+
+	"DisableVictoriaScriptingFeatures": false,
+
 	// Should documentation show up on hover for .gui files?
 	"GuiDocsHoverEnabled": true,
 

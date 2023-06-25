@@ -12,11 +12,11 @@ class CSS():
 		self.get_styles()
 
 	def get_styles(self):
-		default_path = packages_path() + "\\Victoria3Tools\\Utilities\\styles\\default.css"
-		effect_path = packages_path() + "\\Victoria3Tools\\Utilities\\styles\\effect.css"
-		trigger_path = packages_path() + "\\Victoria3Tools\\Utilities\\styles\\trigger.css"
-		scope_path = packages_path() + "\\Victoria3Tools\\Utilities\\styles\\scope.css"
-		dark_path = packages_path() + "\\Victoria3Tools\\Utilities\\styles\\dark.css"
+		default_path = packages_path() + "/Victoria3Tools/Utilities/styles/default.css"
+		effect_path = packages_path() + "/Victoria3Tools/Utilities/styles/effect.css"
+		trigger_path = packages_path() + "/Victoria3Tools/Utilities/styles/trigger.css"
+		scope_path = packages_path() + "/Victoria3Tools/Utilities/styles/scope.css"
+		dark_path = packages_path() + "/Victoria3Tools/Utilities/styles/dark.css"
 
 		with open(default_path, "r") as file:
 			self.default = file.read()
