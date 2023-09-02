@@ -423,7 +423,10 @@ class PdxColorObject(PdxScriptObject):
 def make_named_color_object(objects: dict) -> GameObjectBase:
     obj_list = list()
     for i in objects:
-        obj_list.append(PdxColorObject(i, objects[i][0], objects[i][1], objects[i][2]))
+        try:
+            obj_list.append(PdxColorObject(i, objects[i][0], objects[i][1], objects[i][2]))
+        except IndexError:
+            pass
     game_object = GameObjectBase()
     game_object.main = PdxScriptObjectType(obj_list)
     return game_object
@@ -836,8 +839,8 @@ def plugin_loaded():
     v3_mod_files = settings.get("PathsToModFiles")
     gui_files_path = settings.get("GuiBaseGamePath")
     gui_mod_files = settings.get("PathsToGuiModFiles")
-    script_enabled = settings.get("DisableVictoriaScriptingFeatures")
-
+    script_enabled = settings.get("EnableVictoriaScriptingFeatures")
+    
     if check_mod_for_changes():
         # Create new objects
         if script_enabled:

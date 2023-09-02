@@ -1,15 +1,73 @@
 import os
 import re
-from itertools import chain
 
 """
 	Creates lists from paradox game logs
 
 	How to use:
 	1. Take trigger, on_action, modifier, effect, and event_targets logs from documents folder and put them all in the "docs" folder
-	2. Remove the first set of -------------------- and any words preceding it from the logs. Also remove -------------------- from the end of the log
+	2. Remove the first set of first header from each of the logs
 	3. Remove all the stray words from the bottom of the event_targets
-	4. Run the script
+	4. Make sure all the logs look like this (make sure there is a "- " before the description starts for triggers, effects, and scopes) 
+		```
+		### attacker_side
+		- Scope from a battle to the BattleSide corresponding to the attacker
+		Input Scopes: battle
+		Output Scopes: battle_side
+		### defender_side
+		- Scope from a battle to the BattleSide corresponding to the defender
+		Input Scopes: battle
+		Output Scopes: battle_side
+		### diplomatic_pact_other_country
+		- Scope to the other country of the diplomatic pact in scope
+		Requires Data: yes
+		Input Scopes: diplomatic_pact
+		Output Scopes: country
+		```
+
+	6. Go through modifiers.log and (with regex) remove all of these modifiers, they are handled by plugin code and not in the static syntax
+		```
+		interest_group_(IG)_pol_str_mult
+		interest_group_(IG)_approval_add
+		interest_group_(IG)_pop_attraction_mult
+
+		building_group_(BG)_(POP_TYPE)_fertility_mult
+		building_group_(BG)_(POP_TYPE)_mortality_mult
+		building_group_(BG)_(POP_TYPE)_standard_of_living_add
+		building_group_(BG)_tax_mult
+		building_group_(BG)_employee_mult
+		country_subsidies_(BG)
+
+		building_output_(TRADE_GOOD)_add
+		building_input_(TRADE_GOOD)_add
+		building_output_(TRADE_GOOD)_mult
+
+		building_(BUILDING)_throughput_mult
+
+		character_(BATTLE_CONDITION)_mult
+
+		state_(RELIGION)_standard_of_living_add
+
+		country_(INSTITUTION)_max_investment_add
+
+		country_(POP_TYPE)_pol_str_mult
+		country_(POP_TYPE)_voting_power_add
+		state_(POP_TYPE)_mortality_mult
+		state_(POP_TYPE)_dependent_wage_mult
+		building_employment_(POP_TYPE)_add
+		building_employment_(POP_TYPE)_mult
+		building_(POP_TYPE)_fertility_mult
+		building_(POP_TYPE)_mortality_mult
+		state_(POP_TYPE)_investment_pool_contribution_add
+		state_(POP_TYPE)_investment_pool_efficiency_mult
+		building_(POP_TYPE)_shares_add
+		building_(POP_TYPE)_shares_mult
+
+		state_pop_support_(LAW)_add
+		state_pop_support_(LAW)_add
+		state_pop_support_(LAW)_mult
+		```
+	5. Run the script
 """
 
 
@@ -27,16 +85,21 @@ def parse_logs(file, mode):
 	contents = file.read()
 	file.close()
 	# The first identifier must be removed from the input file for it to read properly.
-	if mode == "normal" or mode == "on_action" or "descriptions":
+	if mode == "on_action":
 		split = contents.split("--------------------")
-	if mode == "mods":
-		contents = contents.replace(",", "").replace("\n", "").split("Tag: ")
-		split = contents
+	elif file == "docs/event_targets.log":
+		split = contents.split("###")
+	elif mode == "normal" or "descriptions":
+		split = contents.split("##")
+	elif mode == "mods":
+		split = contents.replace(",", "").replace("\n", "").split("Tag: ")
 
 	parsed_list = []
 
 	for i in range(len(split)):
-		node = split[i]
+		node = split[i].strip()
+		if not node:
+			continue
 		if mode == "normal":
 			stripped = node.split("-", 1)[0].replace("\n", "").replace(" ", "")
 			parsed_list.append(stripped)
@@ -193,7 +256,10 @@ def create_sublime_syntax(game, syntax_scope, effects, triggers, scopes, modifie
 		mod_out = i.split("C", 1)[0].replace(" ", "")
 		mod_list_out.append(mod_out)
 
-	mod_list_out.remove("")
+	try:
+		mod_list_out.remove("")
+	except ValueError:
+		pass
 	split_write_syntax(mod_list_out, "Modifiers", "string.modifier", file)
 	write_extra(file)
 

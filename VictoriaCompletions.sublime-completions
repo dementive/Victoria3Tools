@@ -3,6 +3,66 @@
 	"completions":
 	[
 		{
+			"trigger": "attacker_side",
+			"contents": "attacker_side",
+			"details": "Scope from a battle to the BattleSide corresponding to the attacker",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "defender_side",
+			"contents": "defender_side",
+			"details": "Scope from a battle to the BattleSide corresponding to the defender",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "diplomatic_pact_other_country",
+			"contents": "diplomatic_pact_other_country",
+			"details": "Scope to the other country of the diplomatic pact in scope",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "first_country",
+			"contents": "first_country",
+			"details": "Scope to the first country of the diplomatic pact in scope",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "second_country",
+			"contents": "second_country",
+			"details": "Scope to the second country of the diplomatic pact in scope",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "mg",
+			"contents": "mg",
+			"details": "Scope from a market to the MarketGoods with the specified key",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "participants",
+			"contents": "participants",
+			"details": "Get the total number of participating countries in the scoped market",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "trade_center",
+			"contents": "trade_center",
+			"details": "Scope to the trade center state of the market!",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "state",
+			"contents": "state",
+			"details": "Scope to the state of the object",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "num_provinces",
+			"contents": "num_provinces",
+			"details": "Get the scoped entity's current number of provinces",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
 			"trigger": "combat_width",
 			"contents": "combat_width",
 			"details": "Scope to combat width multiplier of scope province",
@@ -12,6 +72,24 @@
 			"trigger": "naval_hq",
 			"contents": "naval_hq",
 			"details": "Returns local navy HQ",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "controller",
+			"contents": "controller",
+			"details": "Scope to the controller of the object",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "land_hq",
+			"contents": "land_hq",
+			"details": "Returns local land HQ",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "front",
+			"contents": "front",
+			"details": "Scope to the front where a battle takes place / where a character is located",
 			"kind": ["namespace", "S", "Scope"]
 		},
 		{
@@ -30,6 +108,48 @@
 			"trigger": "goal_value",
 			"contents": "goal_value",
 			"details": "Scope to the journal entry's goal value",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "political_movement",
+			"contents": "political_movement",
+			"details": "If used in a character scope, scope to the political movement that character supports.",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "average_defense",
+			"contents": "average_defense",
+			"details": "Returns the average defense of units on Front on the same side as Country",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "average_offense",
+			"contents": "average_offense",
+			"details": "Returns the average offense of units on Front on the same side as Country",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "front_length",
+			"contents": "front_length",
+			"details": "Returns the number of provinces in Front",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "num_defending_battalions",
+			"contents": "num_defending_battalions",
+			"details": "Returns the total number of defending units on Front on the same side as Country",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "num_enemy_units",
+			"contents": "num_enemy_units",
+			"details": "Gets the number of enemy units a commander is facing on a front",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "num_total_battalions",
+			"contents": "num_total_battalions",
+			"details": "Returns the total number of units on Front on the same side as Country",
 			"kind": ["namespace", "S", "Scope"]
 		},
 		{
@@ -57,9 +177,105 @@
 			"kind": ["namespace", "S", "Scope"]
 		},
 		{
+			"trigger": "num_export_trade_routes",
+			"contents": "num_export_trade_routes",
+			"details": "Get the scoped market good's current number of import trade routes owned by a market member",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "num_import_trade_routes",
+			"contents": "num_import_trade_routes",
+			"details": "Get the scoped market good's current number of import trade routes owned by a market member",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "actor_market",
+			"contents": "actor_market",
+			"details": "Scope to the actor market of the trade route",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "exporter",
+			"contents": "exporter",
+			"details": "Scope to the exporting market of the trade route",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "importer",
+			"contents": "importer",
+			"details": "Scope to the importing market of the trade route",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "target_market",
+			"contents": "target_market",
+			"details": "Scope to the target market of the trade route",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "home_country",
+			"contents": "home_country",
+			"details": "Scopes to the home country of an exile",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
 			"trigger": "level",
 			"contents": "level",
 			"details": "Scope to the level of an object",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "region",
+			"contents": "region",
+			"details": "Scope to the strategic region of the object!",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "building",
+			"contents": "building",
+			"details": "Scope to the related building",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "commander",
+			"contents": "commander",
+			"details": "Scope to the related commander",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "defense",
+			"contents": "defense",
+			"details": "Returns the unit's defense rating (including impact from their commander)",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "demoralized",
+			"contents": "demoralized",
+			"details": "Returns the unit's number of demoralized manpower",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "manpower",
+			"contents": "manpower",
+			"details": "Returns the unit's manpower",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "mobilization",
+			"contents": "mobilization",
+			"details": "Returns the unit's mobilization value between 0 and 1",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "morale",
+			"contents": "morale",
+			"details": "Returns the unit's morale",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "offense",
+			"contents": "offense",
+			"details": "Returns the unit's offense rating (including impact from their commander)",
 			"kind": ["namespace", "S", "Scope"]
 		},
 		{
@@ -87,15 +303,45 @@
 			"kind": ["namespace", "S", "Scope"]
 		},
 		{
+			"trigger": "religion",
+			"contents": "religion",
+			"details": "Scope to country or country definition's primary religion or pop religion",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
 			"trigger": "owner",
 			"contents": "owner",
 			"details": "Scope to the owner country of object",
 			"kind": ["namespace", "S", "Scope"]
 		},
 		{
+			"trigger": "civil_war",
+			"contents": "civil_war",
+			"details": "Scope to the civil war started by the scoped (revolutionary) political movement.",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "desired_law",
+			"contents": "desired_law",
+			"details": "Scope to the law the scoped political movement wants to enact/preserve.",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "active_diplomatic_play",
+			"contents": "active_diplomatic_play",
+			"details": "Scope to the diplomatic play of a country or strategic region",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
 			"trigger": "num_garrison_units",
 			"contents": "num_garrison_units",
 			"details": "Returns the number of units garrisoned in a HQ",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "target",
+			"contents": "target",
+			"details": "Scope to the target of the object",
 			"kind": ["namespace", "S", "Scope"]
 		},
 		{
@@ -174,6 +420,12 @@
 			"trigger": "ideology",
 			"contents": "ideology",
 			"details": "Scope to a ideology from its name (ideology:ideology_anarchist)",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "ig_trait",
+			"contents": "ig_trait",
+			"details": "Scope to the Interest Group trait with specified key",
 			"kind": ["namespace", "S", "Scope"]
 		},
 		{
@@ -299,7 +551,7 @@
 		{
 			"trigger": "this",
 			"contents": "this",
-			"details": "The current scope",
+			"details": "",
 			"kind": ["namespace", "S", "Scope"]
 		},
 		{
@@ -321,15 +573,99 @@
 			"kind": ["namespace", "S", "Scope"]
 		},
 		{
+			"trigger": "training_rate",
+			"contents": "training_rate",
+			"details": "Scope to the current maximum weekly training rate of a building",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "player_owed_obligation_days_left",
+			"contents": "player_owed_obligation_days_left",
+			"details": "Scope to number of days left on an obligation in diplomatic relations scope (example: obligation_days_left >= 2)",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "scope_relations",
+			"contents": "scope_relations",
+			"details": "Scope to relations value in diplomatic relations scope (example: scope_relations >= 2)",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "scope_tension",
+			"contents": "scope_tension",
+			"details": "Scope to tension value in diplomatic relations scope (example: scope_tension >= 2)",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "leader",
+			"contents": "leader",
+			"details": "Scope to the leader of the interest group",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "party",
+			"contents": "party",
+			"details": "Scope to the party that an IG is supporting",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "b",
+			"contents": "b",
+			"details": "Scope to the building of specified key in the state",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "nf",
+			"contents": "nf",
+			"details": "Scope to a Decree of specified key applied to the state",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "population_below_expected_sol",
+			"contents": "population_below_expected_sol",
+			"details": "Scope to the current percentage of the state's population that are below their expected standard of living (0-1)",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "state_region",
+			"contents": "state_region",
+			"details": "Scope to the state region of a state",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "attacker_warleader",
+			"contents": "attacker_warleader",
+			"details": "Scope to the attacker warleader of a war",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "defender_warleader",
+			"contents": "defender_warleader",
+			"details": "Scope to the defender warleader of a war",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
 			"trigger": "goods",
 			"contents": "goods",
 			"details": "Scope to the goods traded by a trade route",
 			"kind": ["namespace", "S", "Scope"]
 		},
 		{
+			"trigger": "modifier",
+			"contents": "modifier",
+			"details": "Scope to the value of the modifier type of specified key belonging to the current object",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
 			"trigger": "slaves_role",
 			"contents": "slaves_role",
 			"details": "Scope from building type to it's slaves role pop type",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "currently_active_law_in_group",
+			"contents": "currently_active_law_in_group",
+			"details": "Scope from a law to the currently active law in that group",
 			"kind": ["namespace", "S", "Scope"]
 		},
 		{
@@ -795,6 +1131,30 @@
 			"kind": ["namespace", "S", "Scope"]
 		},
 		{
+			"trigger": "culture",
+			"contents": "culture",
+			"details": "Scope to pop's or character's culture",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "average_expected_sol",
+			"contents": "average_expected_sol",
+			"details": "Get the average expected Standard of Living of the scope",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "average_sol",
+			"contents": "average_sol",
+			"details": "Get the average Standard of Living of the scope",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "gdp",
+			"contents": "gdp",
+			"details": "Get the scoped country's yearly predicted GDP",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
 			"trigger": "ideology",
 			"contents": "ideology",
 			"details": "Scope to the ideology of the scoped character (example: scope:example_character = { ideology = { save_scope_as = example_ideology } } )",
@@ -861,363 +1221,15 @@
 			"kind": ["namespace", "S", "Scope"]
 		},
 		{
-			"trigger": "market",
-			"contents": "market",
-			"details": "Scope to the market of the object",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "attacker_side",
-			"contents": "attacker_side",
-			"details": "Scope from a battle to the BattleSide corresponding to the attacker",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "defender_side",
-			"contents": "defender_side",
-			"details": "Scope from a battle to the BattleSide corresponding to the defender",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "diplomatic_pact_other_country",
-			"contents": "diplomatic_pact_other_country",
-			"details": "Scope to the other country of the diplomatic pact in scope",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "first_country",
-			"contents": "first_country",
-			"details": "Scope to the first country of the diplomatic pact in scope",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "second_country",
-			"contents": "second_country",
-			"details": "Scope to the second country of the diplomatic pact in scope",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "mg",
-			"contents": "mg",
-			"details": "Scope from a market to the MarketGoods with the specified key",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "participants",
-			"contents": "participants",
-			"details": "Get the total number of participating countries in the scoped market",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "trade_center",
-			"contents": "trade_center",
-			"details": "Scope to the trade center state of the market!",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "state",
-			"contents": "state",
-			"details": "Scope to the state of the object",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "num_provinces",
-			"contents": "num_provinces",
-			"details": "Get the scoped entity's current number of provinces",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "controller",
-			"contents": "controller",
-			"details": "Scope to the controller of the object",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "land_hq",
-			"contents": "land_hq",
-			"details": "Returns local land HQ",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "front",
-			"contents": "front",
-			"details": "Scope to the front where a battle takes place / where a character is located",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "political_movement",
-			"contents": "political_movement",
-			"details": "If used in a character scope, scope to the political movement that character supports.",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "average_defense",
-			"contents": "average_defense",
-			"details": "Returns the average defense of units on Front on the same side as Country",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "average_offense",
-			"contents": "average_offense",
-			"details": "Returns the average offense of units on Front on the same side as Country",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "front_length",
-			"contents": "front_length",
-			"details": "Returns the number of provinces in Front",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "num_defending_battalions",
-			"contents": "num_defending_battalions",
-			"details": "Returns the total number of defending units on Front on the same side as Country",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "num_enemy_units",
-			"contents": "num_enemy_units",
-			"details": "Gets the number of enemy units a commander is facing on a front",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "num_total_battalions",
-			"contents": "num_total_battalions",
-			"details": "Returns the total number of units on Front on the same side as Country",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "num_export_trade_routes",
-			"contents": "num_export_trade_routes",
-			"details": "Get the scoped market good's current number of import trade routes owned by a market member",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "num_import_trade_routes",
-			"contents": "num_import_trade_routes",
-			"details": "Get the scoped market good's current number of import trade routes owned by a market member",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "actor_market",
-			"contents": "actor_market",
-			"details": "Scope to the actor market of the trade route",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "exporter",
-			"contents": "exporter",
-			"details": "Scope to the exporting market of the trade route",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "importer",
-			"contents": "importer",
-			"details": "Scope to the importing market of the trade route",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "target_market",
-			"contents": "target_market",
-			"details": "Scope to the target market of the trade route",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "home_country",
-			"contents": "home_country",
-			"details": "Scopes to the home country of an exile",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "region",
-			"contents": "region",
-			"details": "Scope to the strategic region of the object!",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "building",
-			"contents": "building",
-			"details": "Scope to the related building",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "commander",
-			"contents": "commander",
-			"details": "Scope to the related commander",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "defense",
-			"contents": "defense",
-			"details": "Returns the unit's defense rating (including impact from their commander)",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "demoralized",
-			"contents": "demoralized",
-			"details": "Returns the unit's number of demoralized manpower",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "manpower",
-			"contents": "manpower",
-			"details": "Returns the unit's manpower",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "mobilization",
-			"contents": "mobilization",
-			"details": "Returns the unit's mobilization value between 0 and 1",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "morale",
-			"contents": "morale",
-			"details": "Returns the unit's morale",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "offense",
-			"contents": "offense",
-			"details": "Returns the unit's offense rating (including impact from their commander)",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "religion",
-			"contents": "religion",
-			"details": "Scope to country or country definition's primary religion or pop religion",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "civil_war",
-			"contents": "civil_war",
-			"details": "Scope to the civil war started by the scoped (revolutionary) political movement.",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "desired_law",
-			"contents": "desired_law",
-			"details": "Scope to the law the scoped political movement wants to enact/preserve.",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "active_diplomatic_play",
-			"contents": "active_diplomatic_play",
-			"details": "Scope to the diplomatic play of a country or strategic region",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "target",
-			"contents": "target",
-			"details": "Scope to the target of the object",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "training_rate",
-			"contents": "training_rate",
-			"details": "Scope to the current maximum weekly training rate of a building",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "player_owed_obligation_days_left",
-			"contents": "player_owed_obligation_days_left",
-			"details": "Scope to number of days left on an obligation in diplomatic relations scope (example: obligation_days_left >= 2)",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "scope_relations",
-			"contents": "scope_relations",
-			"details": "Scope to relations value in diplomatic relations scope (example: scope_relations >= 2)",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "scope_tension",
-			"contents": "scope_tension",
-			"details": "Scope to tension value in diplomatic relations scope (example: scope_tension >= 2)",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "leader",
-			"contents": "leader",
-			"details": "Scope to the leader of the interest group",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "party",
-			"contents": "party",
-			"details": "Scope to the party that an IG is supporting",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "b",
-			"contents": "b",
-			"details": "Scope to the building of specified key in the state",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "nf",
-			"contents": "nf",
-			"details": "Scope to a Decree of specified key applied to the state",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "population_below_expected_sol",
-			"contents": "population_below_expected_sol",
-			"details": "Scope to the current percentage of the state's population that are below their expected standard of living (0-1)",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "state_region",
-			"contents": "state_region",
-			"details": "Scope to the state region of a state",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "attacker_warleader",
-			"contents": "attacker_warleader",
-			"details": "Scope to the attacker warleader of a war",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "defender_warleader",
-			"contents": "defender_warleader",
-			"details": "Scope to the defender warleader of a war",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "modifier",
-			"contents": "modifier",
-			"details": "Scope to the value of the modifier type of specified key belonging to the current object",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "culture",
-			"contents": "culture",
-			"details": "Scope to pop's or character's culture",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "average_expected_sol",
-			"contents": "average_expected_sol",
-			"details": "Get the average expected Standard of Living of the scope",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "average_sol",
-			"contents": "average_sol",
-			"details": "Get the average Standard of Living of the scope",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
-			"trigger": "gdp",
-			"contents": "gdp",
-			"details": "Get the scoped country's yearly predicted GDP",
-			"kind": ["namespace", "S", "Scope"]
-		},
-		{
 			"trigger": "region_state",
 			"contents": "region_state",
 			"details": "Unknown, add something in code registration",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "market",
+			"contents": "market",
+			"details": "Scope to the market of the object",
 			"kind": ["namespace", "S", "Scope"]
 		},
 	]
