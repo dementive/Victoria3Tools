@@ -14,6 +14,8 @@ The packages folder can easily be found by going to ```preferences``` in the mai
 C:\Users\YOURUSERNAME\AppData\Roaming\Sublime Text 3\Packages\Victoria3Tools
 ```
 
+Make sure the folder is named `Victoria3Tools` or there will be issues with the plugin.
+
 ## Features
 
 #### All script (.txt) files have the following features:
