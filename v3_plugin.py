@@ -424,7 +424,9 @@ def make_named_color_object(objects: dict) -> GameObjectBase:
     obj_list = list()
     for i in objects:
         try:
-            obj_list.append(PdxColorObject(i, objects[i][0], objects[i][1], objects[i][2]))
+            obj_list.append(
+                PdxColorObject(i, objects[i][0], objects[i][1], objects[i][2])
+            )
         except IndexError:
             pass
     game_object = GameObjectBase()
@@ -840,14 +842,14 @@ def plugin_loaded():
     gui_files_path = settings.get("GuiBaseGamePath")
     gui_mod_files = settings.get("PathsToGuiModFiles")
     script_enabled = settings.get("EnableVictoriaScriptingFeatures")
-    
+
     if check_mod_for_changes():
         # Create new objects
         if script_enabled:
             sublime.set_timeout_async(lambda: create_game_objects(), 0)
         else:
             sublime.set_timeout_async(lambda: load_gui_objects(), 0)
-    elif settings.get("DisableVictoriaScriptingFeatures"):
+    elif not script_enabled:
         get_gui_objects_from_cache()
     else:
         # Load cached objects
@@ -976,6 +978,113 @@ def write_data_to_syntax():
         discrimination_traits.keys(),
         "Discrimination Traits",
         "entity.name.discrimination.trait",
+    )
+
+    # Dynamic modifiers
+    country_modifs = list()
+    state_modifs = list()
+    ig_modifs = list()
+    bg_modifs = list()
+    building_modifs = list()
+    character_modifs = list()
+
+    # interest_group_(IG)_pol_str_mult
+    # interest_group_(IG)_approval_add
+    # interest_group_(IG)_pop_attraction_mult
+    for i in igs.keys():
+        ig_modifs.append(f"interest_group_{i}_pol_str_mult")
+        ig_modifs.append(f"interest_group_{i}_approval_add")
+        ig_modifs.append(f"interest_group_{i}_pop_attraction_mult")
+
+    # building_group_(BG)_(POP_TYPE)_fertility_mult
+    # building_group_(BG)_(POP_TYPE)_mortality_mult
+    # building_group_(BG)_(POP_TYPE)_standard_of_living_add
+    # building_group_(BG)_tax_mult
+    # building_group_(BG)_employee_mult
+    # country_subsidies_(BG)
+    for i in bgs.keys():
+        bg_modifs.append(f"building_group_{i}_tax_mult")
+        bg_modifs.append(f"building_group_{i}_employee_mult")
+        country_modifs.append(f"country_subsidies_{i}")
+        for j in pop_types.keys():
+            bg_modifs.append(f"building_group_{i}_{j}_fertility_mult")
+            bg_modifs.append(f"building_group_{i}_{j}_mortality_mult")
+            bg_modifs.append(f"building_group_{i}_{j}_standard_of_living_add")
+
+    # building_output_(TRADE_GOOD)_add
+    # building_input_(TRADE_GOOD)_add
+    # building_output_(TRADE_GOOD)_mult
+    for i in goods.keys():
+        building_modifs.append(f"building_output_{i}_add")
+        building_modifs.append(f"building_input_{i}_add")
+        building_modifs.append(f"building_output_{i}_mult")
+
+    # building_(BUILDING)_throughput_mult
+    for i in buildings.keys():
+        building_modifs.append(f"{i}_throughput_mult")
+
+
+    # character_(BATTLE_CONDITION)_mult
+    for i in battle_conditions.keys():
+        character_modifs.append(f"character_{i}_mult")
+
+    # state_(RELIGION)_standard_of_living_add
+    for i in religions.keys():
+        state_modifs.append(f"state_{i}_standard_of_living_add")
+
+    # country_(INSTITUTION)_max_investment_add
+    for i in institutions.keys():
+        state_modifs.append(f"country_{i}_max_investment_add")
+
+    for i in pop_types.keys():
+        country_modifs.append(f"country_{i}_pol_str_mult")
+        country_modifs.append(f"country_{i}_voting_power_add")
+        state_modifs.append(f"state_{i}_mortality_mult")
+        state_modifs.append(f"state_{i}_dependent_wage_mult")
+        building_modifs.append(f"building_employment_{i}_add")
+        building_modifs.append(f"building_employment_{i}_mult")
+        building_modifs.append(f"{i}_fertility_mult")
+        building_modifs.append(f"{i}_mortality_mult")
+        state_modifs.append(f"state_{i}_investment_pool_contribution_add")
+        state_modifs.append(f"state_{i}_investment_pool_efficiency_mult")
+        building_modifs.append(f"{i}_shares_add")
+        building_modifs.append(f"{i}_shares_mult")
+
+    for i in laws.keys():
+        state_modifs.append(f"state_pop_support_{i}_add")
+        state_modifs.append(f"state_pop_support_{i}_add")
+        state_modifs.append(f"state_pop_support_{i}_mult")
+
+
+    lines += write_syntax(
+        country_modifs,
+        "Country Modifier Types",
+        "string.modifier.type",
+    )
+    lines += write_syntax(
+        state_modifs,
+        "State Modifier Types",
+        "string.modifier.type",
+    )
+    lines += write_syntax(
+        ig_modifs,
+        "Interest Group Modifier Types",
+        "string.modifier.type",
+    )
+    lines += write_syntax(
+        bg_modifs,
+        "Building Group Modifier Types",
+        "string.modifier.type",
+    )
+    lines += write_syntax(
+        building_modifs,
+        "Building Modifier Types",
+        "string.modifier.type",
+    )
+    lines += write_syntax(
+        character_modifs,
+        "Character Modifier Types",
+        "string.modifier.type",
     )
 
     with open(real_syntax_path, "r") as file:
@@ -1107,7 +1216,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
         save the id of the view so it can be readded when it regains focus
         """
 
-        if not settings.get("DisableVictoriaScriptingFeatures"):
+        if not settings.get("EnableVictoriaScriptingFeatures"):
             return
 
         vid = view.id()
@@ -1236,7 +1345,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
             self.discrimination_traits_views.append(vid)
 
     def on_activated_async(self, view):
-        if not settings.get("DisableVictoriaScriptingFeatures"):
+        if not settings.get("EnableVictoriaScriptingFeatures"):
             return
 
         vid = view.id()
@@ -1377,7 +1486,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
         except AttributeError:
             return None
 
-        if not settings.get("DisableVictoriaScriptingFeatures"):
+        if not settings.get("EnableVictoriaScriptingFeatures"):
             return
 
         fname = view.file_name()
@@ -2081,7 +2190,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
                         for key in sorted(GameData.EffectsList)
                     ]
                 )
-            if self.modifier_field or re.search("(modifiers)", fname):
+            if self.modifier_field or re.search("modifiers", fname):
                 return sublime.CompletionList(
                     [
                         sublime.CompletionItem(
@@ -2364,10 +2473,10 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
             # Error checking if I end up wanting it
             # match = re.search(f"{i}{FIND_ERROR_RE}", line)
             # if match and match.groups()[0] not in keys:
-            # 	word = match.groups()[0]
-            # 	error_region = sublime.Region((line.rfind(word) + view.line(point).a), (line.rfind(word) + len(word)) + view.line(point).a)
-            # 	view.add_regions(view.substr(error_region), [error_region], "invalid", "", sublime.PERSISTENT | sublime.DRAW_SOLID_UNDERLINE |sublime.DRAW_NO_OUTLINE )
-            # 	self.error_words.append(view.substr(error_region))
+            #   word = match.groups()[0]
+            #   error_region = sublime.Region((line.rfind(word) + view.line(point).a), (line.rfind(word) + len(word)) + view.line(point).a)
+            #   view.add_regions(view.substr(error_region), [error_region], "invalid", "", sublime.PERSISTENT | sublime.DRAW_SOLID_UNDERLINE |sublime.DRAW_NO_OUTLINE )
+            #   self.error_words.append(view.substr(error_region))
             r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
             if r:
                 y = 0
@@ -2983,7 +3092,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
         except AttributeError:
             return
 
-        if not settings.get("DisableVictoriaScriptingFeatures"):
+        if not settings.get("EnableVictoriaScriptingFeatures"):
             return
 
         self.simple_scope_match(view)
@@ -3094,7 +3203,7 @@ class ValidatorOnSaveListener(sublime_plugin.EventListener):
         if settings.get("ScriptValidator") is False:
             return
 
-        if not settings.get("DisableVictoriaScriptingFeatures"):
+        if not settings.get("EnableVictoriaScriptingFeatures"):
             return
 
         self.view = view
@@ -3222,15 +3331,15 @@ class IntrinsicHoverListener(sublime_plugin.EventListener):
                 if intrinsicWord in GameData.IntrinsicList:
                     url, desc = GameData.IntrinsicList[intrinsicWord]
                     hoverBody = """
-						<body id=show-intrinsic>
-							<style>
-								%s
-							</style>
-							<p>%s</p>
-							<br>
-							<a href="%s">MSDN Link</a>
-						</body>
-					""" % (
+                        <body id=show-intrinsic>
+                            <style>
+                                %s
+                            </style>
+                            <p>%s</p>
+                            <br>
+                            <a href="%s">MSDN Link</a>
+                        </body>
+                    """ % (
                         css.default,
                         desc,
                         url,
@@ -3413,12 +3522,12 @@ class HeaderHoverListener(sublime_plugin.EventListener):
         posb = posLine.b - 1
         file = view.substr(sublime.Region(posa, posb))
         hoverBody = """
-			<body id="vic-body">
-				<style>%s</style>
-				<h1>Header File</h1>
-				<a href="subl:open_pdx_shader_header" title="If file does not open add path to package settings">Open %s</a>
-			</body>
-		""" % (
+            <body id="vic-body">
+                <style>%s</style>
+                <h1>Header File</h1>
+                <a href="subl:open_pdx_shader_header" title="If file does not open add path to package settings">Open %s</a>
+            </body>
+        """ % (
             css.default,
             file,
         )
@@ -3467,15 +3576,15 @@ class IfDefMatchListener(sublime_plugin.EventListener):
 
         def do_hover(view, point, startSection, endSection, seperator):
             hoverBody = """
-				<body id=show-ifdefmatch>
-					<style>
-						%s
-					</style>
-					%s
-					%s
-					%s
-				</body>
-			""" % (
+                <body id=show-ifdefmatch>
+                    <style>
+                        %s
+                    </style>
+                    %s
+                    %s
+                    %s
+                </body>
+            """ % (
                 css.default,
                 startSection,
                 seperator,
@@ -3612,11 +3721,11 @@ def show_hover_docs(view, point, scope, collection):
     if item in collection:
         desc = collection[item]
         hoverBody = """
-			<body id="vic-body">
-				<style>%s</style>
-				<p>%s</p>
-			</body>
-		""" % (
+            <body id="vic-body">
+                <style>%s</style>
+                <p>%s</p>
+            </body>
+        """ % (
             style,
             desc,
         )
@@ -3694,12 +3803,12 @@ def show_gui_docs_popup(view, point, item):
         example = type_example_text + example
 
     hoverBody = """
-		<body id="vic-body">
-			<style>%s</style>
-			<p class=\"codedesc\">%s</p>
-			%s
-		</body>
-	""" % (
+        <body id="vic-body">
+            <style>%s</style>
+            <p class=\"codedesc\">%s</p>
+            %s
+        </body>
+    """ % (
         css.default,
         desc,
         example,
@@ -3749,7 +3858,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
         if (
             view.syntax().name == "Victoria Script"
             or view.syntax().name == "PdxPython"
-            and not settings.get("DisableVictoriaScriptingFeatures")
+            and not settings.get("EnableVictoriaScriptingFeatures")
         ):
             if settings.get("DocsHoverEnabled") is True:
                 if view.match_selector(point, "keyword.effect"):
@@ -4295,12 +4404,12 @@ class ScriptHoverListener(sublime_plugin.EventListener):
         link = definition + ref
         if link:
             hoverBody = """
-				<body id="vic-body">
-					<style>%s</style>
-					<h1>%s</h1>
-					%s
-				</body>
-			""" % (
+                <body id="vic-body">
+                    <style>%s</style>
+                    <h1>%s</h1>
+                    %s
+                </body>
+            """ % (
                 css.default,
                 header,
                 link,
@@ -4487,12 +4596,12 @@ class ScriptHoverListener(sublime_plugin.EventListener):
         ) + self.get_references_for_popup(view, point, PdxObject, header)
         if link:
             hoverBody = """
-				<body id="vic-body">
-					<style>%s</style>
-					<h1>%s</h1>
-					%s
-				</body>
-			""" % (
+                <body id="vic-body">
+                    <style>%s</style>
+                    <h1>%s</h1>
+                    %s
+                </body>
+            """ % (
                 css.default,
                 header,
                 link,
@@ -4524,12 +4633,12 @@ class ScriptHoverListener(sublime_plugin.EventListener):
         link = self.get_definitions_for_popup(view, point, PdxObject, header, color)
         if link:
             hoverBody = """
-				<body id="vic-body">
-					<style>%s</style>
-					<h1>%s</h1>
-					%s
-				</body>
-			""" % (
+                <body id="vic-body">
+                    <style>%s</style>
+                    <h1>%s</h1>
+                    %s
+                </body>
+            """ % (
                 css.default,
                 header,
                 link,
@@ -4558,19 +4667,19 @@ class ScriptHoverListener(sublime_plugin.EventListener):
         )
         open_inline_url = sublime.command_url("v3_show_texture ", inline_args)
         hoverBody = """
-			<body id=\"vic-body\">
-				<style>%s</style>
-				<h1>Open Texture</h1>
-				<div></div>
-				<a href="%s" title="Open folder containing the texture.">Open Folder</a>
-				<br>
-				<a href="%s" title="Open %s in the default program">Open in default program</a>
-				<br>
-				<a href="%s" title="Open %s in sublime">Open in sublime</a>
-				<br>
-				<a href="%s" title="Show %s at current selection">Show Inline</a>
-			</body>
-		""" % (
+            <body id=\"vic-body\">
+                <style>%s</style>
+                <h1>Open Texture</h1>
+                <div></div>
+                <a href="%s" title="Open folder containing the texture.">Open Folder</a>
+                <br>
+                <a href="%s" title="Open %s in the default program">Open in default program</a>
+                <br>
+                <a href="%s" title="Open %s in sublime">Open in sublime</a>
+                <br>
+                <a href="%s" title="Show %s at current selection">Show Inline</a>
+            </body>
+        """ % (
             css.default,
             open_folder_url,
             open_texture_url,
@@ -4597,13 +4706,13 @@ class ScriptHoverListener(sublime_plugin.EventListener):
         show_sound_menu = True
         browse_url = sublime.command_url("browse_event_sound")
         hoverBody = """
-			<body id=\"vic-body\">
-				<style>%s</style>
-				<h1>Event Sound</h1>
-				<div></div>
-				<a href="%s" title="Replace current event sound with a new one...">Browse event audio</a>
-			</body>
-		""" % (
+            <body id=\"vic-body\">
+                <style>%s</style>
+                <h1>Event Sound</h1>
+                <div></div>
+                <a href="%s" title="Replace current event sound with a new one...">Browse event audio</a>
+            </body>
+        """ % (
             css.default,
             browse_url,
         )
@@ -4623,16 +4732,16 @@ class ScriptHoverListener(sublime_plugin.EventListener):
         args = {"play": True}
         browse_and_play_url = sublime.command_url("browse_bink_videos", args)
         hoverBody = """
-			<body id=\"vic-body\">
-				<style>%s</style>
-				<h1>Bink Video</h1>
-				<span>•</span><a href="subl:play_bink_video" title="Note: Rad Game Tools Bink video player required.">Play %s.bk2</a>
-				<br><div></div>
-				<span>•</span><a href="subl:browse_bink_videos" title="Browse videos for a video to replace current video path.">Browse and Replace</a>&nbsp;
-				<br>
-				<span>•</span><a href="%s" title="Browse videos for a video to replace current video path and then play the new video.">Browse, Replace, and Play</a>&nbsp;
-			</body>
-		""" % (
+            <body id=\"vic-body\">
+                <style>%s</style>
+                <h1>Bink Video</h1>
+                <span>•</span><a href="subl:play_bink_video" title="Note: Rad Game Tools Bink video player required.">Play %s.bk2</a>
+                <br><div></div>
+                <span>•</span><a href="subl:browse_bink_videos" title="Browse videos for a video to replace current video path.">Browse and Replace</a>&nbsp;
+                <br>
+                <span>•</span><a href="%s" title="Browse videos for a video to replace current video path and then play the new video.">Browse, Replace, and Play</a>&nbsp;
+            </body>
+        """ % (
             css.default,
             word,
             browse_and_play_url,
@@ -5144,15 +5253,15 @@ class V3ReloadPluginCommand(sublime_plugin.WindowCommand):
 
 
 # def get_keys(gui_functions):
-# 	keys = dict()
-# 	for i in gui_functions:
-# 		keys[i.name] = i.name
-# 	return keys
+#   keys = dict()
+#   for i in gui_functions:
+#       keys[i.name] = i.name
+#   return keys
 
 # datatypefile = "C:\\Users\\demen\\Documents\\Paradox Interactive\\Victoria 3\\logs\\data_types\\data_types_common.txt"
 
 # with open(datatypefile, "r") as file:
-# 	file_lines = file.read()
+#   file_lines = file.read()
 
 # lines = file_lines.split("-----------------------")
 # lines = [x for x in lines if x.strip()]
@@ -5161,45 +5270,45 @@ class V3ReloadPluginCommand(sublime_plugin.WindowCommand):
 # type_definitions = []
 
 # for i in lines:
-# 	description = ""
-# 	definition_type = ""
-# 	return_type = ""
-# 	x = i.strip().split("\n")
-# 	function_name = x[0].split("(")[0]
-# 	if len(function_name) == 2:
-# 		# Type definition
-# 		definition_type = function_name[1]
-# 		type_definitions.append(function_name[0])
-# 	if len(function_name) == 3:
-# 		# Function without description
-# 		definition_type = function_name[1]
-# 		return_type = function_name[2]
-# 	if len(function_name) == 4:
-# 		# Function with description
-# 		description = function_name[1]
-# 		definition_type = function_name[2]
-# 		return_type = function_name[3]
+#   description = ""
+#   definition_type = ""
+#   return_type = ""
+#   x = i.strip().split("\n")
+#   function_name = x[0].split("(")[0]
+#   if len(function_name) == 2:
+#       # Type definition
+#       definition_type = function_name[1]
+#       type_definitions.append(function_name[0])
+#   if len(function_name) == 3:
+#       # Function without description
+#       definition_type = function_name[1]
+#       return_type = function_name[2]
+#   if len(function_name) == 4:
+#       # Function with description
+#       description = function_name[1]
+#       definition_type = function_name[2]
+#       return_type = function_name[3]
 
-# 	gui_function = GuiFunction(datatypefile, function_name, 0, definition_type, return_type, description)
-# 	functions.append(gui_function)
+#   gui_function = GuiFunction(datatypefile, function_name, 0, definition_type, return_type, description)
+#   functions.append(gui_function)
 
 # with open("C:\\Users\\demen\\Documents\\Paradox Interactive\\Victoria 3\\logs\\data_types\\data_types_common.txt", "r") as file:
-# 	file_lines = file.readlines()
-# 	for count, i in enumerate(file_lines):
-# 		name = i.strip()
-# 		keys_dict = get_keys(functions)
-# 		if name in keys_dict:
-# 			for j, fun in enumerate(functions):
-# 				if fun.name == name:
-# 					functions[j].line = count + 1
+#   file_lines = file.readlines()
+#   for count, i in enumerate(file_lines):
+#       name = i.strip()
+#       keys_dict = get_keys(functions)
+#       if name in keys_dict:
+#           for j, fun in enumerate(functions):
+#               if fun.name == name:
+#                   functions[j].line = count + 1
 
 # print(functions[0].name)
 
 # class GuiFunction:
-# 	def __init__(self, file, name, line, def_type, return_type=None, description=None):
-# 		self.file = file
-# 		self.name = name
-# 		self.line = line
-# 		self.def_type = def_type
-# 		self.return_type = return_type
-# 		self.description = description
+#   def __init__(self, file, name, line, def_type, return_type=None, description=None):
+#       self.file = file
+#       self.name = name
+#       self.line = line
+#       self.def_type = def_type
+#       self.return_type = return_type
+#       self.description = description
