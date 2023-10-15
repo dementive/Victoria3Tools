@@ -75,32 +75,7 @@
 	// Doc hover for PdxShader syntax
 	"IntrinsicHoverEnabled": true,
 
-	"OpenHeaderEnabled": true,
-	
-	// This is a list of root paths that can be accessed in the following block of include paths for convenience
-	// The default is where steam installs it, if your game is somewhere else, change the path.
-	"OpenHeaderBasePaths":
-	[
-		"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Victoria 3"
-	],
-
-	// Base path usage syntax is "$base_path[index]\\<additional relative path>"
-	// EX: First base path is "C:\\path\\to\\project\\dir"
-	// Then "$base_path[0]\\path\\to\\shader\\includes\\" would generate
-	// C:\\path\\to\\project\\dir\\path\\to\\shader\\includes\\
-	"OpenHeaderIncludePaths":
-	[
-		"$base_path[0]\\clausewitz\\gfx\\FX",
-		"$base_path[0]\\jomini\\gfx\\FX",
-		"$base_path[0]\\game\\gfx\\FX",
-		// Also add your mods path to get includes from your mods .fxh
-	],
-
 	// Valid settings are: "same_window", "new_window", or "new_tab"
 	// "new_tab" is used if an invalid setting is made
 	"IntrinsicHoverLinkOpenStyle": "new_tab",
-
-
-	// Match IfDef statements in shaders and show the block with a popup on hover.
-	"IfDefMatchEnabled": true,
 }
