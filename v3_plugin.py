@@ -8,6 +8,7 @@ import threading
 import time
 import struct
 import Default.exec
+import json
 from colorsys import hsv_to_rgb
 from webbrowser import open as openwebsite
 from collections import deque
@@ -16,13 +17,11 @@ from .jomini import dict_to_game_object as make_object
 from .Utilities.game_data import GameData
 from .Utilities.css import CSS
 from .object_cache import GameObjectCache
-from .mod_cache import remake_cache
-
 
 # ----------------------------------
 # -          Plugin Setup          -
 # ----------------------------------
-settings = None
+settings = sublime.Settings(888)
 v3_files_path = ""
 v3_mod_files = []
 gui_files_path = ""
@@ -102,7 +101,7 @@ class GuiType(GameObjectBase):
                     for i, line in enumerate(file):
                         if self.should_read(line):
                             found_item = re.search(
-                                "type\s([A-Za-z_][A-Za-z_0-9]*)\s?=", line
+                                r"type\s([A-Za-z_][A-Za-z_0-9]*)\s?=", line
                             )
                             if found_item and found_item.groups()[0]:
                                 found_item = found_item.groups()[0]
@@ -113,7 +112,8 @@ class GuiType(GameObjectBase):
 
     def should_read(self, x: str) -> bool:
         # Check if a line should be read
-        return re.search("type\s[A-Za-z_][A-Za-z_0-9]*\s?=", x)
+        out = re.search(r"type\s[A-Za-z_][A-Za-z_0-9]*\s?=", x)
+        return True if out else False
 
 
 class GuiTemplate(GameObjectBase):
@@ -137,7 +137,7 @@ class GuiTemplate(GameObjectBase):
                     for i, line in enumerate(file):
                         if self.should_read(line):
                             found_item = re.search(
-                                "template\s([A-Za-z_][A-Za-z_0-9]*)", line
+                                r"template\s([A-Za-z_][A-Za-z_0-9]*)", line
                             )
                             if found_item and found_item.groups()[0]:
                                 found_item = found_item.groups()[0]
@@ -148,7 +148,8 @@ class GuiTemplate(GameObjectBase):
 
     def should_read(self, x: str) -> bool:
         # Check if a line should be read
-        return re.search("template\s[A-Za-z_][A-Za-z_0-9]*", x)
+        out = re.search(r"template\s[A-Za-z_][A-Za-z_0-9]*", x)
+        return True if out else False
 
 
 # Victoria 3 Game Object Class implementations
@@ -531,7 +532,8 @@ class V3NamedColor(GameObjectBase):
 
     def should_read(self, x: str) -> bool:
         # Check if a line should be read
-        return re.search(r"([A-Za-z_][A-Za-z_0-9]*)\s*=", x)
+        out = re.search(r"([A-Za-z_][A-Za-z_0-9]*)\s*=", x)
+        return True if out else False
 
 
 class V3BattleCondition(GameObjectBase):
@@ -573,11 +575,10 @@ def check_mod_for_changes():
     if os.stat(object_cache_path).st_size < 200:
         # If there are no objects in the cache, they need to be created
         return True
-    mod_cache_path = sublime.packages_path() + f"/Victoria3Tools/mod_cache.py"
+    mod_cache_path = sublime.packages_path() + f"/Victoria3Tools/mod_cache.txt"
     with open(mod_cache_path, "r") as f:
-        # Save lines without remake_cache function
-        mod_cache = f.readlines()
-        mod_cache = "".join(mod_cache[0 : len(mod_cache) - 2])
+        # Save lines before writing
+        mod_cache = "".join(f.readlines())
     with open(mod_cache_path, "w") as f:
         # Clear
         f.write("")
@@ -598,7 +599,7 @@ def check_mod_for_changes():
         with open(mod_cache_path, "a") as f:
             f.write("#")
             for i in stats_dict:
-                key = re.sub("\W|^(?=\d)", "_", i.split(mod_name)[1])
+                key = re.sub(r"\W|^(?=\d)", "_", i.split(mod_name)[1])
                 value = stats_dict[i]
                 f.write(f"{key}{value} ")
             f.write("\n")
@@ -606,12 +607,8 @@ def check_mod_for_changes():
     with open(mod_cache_path, "r") as f:
         # Save written mod classes
         new_mod_cache = "".join(f.readlines())
-    with open(mod_cache_path, "a") as f:
-        # Write remake_cache function that indicates if new game objects need to be made
-        f.write(
-            f"def remake_cache():\n\treturn {True if mod_cache != new_mod_cache else False}"
-        )
-    return remake_cache()
+
+    return True if mod_cache != new_mod_cache else False
 
 
 def get_gui_objects_from_cache():
@@ -626,54 +623,8 @@ def get_objects_from_cache():
     global game_objects
     object_cache = GameObjectCache()
 
-    game_objects["countries"] = make_object(object_cache.countries)
-    game_objects["country_ranks"] = make_object(object_cache.country_ranks)
-    game_objects["country_types"] = make_object(object_cache.country_types)
-    game_objects["culture_graphics"] = make_object(object_cache.culture_graphics)
-    game_objects["named_colors"] = make_named_color_object(object_cache.named_colors)
-    game_objects["battle_conditions"] = make_object(object_cache.battle_conditions)
-    game_objects["commander_ranks"] = make_object(object_cache.commander_ranks)
-    game_objects["ai_strats"] = make_object(object_cache.ai_strats)
-    game_objects["bgs"] = make_object(object_cache.bgs)
-    game_objects["buildings"] = make_object(object_cache.buildings)
-    game_objects["char_traits"] = make_object(object_cache.char_traits)
-    game_objects["cultures"] = make_object(object_cache.cultures)
-    game_objects["mods"] = make_object(object_cache.mods)
-    game_objects["decrees"] = make_object(object_cache.decrees)
-    game_objects["diplo_actions"] = make_object(object_cache.diplo_actions)
-    game_objects["diplo_plays"] = make_object(object_cache.diplo_plays)
-    game_objects["game_rules"] = make_object(object_cache.game_rules)
-    game_objects["goods"] = make_object(object_cache.goods)
-    game_objects["gov_types"] = make_object(object_cache.gov_types)
-    game_objects["ideologies"] = make_object(object_cache.ideologies)
-    game_objects["institutions"] = make_object(object_cache.institutions)
-    game_objects["ig_traits"] = make_object(object_cache.ig_traits)
-    game_objects["igs"] = make_object(object_cache.igs)
-    game_objects["jes"] = make_object(object_cache.jes)
-    game_objects["law_groups"] = make_object(object_cache.law_groups)
-    game_objects["laws"] = make_object(object_cache.laws)
-    game_objects["parties"] = make_object(object_cache.parties)
-    game_objects["pop_needs"] = make_object(object_cache.pop_needs)
-    game_objects["pop_types"] = make_object(object_cache.pop_types)
-    game_objects["pm_groups"] = make_object(object_cache.pm_groups)
-    game_objects["pms"] = make_object(object_cache.pms)
-    game_objects["religions"] = make_object(object_cache.religions)
-    game_objects["state_traits"] = make_object(object_cache.state_traits)
-    game_objects["strategic_regions"] = make_object(object_cache.strategic_regions)
-    game_objects["subject_types"] = make_object(object_cache.subject_types)
-    game_objects["technologies"] = make_object(object_cache.technologies)
-    game_objects["terrains"] = make_object(object_cache.terrains)
-    game_objects["state_regions"] = make_object(object_cache.state_regions)
-    game_objects["script_values"] = make_object(object_cache.script_values)
-    game_objects["scripted_effects"] = make_object(object_cache.scripted_effects)
-    game_objects["scripted_modifiers"] = make_object(object_cache.scripted_modifiers)
-    game_objects["scripted_triggers"] = make_object(object_cache.scripted_triggers)
-    game_objects["gui_types"] = make_object(object_cache.gui_types)
-    game_objects["gui_templates"] = make_object(object_cache.gui_templates)
-    game_objects["proposal_types"] = make_object(object_cache.proposal_types)
-    game_objects["discrimination_traits"] = make_object(
-        object_cache.discrimination_traits
-    )
+    for i in game_objects:
+        game_objects[i] = make_object(getattr(object_cache, i))
 
 
 def cache_all_objects():
@@ -681,70 +632,8 @@ def cache_all_objects():
     path = sublime.packages_path() + f"/Victoria3Tools/object_cache.py"
     with open(path, "w") as f:
         f.write("class GameObjectCache:\n\tdef __init__(self):")
-        f.write(f"\n\t\tself.ai_strats = {game_objects['ai_strats'].to_json()}")
-        f.write(f"\n\t\tself.bgs = {game_objects['bgs'].to_json()}")
-        f.write(f"\n\t\tself.buildings = {game_objects['buildings'].to_json()}")
-        f.write(f"\n\t\tself.char_traits = {game_objects['char_traits'].to_json()}")
-        f.write(f"\n\t\tself.cultures = {game_objects['cultures'].to_json()}")
-        f.write(f"\n\t\tself.mods = {game_objects['mods'].to_json()}")
-        f.write(f"\n\t\tself.decrees = {game_objects['decrees'].to_json()}")
-        f.write(f"\n\t\tself.diplo_actions = {game_objects['diplo_actions'].to_json()}")
-        f.write(f"\n\t\tself.diplo_plays = {game_objects['diplo_plays'].to_json()}")
-        f.write(f"\n\t\tself.game_rules = {game_objects['game_rules'].to_json()}")
-        f.write(f"\n\t\tself.goods = {game_objects['goods'].to_json()}")
-        f.write(f"\n\t\tself.gov_types = {game_objects['gov_types'].to_json()}")
-        f.write(f"\n\t\tself.ideologies = {game_objects['ideologies'].to_json()}")
-        f.write(f"\n\t\tself.institutions = {game_objects['institutions'].to_json()}")
-        f.write(f"\n\t\tself.ig_traits = {game_objects['ig_traits'].to_json()}")
-        f.write(f"\n\t\tself.igs = {game_objects['igs'].to_json()}")
-        f.write(f"\n\t\tself.jes = {game_objects['jes'].to_json()}")
-        f.write(f"\n\t\tself.law_groups = {game_objects['law_groups'].to_json()}")
-        f.write(f"\n\t\tself.laws = {game_objects['laws'].to_json()}")
-        f.write(f"\n\t\tself.parties = {game_objects['parties'].to_json()}")
-        f.write(f"\n\t\tself.pop_needs = {game_objects['pop_needs'].to_json()}")
-        f.write(f"\n\t\tself.pop_types = {game_objects['pop_types'].to_json()}")
-        f.write(f"\n\t\tself.pm_groups = {game_objects['pm_groups'].to_json()}")
-        f.write(f"\n\t\tself.pms = {game_objects['pms'].to_json()}")
-        f.write(f"\n\t\tself.religions = {game_objects['religions'].to_json()}")
-        f.write(f"\n\t\tself.state_traits = {game_objects['state_traits'].to_json()}")
-        f.write(
-            f"\n\t\tself.strategic_regions = {game_objects['strategic_regions'].to_json()}"
-        )
-        f.write(f"\n\t\tself.subject_types = {game_objects['subject_types'].to_json()}")
-        f.write(f"\n\t\tself.technologies = {game_objects['technologies'].to_json()}")
-        f.write(f"\n\t\tself.terrains = {game_objects['terrains'].to_json()}")
-        f.write(f"\n\t\tself.state_regions = {game_objects['state_regions'].to_json()}")
-        f.write(f"\n\t\tself.script_values = {game_objects['script_values'].to_json()}")
-        f.write(
-            f"\n\t\tself.scripted_effects = {game_objects['scripted_effects'].to_json()}"
-        )
-        f.write(
-            f"\n\t\tself.scripted_modifiers = {game_objects['scripted_modifiers'].to_json()}"
-        )
-        f.write(
-            f"\n\t\tself.scripted_triggers = {game_objects['scripted_triggers'].to_json()}"
-        )
-        f.write(f"\n\t\tself.gui_types = {game_objects['gui_types'].to_json()}")
-        f.write(f"\n\t\tself.gui_templates = {game_objects['gui_templates'].to_json()}")
-        f.write(f"\n\t\tself.countries = {game_objects['countries'].to_json()}")
-        f.write(f"\n\t\tself.country_ranks = {game_objects['country_ranks'].to_json()}")
-        f.write(f"\n\t\tself.country_types = {game_objects['country_types'].to_json()}")
-        f.write(
-            f"\n\t\tself.culture_graphics = {game_objects['culture_graphics'].to_json()}"
-        )
-        f.write(
-            f"\n\t\tself.battle_conditions = {game_objects['battle_conditions'].to_json()}"
-        )
-        f.write(
-            f"\n\t\tself.commander_ranks = {game_objects['commander_ranks'].to_json()}"
-        )
-        f.write(
-            f"\n\t\tself.proposal_types = {game_objects['proposal_types'].to_json()}"
-        )
-        f.write(
-            f"\n\t\tself.discrimination_traits = {game_objects['discrimination_traits'].to_json()}"
-        )
-        f.write(f"\n\t\tself.named_colors = {game_objects['named_colors'].to_json()}")
+        for i in game_objects:
+            f.write(f"\n\t\tself.{i} = {game_objects[i].to_json()}")
 
 
 def create_game_objects():
@@ -810,6 +699,7 @@ def create_game_objects():
         game_objects["named_colors"] = V3NamedColor()
         game_objects["battle_conditions"] = V3BattleCondition()
         game_objects["commander_ranks"] = V3CommanderRank()
+        game_objects["state_traits"] = V3StateTrait()
 
     thread1 = threading.Thread(target=load_first)
     thread2 = threading.Thread(target=load_second)
@@ -874,7 +764,6 @@ def plugin_loaded():
     gui_files_path = settings.get("GuiBaseGamePath")
     gui_mod_files = settings.get("PathsToGuiModFiles")
     script_enabled = settings.get("EnableVictoriaScriptingFeatures")
-
     if check_mod_for_changes():
         # Create new objects
         if script_enabled:
@@ -1111,6 +1000,7 @@ def write_data_to_syntax():
     for i in game_objects["bgs"].keys():
         bg_modifs.append(f"building_group_{i}_tax_mult")
         bg_modifs.append(f"building_group_{i}_employee_mult")
+        bg_modifs.append(f"building_group_{i}_throughput_mult")
         country_modifs.append(f"country_subsidies_{i}")
         for j in game_objects["pop_types"].keys():
             bg_modifs.append(f"building_group_{i}_{j}_fertility_mult")
@@ -1216,11 +1106,6 @@ def write_syntax(li, header, scope):
             string += f"{i}|"
     string += f")\\b\n      scope: {scope}"
     return string
-
-
-FIND_SIMPLE_DECLARATION_RE = '\s?=\s?(")?'
-FIND_ERROR_RE = '\s?=\s?"?([A-Za-z_][A-Za-z_0-9]*)"?'
-FIND_SCOPE_RE = ':"?([A-Za-z_][A-Za-z_0-9]*)"?'
 
 
 class V3CompletionsEventListener(sublime_plugin.EventListener):
@@ -1872,7 +1757,9 @@ class LocalizeCurrentFileCommand(sublime_plugin.TextCommand):
         )
         out = re.sub("(#).*", "", file_contents)
         out = out.replace(" ", "")
-        out = re.findall("(title|desc|name|custom_tooltip|text|flavor)\s?=\s?(.+)", out)
+        out = re.findall(
+            r"(title|desc|name|custom_tooltip|text|flavor)\s?=\s?(.+)", out
+        )
 
         for i in out:
             key = i[1].replace('"', "")
@@ -1931,10 +1818,6 @@ class FoldingInputHandler(sublime_plugin.ListInputHandler):
 
 
 class ValidatorOnSaveListener(sublime_plugin.EventListener):
-    def __init__(self):
-        self.view = None
-        self.view_str = None
-
     def on_post_save_async(self, view):
         if view is None:
             return
@@ -1952,7 +1835,16 @@ class ValidatorOnSaveListener(sublime_plugin.EventListener):
         self.view = view
         self.view_str = view.substr(sublime.Region(0, view.size()))
 
-        self.encoding_check()
+        in_mod_dir = any(
+            [
+                x
+                for x in v3_mod_files
+                if self.is_file_in_mod_directory(self.view.file_name(), x)
+            ]
+        )
+
+        if in_mod_dir:
+            self.encoding_check()
 
     def encoding_check(self):
         # Check that the current filepath is in a folder that should use UTF-8 with BOM
@@ -2036,6 +1928,20 @@ class ValidatorOnSaveListener(sublime_plugin.EventListener):
         window.focus_view(panel)
         return panel
 
+    def is_file_in_mod_directory(self, file_path, directory_path):
+        if not os.path.exists(file_path):
+            return False
+
+        if not os.path.exists(directory_path):
+            return False
+
+        absolute_file_path = os.path.abspath(file_path)
+        absolute_directory_path = os.path.abspath(directory_path)
+
+        common_path = os.path.commonpath([absolute_file_path, absolute_directory_path])
+
+        return common_path == absolute_directory_path
+
 
 # ----------------------------------
 # -     Shader Intrinsic Hover     -
@@ -2054,7 +1960,7 @@ def OpenMSDNLink(text):
 
 
 class IntrinsicHoverListener(sublime_plugin.EventListener):
-    def on_hover(sef, view, point, hover_zone):
+    def on_hover(self, view, point, hover_zone):
         if settings.get("IntrinsicHoverEnabled", True) is False:
             return
         if not view:
@@ -3136,7 +3042,7 @@ class QuietExecuteCommand(sublime_plugin.WindowCommand):
                 cmd, shell_cmd, merged_env, self, **kwargs
             )
             self.proc.start()
-        except Exception as e:
+        except Exception:
             sublime.status_message("Build error")
 
     def on_data(self, proc, data):
@@ -3279,8 +3185,9 @@ class ShowTextureBase:
         x = V3ViewTextures(view.id())
         views_with_shown_textures.add(x)
         x = [v for v in views_with_shown_textures if v.id() == view.id()]
-        if x:
-            current_view = x[0]
+        if not x:
+            return
+        current_view = x[0]
         if pid in current_view.textures:
             current_view.textures.remove(pid)
             view.erase_phantoms(key)
@@ -3290,7 +3197,7 @@ class ShowTextureBase:
             # Find region of texture path declaration
             # Ex: [start]texture = "gfx/interface/icons/goods_icons/meat.dds"[end]
             start = view.find(
-                '[A-Za-z_][A-Za-z_0-9]*\s?=\s?"?/?(gfx)?', line_region.a
+                r'[A-Za-z_][A-Za-z_0-9]*\s?=\s?"?/?(gfx)?', line_region.a
             ).a
             end = view.find('"|\n', start).a
             phantom_region = sublime.Region(start, end)
@@ -3456,7 +3363,6 @@ class BrowseBinkVideosCommand(sublime_plugin.TextCommand):
         posLine = view.line(video_point)
         posa = posLine.a + 1
         posb = posLine.b - 1
-        word_position_b = posLine.b - 6
         video_file = (
             view.substr(sublime.Region(posa, posb))
             .replace('"', "")
@@ -3468,7 +3374,6 @@ class BrowseBinkVideosCommand(sublime_plugin.TextCommand):
         view.replace(edit_obj, actual_video_region, video)
         video_point = None
         edit_obj = None
-        video_file_path = False
         if play:
             OpenVictoriaTextureCommand.open_path(video_path)
 
@@ -3498,3 +3403,68 @@ class SoundInputHandler(sublime_plugin.ListInputHandler):
 class V3ReloadPluginCommand(sublime_plugin.WindowCommand):
     def run(self):
         plugin_loaded()
+
+
+# class RunVic3TigerCommand(sublime_plugin.WindowCommand):
+#     def run(self):
+#         print("running tiger...")
+#         mod_path = ""
+#         exe_path = (
+#             sublime.packages_path()
+#             + "/Victoria3Tools/Vic3 Tiger/vic3-tiger-linux/vic3-tiger"
+#         )
+#         sublime.set_timeout_async(lambda: self.run_tiger(exe_path, mod_path), 0)
+
+#     def run_tiger(self, exe_path, path):
+#         result = subprocess.run(
+#             [exe_path, path, "--json"], capture_output=True, text=True
+#         )
+#         output = result.stdout
+#         output = "[" + output.split("[", 1)[1]
+
+#         # Load the JSON data
+#         data = json.loads(output)
+
+#         # Filter the objects with a severity of "error"
+#         error_objects = [obj for obj in data if obj["severity"] == "error"]
+
+#         # Print the error objects
+#         for obj in error_objects:
+#             key = obj["key"]
+#             locations = obj["locations"][0]
+#             path = locations["fullpath"]
+#             linenum = locations["linenr"]
+#             line = locations["line"]
+#             length = locations["length"]
+#             column = locations["column"]
+#             message = obj["message"]
+#             if os.path.exists(path):
+#                 location = "{}:{}:{}".format(path, linenum, column)
+#                 flags = sublime.ENCODED_POSITION | sublime.FORCE_GROUP
+#                 view = self.window.open_file(location, flags)
+
+#                 point = view.text_point(linenum, column) - len(line) - 2
+#                 error_region = sublime.Region(
+#                     point,
+#                     point + length,
+#                 )
+#                 view.add_regions(
+#                     view.substr(error_region),
+#                     [error_region],
+#                     "invalid",
+#                     "",
+#                     sublime.PERSISTENT
+#                     | sublime.DRAW_NO_OUTLINE
+#                     | sublime.DRAW_SQUIGGLY_UNDERLINE
+#                     | sublime.DRAW_NO_FILL,
+#                 )
+
+# break
+
+# print(f"Error: {key}   Path: {path}    Line: {line}\n\t{message}")
+
+# output_path = (
+#     sublime.packages_path() + "/Victoria3Tools/Vic3 Tiger/tiger_output.json"
+# )
+# with open(output_path, "w") as file:
+#     file.write(output)
