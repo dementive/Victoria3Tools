@@ -6,6 +6,7 @@ import subprocess
 import re
 import time
 import struct
+import threading
 import Default.exec
 import json
 from .v3_objects import *
@@ -153,51 +154,86 @@ def cache_all_objects():
 def create_game_objects():
     t0 = time.time()
 
-    global game_objects
-    game_objects["ai_strats"] = V3AiStrategy()
-    game_objects["bgs"] = V3BuildingGroup()
-    game_objects["buildings"] = V3Building()
-    game_objects["char_traits"] = V3CharacterTrait()
-    game_objects["cultures"] = V3Culture()
-    game_objects["decrees"] = V3Decree()
-    game_objects["diplo_actions"] = V3DiplomaticAction()
-    game_objects["diplo_plays"] = V3DiplomaticPlay()
-    game_objects["mods"] = V3Modifier()
-    game_objects["game_rules"] = V3GameRules()
-    game_objects["goods"] = V3Goods()
-    game_objects["gov_types"] = V3GovernmentType()
-    game_objects["ideologies"] = V3Ideology()
-    game_objects["institutions"] = V3Institutions()
-    game_objects["ig_traits"] = V3InterestGroupTrait()
-    game_objects["igs"] = V3InterestGroup()
-    game_objects["jes"] = V3JournalEntry()
-    game_objects["law_groups"] = V3LawGroup()
-    game_objects["laws"] = V3Law()
-    game_objects["parties"] = V3Party()
-    game_objects["pop_needs"] = V3PopNeed()
-    game_objects["pop_types"] = V3PopType()
-    game_objects["pm_groups"] = V3ProductionMethodGroup()
-    game_objects["pms"] = V3ProductionMethod()
-    game_objects["religions"] = V3Religion()
-    game_objects["script_values"] = V3ScriptValue()
-    game_objects["scripted_effects"] = V3ScriptedEffect()
-    game_objects["scripted_modifiers"] = V3ScriptedModifier()
-    game_objects["scripted_triggers"] = V3ScriptedTrigger()
-    game_objects["proposal_types"] = V3ProposalType()
-    game_objects["discrimination_traits"] = V3DiscriminationTrait()
-    game_objects["strategic_regions"] = V3StrategicRegion()
-    game_objects["subject_types"] = V3SubjectType()
-    game_objects["technologies"] = V3Technology()
-    game_objects["terrains"] = V3Terrain()
-    game_objects["state_regions"] = V3StateRegion()
-    game_objects["countries"] = V3Country()
-    game_objects["country_ranks"] = V3CountryRank()
-    game_objects["country_types"] = V3CountryType()
-    game_objects["culture_graphics"] = V3CultureGraphics()
-    game_objects["named_colors"] = V3NamedColor()
-    game_objects["battle_conditions"] = V3BattleCondition()
-    game_objects["commander_ranks"] = V3CommanderRank()
-    game_objects["state_traits"] = V3StateTrait()
+    def load_first():
+        global game_objects
+        game_objects["ai_strats"] = V3AiStrategy()
+        game_objects["bgs"] = V3BuildingGroup()
+        game_objects["buildings"] = V3Building()
+        game_objects["char_traits"] = V3CharacterTrait()
+        game_objects["cultures"] = V3Culture()
+        game_objects["decrees"] = V3Decree()
+        game_objects["diplo_actions"] = V3DiplomaticAction()
+        game_objects["diplo_plays"] = V3DiplomaticPlay()
+
+    def load_second():
+        global game_objects
+        game_objects["mods"] = V3Modifier()
+        game_objects["game_rules"] = V3GameRules()
+        game_objects["goods"] = V3Goods()
+        game_objects["gov_types"] = V3GovernmentType()
+        game_objects["ideologies"] = V3Ideology()
+        game_objects["institutions"] = V3Institutions()
+        game_objects["ig_traits"] = V3InterestGroupTrait()
+        game_objects["igs"] = V3InterestGroup()
+
+    def load_third():
+        global game_objects
+        game_objects["jes"] = V3JournalEntry()
+        game_objects["law_groups"] = V3LawGroup()
+        game_objects["laws"] = V3Law()
+        game_objects["parties"] = V3Party()
+        game_objects["pop_needs"] = V3PopNeed()
+        game_objects["pop_types"] = V3PopType()
+        game_objects["pm_groups"] = V3ProductionMethodGroup()
+
+    def load_fourth():
+        global game_objects
+        game_objects["pms"] = V3ProductionMethod()
+        game_objects["religions"] = V3Religion()
+        game_objects["script_values"] = V3ScriptValue()
+        game_objects["scripted_effects"] = V3ScriptedEffect()
+        game_objects["scripted_modifiers"] = V3ScriptedModifier()
+        game_objects["scripted_triggers"] = V3ScriptedTrigger()
+        game_objects["proposal_types"] = V3ProposalType()
+        game_objects["discrimination_traits"] = V3DiscriminationTrait()
+
+    def load_fifth():
+        global game_objects
+        game_objects["strategic_regions"] = V3StrategicRegion()
+        game_objects["subject_types"] = V3SubjectType()
+        game_objects["technologies"] = V3Technology()
+        game_objects["terrains"] = V3Terrain()
+        game_objects["state_regions"] = V3StateRegion()
+        game_objects["countries"] = V3Country()
+
+    def load_sixth():
+        global game_objects
+        game_objects["country_ranks"] = V3CountryRank()
+        game_objects["country_types"] = V3CountryType()
+        game_objects["culture_graphics"] = V3CultureGraphics()
+        game_objects["named_colors"] = V3NamedColor()
+        game_objects["battle_conditions"] = V3BattleCondition()
+        game_objects["commander_ranks"] = V3CommanderRank()
+        game_objects["state_traits"] = V3StateTrait()
+
+    thread1 = threading.Thread(target=load_first)
+    thread2 = threading.Thread(target=load_second)
+    thread3 = threading.Thread(target=load_third)
+    thread4 = threading.Thread(target=load_fourth)
+    thread5 = threading.Thread(target=load_fifth)
+    thread6 = threading.Thread(target=load_sixth)
+    thread1.start()
+    thread2.start()
+    thread3.start()
+    thread4.start()
+    thread5.start()
+    thread6.start()
+    thread1.join()
+    thread2.join()
+    thread3.join()
+    thread4.join()
+    thread5.join()
+    thread6.join()
 
     # Write syntax data after creating objects so they actually exist when writing
     sublime.set_timeout_async(lambda: write_data_to_syntax(), 0)
@@ -2013,7 +2049,13 @@ class ScriptHoverListener(sublime_plugin.EventListener):
                 )
                 ref += (
                     """<a href="%s" title="Open %s and goto line %s">%s:%s</a>&nbsp;"""
-                    % (goto_url, shortname, line, shortname, line)
+                    % (
+                        goto_url,
+                        shortname,
+                        line,
+                        shortname,
+                        line,
+                    )
                 )
                 goto_right_args = {"path": fname, "line": line}
                 goto_right_url = sublime.command_url(
@@ -2197,7 +2239,13 @@ class ScriptHoverListener(sublime_plugin.EventListener):
                 )
                 ref += (
                     """<a href="%s" title="Open %s and goto line %s">%s:%s</a>&nbsp;"""
-                    % (goto_url, shortname, line, shortname, line)
+                    % (
+                        goto_url,
+                        shortname,
+                        line,
+                        shortname,
+                        line,
+                    )
                 )
                 goto_right_args = {"path": fname, "line": line}
                 goto_right_url = sublime.command_url(
