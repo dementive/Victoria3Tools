@@ -205,6 +205,7 @@ def create_game_objects():
         game_objects["terrains"] = V3Terrain()
         game_objects["state_regions"] = V3StateRegion()
         game_objects["countries"] = V3Country()
+        game_objects["countries"].remove("NOR")
 
     def load_sixth():
         global game_objects
@@ -487,6 +488,7 @@ def write_data_to_syntax():
     bg_modifs = list()
     building_modifs = list()
     character_modifs = list()
+    goods_modifs = list()
 
     # interest_group_(IG)_pol_str_mult
     # interest_group_(IG)_approval_add
@@ -519,6 +521,8 @@ def write_data_to_syntax():
         building_modifs.append(f"building_output_{i}_add")
         building_modifs.append(f"building_input_{i}_add")
         building_modifs.append(f"building_output_{i}_mult")
+        goods_modifs.append(f"goods_input_{i}_add")
+        goods_modifs.append(f"goods_output_{i}_add")
 
     # building_(BUILDING)_throughput_mult
     for i in game_objects["buildings"].keys():
@@ -584,6 +588,11 @@ def write_data_to_syntax():
         character_modifs,
         "Character Modifier Types",
         "string.modifier.type",
+    )
+    lines += write_syntax(
+        goods_modifs,
+        "Trade Good Modifier Types",
+        "string.trade.good.type",
     )
 
     with open(real_syntax_path, "r") as file:
@@ -1045,8 +1054,8 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
         ]
         gov_types_list = ["has_government_type"]
         ideologies_list = [
-            "has_ideology",
-            "set_ideology",
+            # "has_ideology", # these 2 take ideology:x
+            # "set_ideology",
             "add_ideology",
             "remove_ideology",
             "ideology",
@@ -1093,7 +1102,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
         country_types = ["is_country_type", "country_type"]
         culture_graphics = ["has_culture_graphics", "graphics"]
         named_colors = ["color", "color1", "color2", "color3", "color4", "color5"]
-        commander_ranks = [""]
+        commander_ranks = ["commander_rank"]
         battle_conditions = ["has_battle_condition"]
 
         proposal_types_list = ["post_proposal"]

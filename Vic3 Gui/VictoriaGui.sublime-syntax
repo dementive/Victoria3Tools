@@ -84,7 +84,7 @@ contexts:
     - include: bracket-zone
     - match: '\\.'
       scope: constant.character.escape.example-c
-    - match: '"'
+    - match: '"|\n'
       scope: punctuation.definition.string.end.example-c
       pop: true
 
