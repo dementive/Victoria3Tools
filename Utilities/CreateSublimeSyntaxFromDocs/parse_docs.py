@@ -24,306 +24,292 @@ import re
 		Input Scopes: diplomatic_pact
 		Output Scopes: country
 		```
-
-	6. Go through modifiers.log and (with regex) remove all of these modifiers, they are handled by plugin code and not in the static syntax
-		```
-		interest_group_(IG)_pol_str_mult
-		interest_group_(IG)_approval_add
-		interest_group_(IG)_pop_attraction_mult
-
-		building_group_(BG)_(POP_TYPE)_fertility_mult
-		building_group_(BG)_(POP_TYPE)_mortality_mult
-		building_group_(BG)_(POP_TYPE)_standard_of_living_add
-		building_group_(BG)_tax_mult
-		building_group_(BG)_employee_mult
-		country_subsidies_(BG)
-
-		building_output_(TRADE_GOOD)_add
-		building_input_(TRADE_GOOD)_add
-		building_output_(TRADE_GOOD)_mult
-
-		building_(BUILDING)_throughput_mult
-
-		character_(BATTLE_CONDITION)_mult
-
-		state_(RELIGION)_standard_of_living_add
-
-		country_(INSTITUTION)_max_investment_add
-
-		country_(POP_TYPE)_pol_str_mult
-		country_(POP_TYPE)_voting_power_add
-		state_(POP_TYPE)_mortality_mult
-		state_(POP_TYPE)_dependent_wage_mult
-		building_employment_(POP_TYPE)_add
-		building_employment_(POP_TYPE)_mult
-		building_(POP_TYPE)_fertility_mult
-		building_(POP_TYPE)_mortality_mult
-		state_(POP_TYPE)_investment_pool_contribution_add
-		state_(POP_TYPE)_investment_pool_efficiency_mult
-		building_(POP_TYPE)_shares_add
-		building_(POP_TYPE)_shares_mult
-
-		state_pop_support_(LAW)_add
-		state_pop_support_(LAW)_add
-		state_pop_support_(LAW)_mult
-		```
 	5. Run the script
 """
 
 
 def find_between(s, first, last):
-	try:
-		start = s.index(first) + len(first)
-		end = s.index(last, start)
-		return s[start:end]
-	except ValueError:
-		return ""
+    try:
+        start = s.index(first) + len(first)
+        end = s.index(last, start)
+        return s[start:end]
+    except ValueError:
+        return ""
 
 
 def parse_logs(file, mode):
-	file = open(file, "r")
-	contents = file.read()
-	file.close()
-	# The first identifier must be removed from the input file for it to read properly.
-	if mode == "on_action":
-		split = contents.split("--------------------")
-	elif file == "docs/event_targets.log":
-		split = contents.split("###")
-	elif mode == "normal" or "descriptions":
-		split = contents.split("##")
-	elif mode == "mods":
-		split = contents.replace(",", "").replace("\n", "").split("Tag: ")
+    file = open(file, "r")
+    contents = file.read()
+    file.close()
+    # The first identifier must be removed from the input file for it to read properly.
+    if mode == "on_action":
+        split = contents.split("--------------------")
+    elif file == "docs/event_targets.log":
+        split = contents.split("###")
+    elif mode == "normal" or "descriptions":
+        split = contents.split("##")
+    elif mode == "mods":
+        split = contents.replace(",", "").replace("\n", "").split("Tag: ")
 
-	parsed_list = []
+    parsed_list = []
 
-	for i in range(len(split)):
-		node = split[i].strip()
-		if not node:
-			continue
-		if mode == "normal":
-			stripped = node.split("-", 1)[0].replace("\n", "").replace(" ", "")
-			parsed_list.append(stripped)
-		elif mode == "mods":
-			parsed_list.append(node)
-		elif mode == "on_action":
-			from_code = "From Code: Yes" in node
-			if from_code:
-				stripped = node.split(":", 1)[0].replace("\n", "").replace(" ", "")
-				parsed_list.append(stripped)
-		elif mode == "descriptions":
-			desc_pos = node.find("Supported S")
-			if desc_pos != -1:
-				node_end = node.find("\n\n")
-				description = node[desc_pos:len(node)]
-				description = description.replace("\n", "")
-				split_pos = description.find("Supported Targets")
-				if split_pos != -1:
-					description = description[:split_pos] + " -> " + description[split_pos:]
-					parsed_list.append(description)
-				else:
-					parsed_list.append(description)
-		elif mode == "scope_descriptions":
-			description = find_between(node, "- ", "\n")
-			parsed_list.append(description)
-		elif mode == "full_descs":
-			full_descs = node.split("- ", 1)
-			# Make minihtml compatible
-			full_descs[1] = full_descs[1].replace("\n", "<br>").replace("Traits: <, <=, =, !=, >, >=", "Traits: &lt;, &le;, =, !=, &gt;, &ge;").replace("<triggers>", "triggers").replace("<effects>", "effects")
-			# remove trailing br tags
-			if full_descs[1].endswith("<br><br>"):
-				full_descs[1] = full_descs[1].replace("<br><br>", "")
-			if full_descs[1].endswith("<br>"):
-				full_descs[1] = full_descs[1].rstrip()[:-4]
+    for i in range(len(split)):
+        node = split[i].strip()
+        if not node:
+            continue
+        if mode == "normal":
+            stripped = node.split("-", 1)[0].replace("\n", "").replace(" ", "")
+            parsed_list.append(stripped)
+        elif mode == "mods":
+            parsed_list.append(node)
+        elif mode == "on_action":
+            from_code = "From Code: Yes" in node
+            if from_code:
+                stripped = node.split(":", 1)[0].replace("\n", "").replace(" ", "")
+                parsed_list.append(stripped)
+        elif mode == "descriptions":
+            desc_pos = node.find("Supported S")
+            if desc_pos != -1:
+                node_end = node.find("\n\n")
+                description = node[desc_pos : len(node)]
+                description = description.replace("\n", "")
+                split_pos = description.find("Supported Targets")
+                if split_pos != -1:
+                    description = (
+                        description[:split_pos] + " -> " + description[split_pos:]
+                    )
+                    parsed_list.append(description)
+                else:
+                    parsed_list.append(description)
+        elif mode == "scope_descriptions":
+            description = find_between(node, "- ", "\n")
+            parsed_list.append(description)
+        elif mode == "full_descs":
+            full_descs = node.split("- ", 1)
+            # Make minihtml compatible
+            full_descs[1] = (
+                full_descs[1]
+                .replace("\n", "<br>")
+                .replace(
+                    "Traits: <, <=, =, !=, >, >=",
+                    "Traits: &lt;, &le;, =, !=, &gt;, &ge;",
+                )
+                .replace("<triggers>", "triggers")
+                .replace("<effects>", "effects")
+            )
+            # remove trailing br tags
+            if full_descs[1].endswith("<br><br>"):
+                full_descs[1] = full_descs[1].replace("<br><br>", "")
+            if full_descs[1].endswith("<br>"):
+                full_descs[1] = full_descs[1].rstrip()[:-4]
 
-			# fix quotes so they can go into python
-			full_descs[1] = full_descs[1].replace("\"", "\\\"")
+            # fix quotes so they can go into python
+            full_descs[1] = full_descs[1].replace('"', '\\"')
 
-			parsed_list.append(full_descs[1])
+            parsed_list.append(full_descs[1])
 
-	return parsed_list
+    return parsed_list
 
 
-def create_sublime_completions(game, syntax_scope, effects, triggers, scopes, modifiers):
-	file = open(f"output/{game}Completions.sublime-completions", "w")
-	file.write(f"{{\n\t\"scope\": \"{syntax_scope}\",\n\t\"completions\":\n\t[")
+def create_sublime_completions(
+    game, syntax_scope, effects, triggers, scopes, modifiers
+):
+    file = open(f"output/{game}Completions.sublime-completions", "w")
+    file.write(f'{{\n\t"scope": "{syntax_scope}",\n\t"completions":\n\t[')
 
-	effects_desc = parse_logs("docs/effects.log", "descriptions")
-	triggers_desc = parse_logs("docs/triggers.log", "descriptions")
-	scopes_desc = parse_logs("docs/event_targets.log", "scope_descriptions")
+    effects_desc = parse_logs("docs/effects.log", "descriptions")
+    triggers_desc = parse_logs("docs/triggers.log", "descriptions")
+    scopes_desc = parse_logs("docs/event_targets.log", "scope_descriptions")
 
-	# These use the normal Trigger and Effect lists
-	# for i, ed in zip(effects, effects_desc):
-	# 	file.write(f"""
-	# 	{{
-	# 		\"trigger\": \"{i}\",
-	# 		\"contents\": \"{i}\",
-	# 		\"details\": \"{ed}\",
-	# 		\"kind\": [\"function\", \"E\", \"Effect\"]
-	# 	}},""")
+    # These use the normal Trigger and Effect lists
+    # for i, ed in zip(effects, effects_desc):
+    # 	file.write(f"""
+    # 	{{
+    # 		\"trigger\": \"{i}\",
+    # 		\"contents\": \"{i}\",
+    # 		\"details\": \"{ed}\",
+    # 		\"kind\": [\"function\", \"E\", \"Effect\"]
+    # 	}},""")
 
-	# for i, td in zip(triggers, triggers_desc):
-	# 	file.write(f"""
-	# 	{{
-	# 		\"trigger\": \"{i}\",
-	# 		\"contents\": \"{i}\",
-	# 		\"details\": \"{td}\",
-	# 		\"kind\": [\"navigation\", \"T\", \"Trigger\"]
-	# 	}},""")
+    # for i, td in zip(triggers, triggers_desc):
+    # 	file.write(f"""
+    # 	{{
+    # 		\"trigger\": \"{i}\",
+    # 		\"contents\": \"{i}\",
+    # 		\"details\": \"{td}\",
+    # 		\"kind\": [\"navigation\", \"T\", \"Trigger\"]
+    # 	}},""")
 
-	for i, sd in zip(scopes, scopes_desc):
-		file.write(f"""
+    for i, sd in zip(scopes, scopes_desc):
+        file.write(
+            f"""
 		{{
 			\"trigger\": \"{i}\",
 			\"contents\": \"{i}\",
 			\"details\": \"{sd}\",
 			\"kind\": [\"namespace\", \"S\", \"Scope\"]
-		}},""")
+		}},"""
+        )
 
-	# file.write("ModifersList = {")
-	# for i in modifiers:
-	#     regex = re.search(r"[^C]*$", i)
-	#     cat_out = regex[0].replace("ategories", "Category")
-	#     mod_out = i.split("C", 1)[0].replace(" ", "")
-	#     file.write(f"\"{mod_out}\": \"{cat_out}\",\n")
+    # file.write("ModifersList = {")
+    # for i in modifiers:
+    #     regex = re.search(r"[^C]*$", i)
+    #     cat_out = regex[0].replace("ategories", "Category")
+    #     mod_out = i.split("C", 1)[0].replace(" ", "")
+    #     file.write(f"\"{mod_out}\": \"{cat_out}\",\n")
 
-	file.write("}")
-	file.write("\n\t]\n}")
-	file.close()
-	full_path = os.path.realpath(f"{game}Completions.sublime-completions")
-	file_path = os.path.dirname(full_path) + "\\output"
+    file.write("}")
+    file.write("\n\t]\n}")
+    file.close()
+    full_path = os.path.realpath(f"{game}Completions.sublime-completions")
+    file_path = os.path.dirname(full_path) + "\\output"
 
 
 def write_syntax(iterator, header, scheme_scope, file):
-	if header == "Scopes":
-		# Scopes can be case insensitive, everything else is not for performance.
-		file.write(f"    # {header}\n    - match: \\b(?i)(")
-		for i in iterator:
-			file.write(f"{i}|")
-		file.write(f")(?-i)\\b\n      scope: {scheme_scope}\n")
-	else:
-		file.write(f"    # {header}\n    - match: \\b(")
-		for i in iterator:
-			file.write(f"{i}|")
-		file.write(f")\\b\n      scope: {scheme_scope}\n")
+    if header == "Scopes":
+        # Scopes can be case insensitive, everything else is not for performance.
+        file.write(f"    # {header}\n    - match: \\b(?i)(")
+        for i in iterator:
+            file.write(f"{i}|")
+        file.write(f")(?-i)\\b\n      scope: {scheme_scope}\n")
+    else:
+        file.write(f"    # {header}\n    - match: \\b(")
+        for i in iterator:
+            file.write(f"{i}|")
+        file.write(f")\\b\n      scope: {scheme_scope}\n")
 
 
 def split_write_syntax(iterator, header, scheme_scope, file):
-	file.write(f"    # {header}\n    - match: \\b(")
-	half = int(len(iterator)) / 2
-	count = 0  # count for modifiers split
-	for index, content in enumerate(iterator):
-		if (header != "Modifiers"):
-			if index < int(half):
-				file.write(f"{content}|")
-			elif index == int(half):
-				file.write(f")\\b\n      scope: {scheme_scope}\n")
-				file.write(f"    # {header} part 2\n    - match: \\b({content}|")
-			else:
-				file.write(f"{content}|")
-		else:
-			count += 1
-			if count == 0:
-				file.write(f")\\b\n      scope: {scheme_scope}\n")
-				file.write(f"    # {header}\n    - match: \\b({content}|")
-			elif count == 75:
-				file.write(f")\\b\n      scope: {scheme_scope}\n")
-				file.write(f"    # {header}\n    - match: \\b({content}|")
-				count = 1
-			else:
-				file.write(f"{content}|")
+    file.write(f"    # {header}\n    - match: \\b(")
+    half = int(len(iterator)) / 2
+    count = 0  # count for modifiers split
+    for index, content in enumerate(iterator):
+        if header != "Modifiers":
+            if index < int(half):
+                file.write(f"{content}|")
+            elif index == int(half):
+                file.write(f")\\b\n      scope: {scheme_scope}\n")
+                file.write(f"    # {header} part 2\n    - match: \\b({content}|")
+            else:
+                file.write(f"{content}|")
+        else:
+            count += 1
+            if count == 0:
+                file.write(f")\\b\n      scope: {scheme_scope}\n")
+                file.write(f"    # {header}\n    - match: \\b({content}|")
+            elif count == 75:
+                file.write(f")\\b\n      scope: {scheme_scope}\n")
+                file.write(f"    # {header}\n    - match: \\b({content}|")
+                count = 1
+            else:
+                file.write(f"{content}|")
 
-	file.write(f")\\b\n      scope: {scheme_scope}\n")
+    file.write(f")\\b\n      scope: {scheme_scope}\n")
 
 
 def write_extra(file):
-	file.write("\n    # --------------------------------\n    # -     Manually Added Terms     -\n    # --------------------------------\n\n")
-	file.write(f"    # Essential Scipt Functions\n    - match: \\b(texture|icon)\\b\n      scope: constant.numeric\n")
-	file.write(f"    # Math/Sound\n    - match: \\b(add)\\b\n      scope: variable.language\n")
-	file.write(f"    # Gui Defaults\n    - match: \\b(textbox)\\b\n      scope: keyword.onaction\n")
+    file.write(
+        "\n    # --------------------------------\n    # -     Manually Added Terms     -\n    # --------------------------------\n\n"
+    )
+    file.write(
+        f"    # Essential Scipt Functions\n    - match: \\b(texture|icon)\\b\n      scope: constant.numeric\n"
+    )
+    file.write(
+        f"    # Math/Sound\n    - match: \\b(add)\\b\n      scope: variable.language\n"
+    )
+    file.write(
+        f"    # Gui Defaults\n    - match: \\b(textbox)\\b\n      scope: keyword.onaction\n"
+    )
 
 
-def create_sublime_syntax(game, syntax_scope, effects, triggers, scopes, modifiers, on_actions):
-	file = open(f"output/{game}Syntax.sublime-syntax", "w")
-	file.write(f"%YAML 1.2\n---\nname: {game} Scripting\nfile_extensions: [txt]\nscope: {syntax_scope}\n\ncontexts:\n  main:\n    # Comments\n    - match: (#).*$\\n?\n      scope: comment\n")
+def create_sublime_syntax(
+    game, syntax_scope, effects, triggers, scopes, modifiers, on_actions
+):
+    file = open(f"output/{game}Syntax.sublime-syntax", "w")
+    file.write(
+        f"%YAML 1.2\n---\nname: {game} Scripting\nfile_extensions: [txt]\nscope: {syntax_scope}\n\ncontexts:\n  main:\n    # Comments\n    - match: (#).*$\\n?\n      scope: comment\n"
+    )
 
-	write_syntax(scopes, "Scopes", "storage.type.scope", file)
-	write_syntax(on_actions, "On Actions From Code", "keyword.onaction", file)
-	split_write_syntax(effects, "Effects", "keyword.effect", file)
-	split_write_syntax(triggers, "Triggers", "string.trigger", file)
-	mod_list_out = []
-	for i in modifiers:
-		regex = re.search(r"[^C]*$", i)
-		mod_out = i.split("C", 1)[0].replace(" ", "")
-		mod_list_out.append(mod_out)
+    write_syntax(scopes, "Scopes", "storage.type.scope", file)
+    write_syntax(on_actions, "On Actions From Code", "keyword.onaction", file)
+    split_write_syntax(effects, "Effects", "keyword.effect", file)
+    split_write_syntax(triggers, "Triggers", "string.trigger", file)
+    mod_list_out = []
+    for i in modifiers:
+        regex = re.search(r"[^C]*$", i)
+        mod_out = i.split("C", 1)[0].replace(" ", "")
+        mod_list_out.append(mod_out)
 
-	try:
-		mod_list_out.remove("")
-	except ValueError:
-		pass
-	split_write_syntax(mod_list_out, "Modifiers", "string.modifier", file)
-	write_extra(file)
+    try:
+        mod_list_out.remove("")
+    except ValueError:
+        pass
+    split_write_syntax(mod_list_out, "Modifiers", "string.modifier", file)
+    write_extra(file)
 
 
 def write_full_descriptions(list1, fd):
+    descs = parse_logs(f"docs/{fd}.log", "full_descs")
+    file = open(f"output_lists/{fd}_dict.txt", "w")
 
-	descs = parse_logs(f"docs/{fd}.log", "full_descs")
-	file = open(f"output_lists/{fd}_dict.txt", "w")
-
-	file.write(f"{fd.capitalize()}List = {{\n")
-	count = 0
-	for i in descs:
-		file.write(f"\t\"{list1[count]}\": \"{i}\",\n")
-		count += 1
-	file.write("}")
-	file.close()
+    file.write(f"{fd.capitalize()}List = {{\n")
+    count = 0
+    for i in descs:
+        file.write(f'\t"{list1[count]}": "{i}",\n')
+        count += 1
+    file.write("}")
+    file.close()
 
 
 def write_log(**kwargs):
-	file = open("output_lists/logs.txt", "a")
-	for key, value in kwargs.items():
-		file.write(key.upper() + ":")
-		for i in value:
-			file.write(i + "|")
-		file.write("\n")
-	file.close()
+    file = open("output_lists/logs.txt", "a")
+    for key, value in kwargs.items():
+        file.write(key.upper() + ":")
+        for i in value:
+            file.write(i + "|")
+        file.write("\n")
+    file.close()
 
 
 def write_mods_to_log(modifiers):
-	file = open("output_lists/logs.txt", "w")
-	file.write("MODIFIERS:")
-	count = 0
-	for i in modifiers:
-		regex = re.search(r"[^C]*$", i)
-		mod_out = i.split("C", 1)[0].replace(" ", "")
-		file.write(mod_out + "|")
-		count += 1
-		if count == 450:
-			file.write("\n")
-		if count == 900:
-			file.write("\n")
-	file.close()
+    file = open("output_lists/logs.txt", "w")
+    file.write("MODIFIERS:")
+    count = 0
+    for i in modifiers:
+        regex = re.search(r"[^C]*$", i)
+        mod_out = i.split("C", 1)[0].replace(" ", "")
+        file.write(mod_out + "|")
+        count += 1
+        if count == 450:
+            file.write("\n")
+        if count == 900:
+            file.write("\n")
+    file.close()
 
 
 if __name__ == "__main__":
-	syntax_scope = "text.vic"
-	game = "Victoria"
+    syntax_scope = "text.vic"
+    game = "Victoria"
 
-	effects = parse_logs("docs/effects.log", "normal")
-	triggers = parse_logs("docs/triggers.log", "normal")
-	scopes = parse_logs("docs/event_targets.log", "normal")
-	modifiers = parse_logs("docs/modifiers.log", "mods")
-	on_actions = parse_logs("docs/on_actions.log", "on_action")
+    effects = parse_logs("docs/effects.log", "normal")
+    triggers = parse_logs("docs/triggers.log", "normal")
+    scopes = parse_logs("docs/event_targets.log", "normal")
+    # modifiers = parse_logs("docs/modifiers.log", "mods")
+    on_actions = parse_logs("docs/on_actions.log", "on_action")
+    modifiers = []
 
-	# Extract full descriptions for hover docs (with br tags instead of newlines)
+    # Extract full descriptions for hover docs (with br tags instead of newlines)
 
-	write_full_descriptions(effects, "effects")
-	write_full_descriptions(triggers, "triggers")
-	write_full_descriptions(scopes, "event_targets")
+    write_full_descriptions(effects, "effects")
+    write_full_descriptions(triggers, "triggers")
+    write_full_descriptions(scopes, "event_targets")
 
-	# Write to log for debugging syntax
-	write_mods_to_log(modifiers)
-	write_log(effects=effects, triggers=triggers, scopes=scopes, on_actions=on_actions)
+    # Write to log for debugging syntax
+    # write_mods_to_log(modifiers)
+    write_log(effects=effects, triggers=triggers, scopes=scopes, on_actions=on_actions)
 
-	# Create syntax
-	create_sublime_completions(game, syntax_scope, effects, triggers, scopes, modifiers)
-	create_sublime_syntax(game, syntax_scope, effects, triggers, scopes, modifiers, on_actions)
+    # Create syntax
+    create_sublime_completions(game, syntax_scope, effects, triggers, scopes, modifiers)
+    create_sublime_syntax(
+        game, syntax_scope, effects, triggers, scopes, modifiers, on_actions
+    )

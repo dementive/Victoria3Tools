@@ -9,6 +9,7 @@ import struct
 import threading
 import Default.exec
 import json
+import hashlib
 from .v3_objects import *
 from webbrowser import open as openwebsite
 from collections import deque
@@ -33,51 +34,57 @@ base_object = GameObjectBase()
 # global dictionary of game objects used everywhere
 game_objects = {
     "ai_strats": base_object,
+    "battle_conditions": base_object,
     "bgs": base_object,
     "buildings": base_object,
     "char_traits": base_object,
+    "combat_unit_group": base_object,
+    "combat_unit_type": base_object,
+    "commander_orders": base_object,
+    "commander_ranks": base_object,
+    "companies": base_object,
+    "countries": base_object,
+    "country_ranks": base_object,
+    "country_types": base_object,
+    "culture_graphics": base_object,
     "cultures": base_object,
-    "mods": base_object,
     "decrees": base_object,
     "diplo_actions": base_object,
     "diplo_plays": base_object,
+    "discrimination_traits": base_object,
     "game_rules": base_object,
     "goods": base_object,
     "gov_types": base_object,
+    "gui_templates": base_object,
+    "gui_types": base_object,
     "ideologies": base_object,
-    "institutions": base_object,
     "ig_traits": base_object,
     "igs": base_object,
+    "institutions": base_object,
     "jes": base_object,
     "law_groups": base_object,
     "laws": base_object,
+    "mobilization_options": base_object,
+    "mods": base_object,
+    "modifier_types": base_object,
+    "named_colors": base_object,
     "parties": base_object,
-    "pop_needs": base_object,
-    "pop_types": base_object,
     "pm_groups": base_object,
     "pms": base_object,
+    "pop_needs": base_object,
+    "pop_types": base_object,
+    "proposal_types": base_object,
     "religions": base_object,
+    "script_values": base_object,
+    "scripted_effects": base_object,
+    "scripted_modifiers": base_object,
+    "scripted_triggers": base_object,
+    "state_regions": base_object,
     "state_traits": base_object,
     "strategic_regions": base_object,
     "subject_types": base_object,
     "technologies": base_object,
     "terrains": base_object,
-    "state_regions": base_object,
-    "script_values": base_object,
-    "scripted_effects": base_object,
-    "scripted_modifiers": base_object,
-    "scripted_triggers": base_object,
-    "countries": base_object,
-    "country_ranks": base_object,
-    "country_types": base_object,
-    "named_colors": base_object,
-    "battle_conditions": base_object,
-    "commander_ranks": base_object,
-    "culture_graphics": base_object,
-    "proposal_types": base_object,
-    "discrimination_traits": base_object,
-    "gui_types": base_object,
-    "gui_templates": base_object,
 }
 
 
@@ -101,7 +108,6 @@ def check_mod_for_changes():
     for path in v3_mod_files:
         stats_dict = dict()
         mod_name = path.replace("\\", "/").rstrip("/").rpartition("/")[2]
-        mod_class_name = mod_name.replace(" ", "")
         for dirpath, dirnames, filenames in os.walk(path):
             mod_files = [
                 x for x in filenames if x.endswith(".txt") or x.endswith(".gui")
@@ -110,13 +116,13 @@ def check_mod_for_changes():
                 for i, j in enumerate(mod_files):
                     full_path = dirpath + "/" + mod_files[i]
                     stats_dict[full_path] = os.stat(full_path).st_mtime
+        stats_string = str()
+        for i in stats_dict:
+            value = stats_dict[i]
+            stats_string += f"{mod_name}{value}"
 
         with open(mod_cache_path, "a") as f:
-            f.write("#")
-            for i in stats_dict:
-                key = re.sub(r"\W|^(?=\d)", "_", i.split(mod_name)[1])
-                value = stats_dict[i]
-                f.write(f"{key}{value} ")
+            f.write(hashlib.sha256(stats_string.encode()).hexdigest())
             f.write("\n")
 
     with open(mod_cache_path, "r") as f:
@@ -164,22 +170,24 @@ def create_game_objects():
         game_objects["decrees"] = V3Decree()
         game_objects["diplo_actions"] = V3DiplomaticAction()
         game_objects["diplo_plays"] = V3DiplomaticPlay()
+        game_objects["companies"] = V3CompanyType()
 
     def load_second():
         global game_objects
         game_objects["mods"] = V3Modifier()
         game_objects["game_rules"] = V3GameRules()
-        game_objects["goods"] = V3Goods()
         game_objects["gov_types"] = V3GovernmentType()
         game_objects["ideologies"] = V3Ideology()
         game_objects["institutions"] = V3Institutions()
         game_objects["ig_traits"] = V3InterestGroupTrait()
         game_objects["igs"] = V3InterestGroup()
+        game_objects["commander_orders"] = V3CommanderOrder()
 
     def load_third():
         global game_objects
         game_objects["jes"] = V3JournalEntry()
         game_objects["law_groups"] = V3LawGroup()
+        game_objects["mobilization_options"] = V3MobilizationOption()
         game_objects["laws"] = V3Law()
         game_objects["parties"] = V3Party()
         game_objects["pop_needs"] = V3PopNeed()
@@ -199,11 +207,14 @@ def create_game_objects():
 
     def load_fifth():
         global game_objects
+        game_objects["combat_unit_group"] = V3CombatUnitGroup()
         game_objects["strategic_regions"] = V3StrategicRegion()
+        game_objects["goods"] = V3Goods()
         game_objects["subject_types"] = V3SubjectType()
         game_objects["technologies"] = V3Technology()
         game_objects["terrains"] = V3Terrain()
         game_objects["state_regions"] = V3StateRegion()
+        game_objects["state_traits"] = V3StateTrait()
         game_objects["countries"] = V3Country()
         game_objects["countries"].remove("NOR")
 
@@ -212,10 +223,11 @@ def create_game_objects():
         game_objects["country_ranks"] = V3CountryRank()
         game_objects["country_types"] = V3CountryType()
         game_objects["culture_graphics"] = V3CultureGraphics()
+        game_objects["modifier_types"] = V3ModifierType()
         game_objects["named_colors"] = V3NamedColor()
         game_objects["battle_conditions"] = V3BattleCondition()
         game_objects["commander_ranks"] = V3CommanderRank()
-        game_objects["state_traits"] = V3StateTrait()
+        game_objects["combat_unit_type"] = V3CombatUnitType()
 
     thread1 = threading.Thread(target=load_first)
     thread2 = threading.Thread(target=load_second)
@@ -357,6 +369,11 @@ def write_data_to_syntax():
         game_objects["mods"].keys(), "Modifiers", "entity.name.modifier"
     )
     lines += write_syntax(
+        game_objects["modifier_types"].keys(),
+        "Modifier Type",
+        "string.modifier.type",
+    )
+    lines += write_syntax(
         game_objects["decrees"].keys(), "Decrees", "entity.name.decree"
     )
     lines += write_syntax(
@@ -395,6 +412,11 @@ def write_data_to_syntax():
         game_objects["law_groups"].keys(), "Law Groups", "entity.name.law.group"
     )
     lines += write_syntax(game_objects["laws"].keys(), "Laws", "entity.name.law")
+    lines += write_syntax(
+        game_objects["mobilization_options"].keys(),
+        "Mobilization Options",
+        "entity.name.mobilization.option",
+    )
     lines += write_syntax(
         game_objects["parties"].keys(), "Parties", "entity.name.party"
     )
@@ -471,14 +493,34 @@ def write_data_to_syntax():
         "entity.name.commander.ranks",
     )
     lines += write_syntax(
+        game_objects["commander_orders"].keys(),
+        "Commander Orders",
+        "entity.name.commander.orders",
+    )
+    lines += write_syntax(
         game_objects["proposal_types"].keys(),
         "Proposal Types",
         "entity.name.proposal.type",
     )
     lines += write_syntax(
+        game_objects["companies"].keys(),
+        "Companies",
+        "entity.name.company",
+    )
+    lines += write_syntax(
         game_objects["discrimination_traits"].keys(),
         "Discrimination Traits",
         "entity.name.discrimination.trait",
+    )
+    lines += write_syntax(
+        game_objects["combat_unit_group"].keys(),
+        "Combat Unit Group",
+        "entity.name.combat.unit.group",
+    )
+    lines += write_syntax(
+        game_objects["combat_unit_type"].keys(),
+        "Combat Unit Type",
+        "entity.name.combat.unit.type",
     )
 
     # Dynamic modifiers
@@ -507,7 +549,11 @@ def write_data_to_syntax():
     for i in game_objects["bgs"].keys():
         bg_modifs.append(f"building_group_{i}_tax_mult")
         bg_modifs.append(f"building_group_{i}_employee_mult")
-        bg_modifs.append(f"building_group_{i}_throughput_mult")
+        bg_modifs.append(f"building_group_{i}_throughput_add")
+        bg_modifs.append(f"building_group_{i}_standard_of_living_add")
+        bg_modifs.append(f"building_group_{i}_unincorporated_throughput_add")
+        bg_modifs.append(f"building_group_{i}_fertility_mult")
+        bg_modifs.append(f"building_group_{i}_mortality_mult")
         country_modifs.append(f"country_subsidies_{i}")
         for j in game_objects["pop_types"].keys():
             bg_modifs.append(f"building_group_{i}_{j}_fertility_mult")
@@ -517,23 +563,26 @@ def write_data_to_syntax():
     # building_output_(TRADE_GOOD)_add
     # building_input_(TRADE_GOOD)_add
     # building_output_(TRADE_GOOD)_mult
-    for i in game_objects["goods"].keys():
-        building_modifs.append(f"building_output_{i}_add")
-        building_modifs.append(f"building_input_{i}_add")
-        building_modifs.append(f"building_output_{i}_mult")
-        goods_modifs.append(f"goods_input_{i}_add")
-        goods_modifs.append(f"goods_output_{i}_add")
+    # for i in game_objects["goods"].keys():
+    # building_modifs.append(f"building_output_{i}_add")
+    # building_modifs.append(f"building_input_{i}_add")
+    # building_modifs.append(f"building_output_{i}_mult")
+    # goods_modifs.append(f"goods_input_{i}_add")
+    # goods_modifs.append(f"goods_output_{i}_add")
 
-    # building_(BUILDING)_throughput_mult
+    # building_(BUILDING)_throughput_add
     for i in game_objects["buildings"].keys():
-        building_modifs.append(f"{i}_throughput_mult")
+        building_modifs.append(f"{i}_throughput_add")
 
     # character_(BATTLE_CONDITION)_mult
-    for i in game_objects["battle_conditions"].keys():
-        character_modifs.append(f"character_{i}_mult")
+    # for i in game_objects["battle_conditions"].keys():
+    #     character_modifs.append(f"character_{i}_mult")
 
     # state_(RELIGION)_standard_of_living_add
     for i in game_objects["religions"].keys():
+        state_modifs.append(f"state_{i}_standard_of_living_add")
+
+    for i in game_objects["cultures"].keys():
         state_modifs.append(f"state_{i}_standard_of_living_add")
 
     # country_(INSTITUTION)_max_investment_add
@@ -547,8 +596,10 @@ def write_data_to_syntax():
         state_modifs.append(f"state_{i}_dependent_wage_mult")
         building_modifs.append(f"building_employment_{i}_add")
         building_modifs.append(f"building_employment_{i}_mult")
-        building_modifs.append(f"{i}_fertility_mult")
-        building_modifs.append(f"{i}_mortality_mult")
+        building_modifs.append(f"building_{i}_fertility_mult")
+        building_modifs.append(f"building_{i}_mortality_mult")
+        building_modifs.append(f"building_{i}_shares_add")
+        building_modifs.append(f"building_{i}_shares_mult")
         state_modifs.append(f"state_{i}_investment_pool_contribution_add")
         state_modifs.append(f"state_{i}_investment_pool_efficiency_mult")
         building_modifs.append(f"{i}_shares_add")
@@ -646,6 +697,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
             "institutions": [],
             "jes": [],
             "law_groups": [],
+            "mobilization_options": [],
             "laws": [],
             "mods": [],
             "parties": [],
@@ -665,7 +717,10 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
             "named_colors": [],
             "battle_conditions": [],
             "commander_ranks": [],
+            "commander_orders": [],
+            "combat_unit_type": [],
             "proposal_types": [],
+            "companies": [],
             "discrimination_traits": [],
         }
         for field in self.fields.keys():
@@ -755,6 +810,10 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
             ("igs", (sublime.KIND_ID_MARKUP, "I", "Interest Group")),
             ("jes", (sublime.KIND_ID_TYPE, "J", "Journal Entry")),
             ("law_groups", (sublime.KIND_ID_VARIABLE, "L", "Law Group")),
+            (
+                "mobilization_options",
+                (sublime.KIND_ID_VARIABLE, "M", "Mobilization Options"),
+            ),
             ("laws", (sublime.KIND_ID_VARIABLE, "L", "Law")),
             ("mods", (sublime.KIND_ID_SNIPPET, "M", "Modifier")),
             ("parties", (sublime.KIND_ID_TYPE, "P", "Political Party")),
@@ -770,11 +829,14 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
             ("countries", (sublime.KIND_ID_NAMESPACE, "C", "Country")),
             ("country_ranks", (sublime.KIND_ID_NAMESPACE, "C", "Country Ranks")),
             ("country_types", (sublime.KIND_ID_NAMESPACE, "C", "Country Types")),
-            ("culture_graphics", (sublime.KIND_ID_NAMESPACE, "C", "Country Types")),
+            ("culture_graphics", (sublime.KIND_ID_NAMESPACE, "C", "Culture Graphics")),
             ("named_colors", (sublime.KIND_ID_VARIABLE, "C", "Named Color")),
             ("battle_conditions", (sublime.KIND_ID_VARIABLE, "B", "Battle Condition")),
             ("commander_ranks", (sublime.KIND_ID_VARIABLE, "C", "Commander Rank")),
-            ("proposal_types", (sublime.KIND_ID_VARIABLE, "P", "Proposal Types")),
+            ("commander_orders", (sublime.KIND_ID_VARIABLE, "C", "Commander Order")),
+            ("combat_unit_type", (sublime.KIND_ID_NAMESPACE, "C", "Combat Unit Type")),
+            ("proposal_types", (sublime.KIND_ID_VARIABLE, "P", "Proposal Type")),
+            ("companies", (sublime.KIND_ID_VARIABLE, "C", "Company")),
             (
                 "discrimination_traits",
                 (sublime.KIND_ID_VARIABLE, "D", "Discrimination Traits"),
@@ -854,18 +916,17 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
                 ]
             )
         if self.modifier_field or re.search("modifiers", fname):
+            completions = game_objects["modifier_types"].keys()
+            completions = sorted(completions)
             return sublime.CompletionList(
                 [
                     sublime.CompletionItem(
                         trigger=key,
                         completion_format=sublime.COMPLETION_FORMAT_TEXT,
-                        kind=(sublime.KIND_ID_MARKUP, "M", "Modifier"),
-                        details=GameData.ModifiersList[key],
-                        annotation=GameData.ModifiersList[key].replace(
-                            "Category: ", ""
-                        ),
+                        kind=(sublime.KIND_ID_SNIPPET, "M", "Modifier Type"),
+                        details=" ",
                     )
-                    for key in sorted(GameData.ModifiersList)
+                    for key in sorted(completions)
                 ],
                 flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
                 | sublime.INHIBIT_WORD_COMPLETIONS,
@@ -1073,7 +1134,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
         pops_list = ["is_pop_type", "pop_type"]
         pms_list = ["has_active_production_method", "production_method"]
         religions_list = ["has_pop_religion", "religion"]
-        state_trait_list = ["has_state_trait"]
+        state_trait_list = ["has_state_trait", "remove_state_trait", "add_state_trait"]
         strategic_regions_list = [
             "add_declared_interest",
             "has_interest_marker_in_region",
@@ -1103,6 +1164,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
         culture_graphics = ["has_culture_graphics", "graphics"]
         named_colors = ["color", "color1", "color2", "color3", "color4", "color5"]
         commander_ranks = ["commander_rank"]
+        commander_orders = ["has_commander_order"]
         battle_conditions = ["has_battle_condition"]
 
         proposal_types_list = ["post_proposal"]
@@ -1141,6 +1203,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
             (named_colors, "named_colors"),
             (battle_conditions, "battle_conditions"),
             (commander_ranks, "commander_ranks"),
+            (commander_orders, "commander_orders"),
             (proposal_types_list, "proposal_types"),
             (discrimination_traits_list, "discrimination_traits"),
         ]
@@ -1148,6 +1211,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
         # Define the list of scope patterns and corresponding flags
         scope_pattern_flag_pairs = [
             ("b:", "buildings"),
+            ("bt:", "buildings"),
             ("cu:", "cultures"),
             ("decree_cost:", "decrees"),
             ("goods:", "goods"),
@@ -1166,7 +1230,10 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
             ("sr:", "strategic_regions"),
             ("s:", "state_regions"),
             ("c:", "countries"),
+            ("unit_type:", "combat_unit_type"),
             ("rank_value:", "country_ranks"),
+            ("company_type:", "companies"),
+            ("mobilization_option:", "mobilization_options"),
         ]
 
         for patterns, flag in pattern_flag_pairs:
@@ -1182,14 +1249,14 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
         for br in view.find_by_selector(selector):
             i = sublime.Region(br.a, self.getIndex(view_str, br.a))
             s = view.substr(i)
-            if string_check_and_move and string_check_and_move[0] in s:
+            if string_check_and_move and string_check_and_move in s:
                 fpoint = (
-                    s.index(string_check_and_move[0]) + string_check_and_move[1]
+                    s.index(string_check_and_move) + len(string_check_and_move)
                 ) + i.a
                 if fpoint == point:
                     setattr(self, flag_name, True)
                     view.run_command("auto_complete")
-            elif i.contains(point):
+            elif i.contains(point) and not string_check_and_move:
                 setattr(self, flag_name, True)
                 view.run_command("auto_complete")
 
@@ -1203,12 +1270,13 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
             ("meta.ideology.bracket", "ideologies"),
             ("meta.law.bracket", "laws"),
             ("meta.tech.bracket", "technologies"),
-            ("meta.bg.bracket", "bgs", ("type = ", 7)),
-            ("meta.da.bracket", "diplo_actions", ("type = ", 7)),
-            ("meta.dp.bracket", "diplo_plays", ("type = ", 7)),
-            ("meta.je.bracket", "jes", ("type = ", 7)),
-            ("meta.mods.bracket", "mods", ("name = ", 7)),
-            ("meta.subjects.bracket", "subject_types", ("type = ", 7)),
+            ("meta.building.bracket", "buildings"),
+            ("meta.bg.bracket", "bgs", "type = "),
+            ("meta.da.bracket", "diplo_actions", "type = "),
+            ("meta.dp.bracket", "diplo_plays", "type = "),
+            ("meta.je.bracket", "jes", "type = "),
+            ("meta.mods.bracket", "mods", "name = "),
+            ("meta.subjects.bracket", "subject_types", "type = "),
         ]
 
         for pair in selector_flag_pairs:
@@ -1971,13 +2039,18 @@ class ScriptHoverListener(sublime_plugin.EventListener):
             ("state_regions", "State Region"),
             ("countries", "Country"),
             ("country_ranks", "Country Rank"),
+            ("companies", "Company"),
             ("country_types", "Country Type"),
             ("culture_graphics", "Culture Graphic"),
             ("named_colors", "Named Color"),
             ("battle_conditions", "Battle Condition"),
             ("commander_ranks", "Commander Rank"),
+            ("commander_orders", "Commander Order"),
             ("proposal_types", "Proposal Type"),
             ("discrimination_traits", "Discrimination Trait"),
+            ("combat_unit_group", "Combat Unit Group"),
+            ("combat_unit_type", "Combat Unit Type"),
+            ("mobilization_options", "Mobilization Options"),
         ]
 
         # Iterate over the list and call show_popup_default for each game object

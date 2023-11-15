@@ -502,3 +502,39 @@ class V3DiscriminationTrait(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\discrimination_traits")
+
+
+class V3ModifierType(GameObjectBase):
+    def __init__(self):
+        super().__init__(v3_mod_files, v3_files_path)
+        self.get_data("common\\modifier_types")
+
+
+class V3CombatUnitGroup(GameObjectBase):
+    def __init__(self):
+        super().__init__(v3_mod_files, v3_files_path)
+        self.get_data("common\\combat_unit_groups")
+
+
+class V3CombatUnitType(GameObjectBase):
+    def __init__(self):
+        super().__init__(v3_mod_files, v3_files_path)
+        self.get_data("common\\combat_unit_types")
+
+
+class V3CommanderOrder(GameObjectBase):
+    def __init__(self):
+        super().__init__(v3_mod_files, v3_files_path)
+        self.get_data("common\\commander_orders")
+
+
+class V3CompanyType(GameObjectBase):
+    def __init__(self):
+        super().__init__(v3_mod_files, v3_files_path)
+        self.get_data("common\\company_types")
+
+
+class V3MobilizationOption(GameObjectBase):
+    def __init__(self):
+        super().__init__(v3_mod_files, v3_files_path)
+        self.get_data("common\\mobilization_options")
