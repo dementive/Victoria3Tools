@@ -780,10 +780,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
             return None
 
         try:
-            if (
-                view.syntax().name != "Victoria Script"
-                and view.syntax().name != "PdxPython"
-            ):
+            if view.syntax().name != "Victoria Script":
                 return None
         except AttributeError:
             return None
@@ -1294,10 +1291,7 @@ class V3CompletionsEventListener(sublime_plugin.EventListener):
             return
 
         try:
-            if (
-                view.syntax().name != "Victoria Script"
-                and view.syntax().name != "PdxPython"
-            ):
+            if view.syntax().name != "Victoria Script":
                 return
         except AttributeError:
             return
@@ -1721,7 +1715,6 @@ class ScriptHoverListener(sublime_plugin.EventListener):
         try:
             if view.syntax().name not in (
                 "Victoria Script",
-                "PdxPython",
                 "Victoria Gui",
             ):
                 return
@@ -1744,7 +1737,6 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 
         if (
             view.syntax().name == "Victoria Script"
-            or view.syntax().name == "PdxPython"
             and not settings.get("EnableVictoriaScriptingFeatures")
         ):
             if settings.get("DocsHoverEnabled") is True:
@@ -1769,7 +1761,6 @@ class ScriptHoverListener(sublime_plugin.EventListener):
             # Event Videos
             if settings.get("BinkVideoHover") is True:
                 posLine = view.line(point)
-                posa = posLine.a + 1
                 posb = posLine.b - 1
                 video_raw_start = view.find("video = ", posLine.a)
                 word_position_b = posLine.b - 6
@@ -1792,7 +1783,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
                                 video_file_path = mod_path
                     video_name = view.substr(view.word(word_position_b))
                     video_point = point
-                    if video_region.__contains__(point):
+                    if video_region.contains(point):
                         self.show_video_hover_popup(view, point, video_name)
                 else:
                     video_point = None
@@ -1807,129 +1798,132 @@ class ScriptHoverListener(sublime_plugin.EventListener):
                     sound_string = view.substr(sound_region).replace('"', "")
                     if (
                         sound_string in GameData.EventSoundsList
-                        and sound_region.__contains__(point)
+                        and sound_region.contains(point)
                     ):
                         self.show_event_sound_hover_popup(view, point)
                 else:
                     global show_sound_menu
                     show_sound_menu = False
 
-        # Texture popups can happen for both script and gui files
-        if (
-            view.syntax().name == "Victoria Script"
-            or view.syntax().name == "Victoria Gui"
-            or view.syntax().name == "PdxPython"
+        if settings.get("TextureOpenPopup") != True:
+            return
+
+        posLine = view.line(point)
+        linestr = view.substr(posLine)
+        if ".dds" not in linestr and ".tga" not in linestr:
+            return
+
+        if view.syntax().name == "Victoria Script" and "common/coat_of_arms" in view.file_name():
+            if "pattern" in linestr:
+                raw_start = view.find("pattern", posLine.a)
+                raw_end = (
+                    view.find(".dds", posLine.a)
+                    if ".dds" in linestr
+                    else view.find(".tga", posLine.a)
+                )
+                raw_region = sublime.Region(raw_start.a + 10, raw_end.b)
+                raw_path = view.substr(raw_region).replace('"', "")
+                full_texture_path = (
+                    v3_files_path + "/gfx/coat_of_arms/patterns/" + raw_path
+                )
+                full_texture_path = full_texture_path
+                if raw_region.contains(point) and os.path.exists(
+                    full_texture_path
+                ):
+                    texture_name = view.substr(view.word(raw_end.a - 1))
+                    self.show_texture_hover_popup(
+                        view, point, texture_name, full_texture_path
+                    )
+                    return
+            if "texture" in linestr:
+                raw_start = view.find("texture", posLine.a)
+                raw_end = (
+                    view.find(".dds", posLine.a)
+                    if ".dds" in linestr
+                    else view.find(".tga", posLine.a)
+                )
+                raw_region = sublime.Region(raw_start.a + 10, raw_end.b)
+                raw_path = view.substr(raw_region).replace('"', "")
+                full_texture_path = (
+                    v3_files_path
+                    + "/gfx/coat_of_arms/colored_emblems/"
+                    + raw_path
+                )
+                if not os.path.exists(full_texture_path):
+                    full_texture_path = (
+                        v3_files_path
+                        + "/gfx/coat_of_arms/textured_emblems/"
+                        + raw_path
+                    )
+                if raw_region.contains(point) and os.path.exists(
+                    full_texture_path
+                ):
+                    texture_name = view.substr(view.word(raw_end.a - 1))
+                    self.show_texture_hover_popup(
+                        view, point, texture_name, full_texture_path
+                    )
+                    return
+
+        texture_raw_start = view.find("gfx", posLine.a)
+        texture_raw_end = (
+            view.find(".dds", posLine.a)
+            if ".dds" in linestr
+            else view.find(".tga", posLine.a)
+        )
+        texture_raw_region = sublime.Region(
+            texture_raw_start.a, texture_raw_end.b
+        )
+        texture_raw_path = view.substr(texture_raw_region)
+        if view.syntax().name == "Victoria Gui":
+            full_texture_path = gui_files_path + "/" + texture_raw_path
+        else:
+            full_texture_path = v3_files_path + "/" + texture_raw_path
+        
+        if os.path.exists(full_texture_path):
+            texture_name = view.substr(view.word(texture_raw_end.a - 1))
+            self.show_texture_hover_popup(
+                view, point, texture_name, full_texture_path
+            )
+            return
+
+        # Check mod paths if it's not vanilla
+        for mod in [m for m in v3_mod_files if os.path.exists(m)]:
+            mod_path = mod + "/" + texture_raw_path
+            if mod.endswith("mod"):
+                # if it is the path to the mod directory, get all directories in it
+                for directory in [
+                    f.path for f in os.scandir(mod) if f.is_dir()
+                ]:
+                    mod_path = directory + "/" + texture_raw_path
+                    if os.path.exists(mod_path):
+                        full_texture_path = mod_path
+            else:
+                if os.path.exists(mod_path):
+                    full_texture_path = mod_path
+
+        if view.syntax().name == "Victoria Gui":
+            for mod in [m for m in gui_mod_files if os.path.exists(m)]:
+                if mod.endswith("mod"):
+                    # if it is the path to the mod directory, get all directories in it
+                    for directory in [
+                        f.path for f in os.scandir(mod) if f.is_dir()
+                    ]:
+                        mod_path = directory + "/" + texture_raw_path
+                        if os.path.exists(mod_path):
+                            full_texture_path = mod_path
+                else:
+                    mod_path = mod + "/" + texture_raw_path
+                    if os.path.exists(mod_path):
+                        full_texture_path = mod_path
+
+        # The path exists and the point in the view is inside of the path
+        if texture_raw_region.contains(point) and os.path.exists(
+            full_texture_path
         ):
-            if settings.get("TextureOpenPopup") is True:
-                posLine = view.line(point)
-                linestr = view.substr(posLine)
-                if ".dds" in linestr or ".tga" in linestr:
-                    if "common/coat_of_arms" in view.file_name():
-                        if "pattern" in linestr:
-                            raw_start = view.find("pattern", posLine.a)
-                            raw_end = (
-                                view.find(".dds", posLine.a)
-                                if ".dds" in linestr
-                                else view.find(".tga", posLine.a)
-                            )
-                            raw_region = sublime.Region(raw_start.a + 10, raw_end.b)
-                            raw_path = view.substr(raw_region).replace('"', "")
-                            full_texture_path = (
-                                v3_files_path + "/gfx/coat_of_arms/patterns/" + raw_path
-                            )
-                            full_texture_path = full_texture_path
-                            if raw_region.__contains__(point) and os.path.exists(
-                                full_texture_path
-                            ):
-                                texture_name = view.substr(view.word(raw_end.a - 1))
-                                self.show_texture_hover_popup(
-                                    view, point, texture_name, full_texture_path
-                                )
-                                return
-                        if "texture" in linestr:
-                            raw_start = view.find("texture", posLine.a)
-                            raw_end = (
-                                view.find(".dds", posLine.a)
-                                if ".dds" in linestr
-                                else view.find(".tga", posLine.a)
-                            )
-                            raw_region = sublime.Region(raw_start.a + 10, raw_end.b)
-                            raw_path = view.substr(raw_region).replace('"', "")
-                            full_texture_path = (
-                                v3_files_path
-                                + "/gfx/coat_of_arms/colored_emblems/"
-                                + raw_path
-                            )
-                            if not os.path.exists(full_texture_path):
-                                full_texture_path = (
-                                    v3_files_path
-                                    + "/gfx/coat_of_arms/textured_emblems/"
-                                    + raw_path
-                                )
-                            if raw_region.__contains__(point) and os.path.exists(
-                                full_texture_path
-                            ):
-                                texture_name = view.substr(view.word(raw_end.a - 1))
-                                self.show_texture_hover_popup(
-                                    view, point, texture_name, full_texture_path
-                                )
-                                return
-
-                    texture_raw_start = view.find("gfx", posLine.a)
-                    texture_raw_end = (
-                        view.find(".dds", posLine.a)
-                        if ".dds" in linestr
-                        else view.find(".tga", posLine.a)
-                    )
-                    texture_raw_region = sublime.Region(
-                        texture_raw_start.a, texture_raw_end.b
-                    )
-                    texture_raw_path = view.substr(texture_raw_region)
-                    if view.syntax().name == "Victoria Gui":
-                        full_texture_path = gui_files_path + "/" + texture_raw_path
-                    else:
-                        full_texture_path = v3_files_path + "/" + texture_raw_path
-                    if not os.path.exists(full_texture_path):
-                        # Check mod paths if it's not vanilla
-                        for mod in [m for m in v3_mod_files if os.path.exists(m)]:
-                            if mod.endswith("mod"):
-                                # if it is the path to the mod directory, get all directories in it
-                                for directory in [
-                                    f.path for f in os.scandir(mod) if f.is_dir()
-                                ]:
-                                    mod_path = directory + "/" + texture_raw_path
-                                    if os.path.exists(mod_path):
-                                        full_texture_path = mod_path
-                            else:
-                                mod_path = mod + "/" + texture_raw_path
-                                if os.path.exists(mod_path):
-                                    full_texture_path = mod_path
-
-                        if view.syntax().name == "Victoria Gui" and not os.path.exists(
-                            mod_path
-                        ):
-                            for mod in [m for m in gui_mod_files if os.path.exists(m)]:
-                                if mod.endswith("mod"):
-                                    # if it is the path to the mod directory, get all directories in it
-                                    for directory in [
-                                        f.path for f in os.scandir(mod) if f.is_dir()
-                                    ]:
-                                        mod_path = directory + "/" + texture_raw_path
-                                        if os.path.exists(mod_path):
-                                            full_texture_path = mod_path
-                                else:
-                                    mod_path = mod + "/" + texture_raw_path
-                                    if os.path.exists(mod_path):
-                                        full_texture_path = mod_path
-
-                    # The path exists and the point in the view is inside of the path
-                    if texture_raw_region.__contains__(point) and os.path.exists(
-                        full_texture_path
-                    ):
-                        texture_name = view.substr(view.word(texture_raw_end.a - 1))
-                        self.show_texture_hover_popup(
-                            view, point, texture_name, full_texture_path
-                        )
+            texture_name = view.substr(view.word(texture_raw_end.a - 1))
+            self.show_texture_hover_popup(
+                view, point, texture_name, full_texture_path
+            )
 
     def do_gui_hover_async(self, view, point):
         word = view.substr(view.word(point))
@@ -2092,30 +2086,32 @@ class ScriptHoverListener(sublime_plugin.EventListener):
         ref = ""
         for win in sublime.windows():
             for i in [v for v in win.views() if v and v.file_name()]:
-                if i.file_name().endswith(".gui"):
-                    view_region = sublime.Region(0, i.size())
-                    view_str = i.substr(view_region)
-                    for j, line in enumerate(view_str.splitlines()):
-                        definition_found = False
-                        if PdxObject.key in line:
-                            filename = (
-                                i.file_name()
-                                .replace("\\", "/")
-                                .rstrip("/")
-                                .rpartition("/")[2]
-                            )
-                            line_num = j + 1
-                            if word_line_num == line_num and word_file == filename:
-                                # Don't do current word
-                                continue
-                            elif (
-                                line_num == PdxObject.line
-                                and i.file_name() == PdxObject.path
-                            ):
-                                # Don't do definition
-                                continue
-                            if not definition_found:
-                                references.append(f"{i.file_name()}|{line_num}")
+                if not i.file_name().endswith(".gui"):
+                    continue
+
+                view_region = sublime.Region(0, i.size())
+                view_str = i.substr(view_region)
+                for j, line in enumerate(view_str.splitlines()):
+                    definition_found = False
+                    if PdxObject.key in line:
+                        filename = (
+                            i.file_name()
+                            .replace("\\", "/")
+                            .rstrip("/")
+                            .rpartition("/")[2]
+                        )
+                        line_num = j + 1
+                        if word_line_num == line_num and word_file == filename:
+                            # Don't do current word
+                            continue
+                        elif (
+                            line_num == PdxObject.line
+                            and i.file_name() == PdxObject.path
+                        ):
+                            # Don't do definition
+                            continue
+                        if not definition_found:
+                            references.append(f"{i.file_name()}|{line_num}")
 
         if references:
             ref = f'<p><b>References to&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
@@ -2175,13 +2171,12 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 
     def get_definitions_for_popup(self, view, point, PdxObject, header, def_value=""):
         word_line_num = view.rowcol(point)[0] + 1
-        word_file = view.file_name().replace("\\", "/").rstrip("/").rpartition("/")[2]
         definition = ""
         definitions = []
         if header == "Saved Scope" or header == "Saved Variable":
             for win in sublime.windows():
                 for i in [v for v in win.views() if v and v.file_name()]:
-                    if i.file_name().endswith(".txt") or i.file_name().endswith(".py"):
+                    if i.file_name().endswith(".txt"):
                         variables = [
                             x
                             for x in i.find_by_selector(
@@ -2243,39 +2238,40 @@ class ScriptHoverListener(sublime_plugin.EventListener):
                     """<a class="icon" href="%s"title="Open Tab to Right of Current Selection">◨</a>&nbsp;<br>"""
                     % (goto_right_url)
                 )
-        else:
-            if word_line_num != PdxObject.line and view.file_name() != PdxObject.path:
-                if def_value:
-                    definition = f"<br>{def_value}<br><br>"
-                    definition += f'<p><b>Definition of&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
-                else:
-                    definition = f'<p><b>Definition of&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
-                goto_args = {"path": PdxObject.path, "line": PdxObject.line}
-                goto_url = sublime.command_url(
-                    "goto_script_object_definition", goto_args
+                return definition
+
+        if word_line_num != PdxObject.line:
+            if def_value:
+                definition = f"<br>{def_value}<br><br>"
+                definition += f'<p><b>Definition of&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
+            else:
+                definition = f'<p><b>Definition of&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
+            goto_args = {"path": PdxObject.path, "line": PdxObject.line}
+            goto_url = sublime.command_url(
+                "goto_script_object_definition", goto_args
+            )
+            definition += (
+                """<a href="%s" title="Open %s and goto line %d">%s:%d</a>&nbsp;"""
+                % (
+                    goto_url,
+                    PdxObject.path.replace("\\", "/")
+                    .rstrip("/")
+                    .rpartition("/")[2],
+                    PdxObject.line,
+                    PdxObject.path.replace("\\", "/")
+                    .rstrip("/")
+                    .rpartition("/")[2],
+                    PdxObject.line,
                 )
-                definition += (
-                    """<a href="%s" title="Open %s and goto line %d">%s:%d</a>&nbsp;"""
-                    % (
-                        goto_url,
-                        PdxObject.path.replace("\\", "/")
-                        .rstrip("/")
-                        .rpartition("/")[2],
-                        PdxObject.line,
-                        PdxObject.path.replace("\\", "/")
-                        .rstrip("/")
-                        .rpartition("/")[2],
-                        PdxObject.line,
-                    )
-                )
-                goto_right_args = {"path": PdxObject.path, "line": PdxObject.line}
-                goto_right_url = sublime.command_url(
-                    "goto_script_object_definition_right", goto_right_args
-                )
-                definition += (
-                    """<a class="icon" href="%s"title="Open Tab to Right of Current Selection">◨</a>&nbsp;<br>"""
-                    % (goto_right_url)
-                )
+            )
+            goto_right_args = {"path": PdxObject.path, "line": PdxObject.line}
+            goto_right_url = sublime.command_url(
+                "goto_script_object_definition_right", goto_right_args
+            )
+            definition += (
+                """<a class="icon" href="%s"title="Open Tab to Right of Current Selection">◨</a>&nbsp;<br>"""
+                % (goto_right_url)
+            )
 
         return definition
 
@@ -2286,29 +2282,31 @@ class ScriptHoverListener(sublime_plugin.EventListener):
         ref = ""
         for win in sublime.windows():
             for i in [v for v in win.views() if v and v.file_name()]:
-                if i.file_name().endswith(".txt"):
-                    view_region = sublime.Region(0, i.size())
-                    view_str = i.substr(view_region)
-                    for j, line in enumerate(view_str.splitlines()):
-                        if re.search(r"\b" + re.escape(PdxObject.key) + r"\b", line):
-                            filename = (
-                                i.file_name()
-                                .replace("\\", "/")
-                                .rstrip("/")
-                                .rpartition("/")[2]
-                            )
-                            line_num = j + 1
-                            if word_line_num == line_num and word_file == filename:
-                                # Don't do current word
-                                continue
-                            elif (
-                                line_num == PdxObject.line
-                                and i.file_name() == PdxObject.path
-                            ):
-                                # Don't do definition
-                                continue
-                            else:
-                                references.append(f"{i.file_name()}|{line_num}")
+                if not i.file_name().endswith(".txt"):
+                    continue
+
+                view_region = sublime.Region(0, i.size())
+                view_str = i.substr(view_region)
+                for j, line in enumerate(view_str.splitlines()):
+                    if re.search(r"\b" + re.escape(PdxObject.key) + r"\b", line):
+                        filename = (
+                            i.file_name()
+                            .replace("\\", "/")
+                            .rstrip("/")
+                            .rpartition("/")[2]
+                        )
+                        line_num = j + 1
+                        if word_line_num == line_num and word_file == filename:
+                            # Don't do current word
+                            continue
+                        elif (
+                            line_num == PdxObject.line
+                            and i.file_name() == PdxObject.path
+                        ):
+                            # Don't do definition
+                            continue
+                        else:
+                            references.append(f"{i.file_name()}|{line_num}")
         if references:
             ref = f'<p><b>References to&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
             for i in references:
@@ -2669,7 +2667,6 @@ class V3TextureFileLoadEventListener(sublime_plugin.EventListener):
         try:
             if (
                 view.syntax().name != "Victoria Script"
-                and view.syntax().name != "PdxPython"
                 and view.syntax().name != "Victoria Gui"
             ):
                 return None
@@ -2686,7 +2683,6 @@ class V3TextureEventListener(sublime_plugin.EventListener):
             if (
                 view.file_name()
                 and view.syntax().name == "Victoria Script"
-                or view.syntax().name == "PdxPython"
                 or view.syntax().name == "Victoria Gui"
             ):
                 x = [v for v in views_with_shown_textures if v.id() == view.id()]
@@ -2851,7 +2847,6 @@ class V3ToggleAllTexturesCommand(sublime_plugin.ApplicationCommand):
         try:
             if (
                 view.syntax().name != "Victoria Script"
-                and view.syntax().name != "PdxPython"
                 and view.syntax().name != "Victoria Gui"
             ):
                 return None

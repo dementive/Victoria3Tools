@@ -9,6 +9,9 @@ variables:
 
 contexts:
   main:
+    - match: types
+      scope: constant.numeric
+
     - include: comments
     - include: bracket-zone
     - include: at-symbol
@@ -31,7 +34,7 @@ contexts:
     - match: \b(?i)(forcedown|trigger_when|checked|tooltip_enabled|button_trigger|trigger_on_create|datamodel|datacontext|visible|enabled)(?-i)\b
       scope: string
     # Essential Functions and Textures
-    - match: \b(?i)(background_texture|delay|portrait_texture|video|entity_instance|raw_tooltip|raw_text|mask|next|types|duration|progresstexture|noprogresstexture|texture_density|shaderfile|name|tooltip|text|icon|texture|gfxtype)(?-i)\b
+    - match: \b(?i)(background_texture|delay|portrait_texture|video|entity_instance|raw_tooltip|raw_text|mask|next|duration|progresstexture|noprogresstexture|texture_density|shaderfile|name|tooltip|text|icon|texture|gfxtype)(?-i)\b
       scope: constant.numeric
     # Math/Sound/Video
     - match: \b(?i)(clicksound|oversound|min|max|soundeffect)(?-i)\b
@@ -39,7 +42,7 @@ contexts:
 
 
   type-definition:
-    - match: \btype\b
+    - match: \btype|local_type\b
       scope: constant.numeric
       push:
         - match: ({{valid_variable}})
