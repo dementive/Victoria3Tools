@@ -9,10 +9,6 @@
 		"command": "browse_bink_videos",
 	},
 	{
-		"caption": "Victoria 3: Browse Event Sounds",
-		"command": "browse_event_sound",
-	},
-	{
 		"caption": "Victoria 3: Reload plugin objects and regenerate syntax",
 		"command": "v3_reload_plugin",
 	},
@@ -23,5 +19,26 @@
 	{
 		"caption": "Victoria 3: Toggle All Textures",
 		"command": "v3_toggle_all_textures",
+	},
+	{
+		"caption": "Victoria 3: Show Tiger Output",
+		"command": "vic_show_tiger_output",
+		"args": {
+
+		},
+	},
+	{
+		"caption": "Victoria 3: Edit vic3-tiger.conf",
+		"command": "vic_edit_tiger_config",
+		"args": {
+
+		},
+	},
+	{
+		"caption": "Victoria 3: Run Tiger",
+		"command": "vic_run_tiger",
+		"args": {
+
+		},
 	},
 ]

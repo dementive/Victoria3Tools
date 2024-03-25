@@ -23,6 +23,27 @@
 		//"C:\\Users\\ADDYOURUSERNAMEHERE\\Documents\\Paradox Interactive\\Victoria 3\\mod\\MOD2"
 	],
 
+	// This is a path to the mod you want imperator-tiger to validate
+	"Vic3TigerModPath": "C:\\Users\\ADDYOURUSERNAMEHERE\\Documents\\Paradox Interactive\\Victoria 3\\mod\\MODNAME",
+
+	/*
+	Should the default imperator-tiger.conf file be used?
+	true = Use the .conf file located in the mod directory that is listed in the ImperatorTigerModPath setting.
+	If there is no imperator-tiger.conf file in the mod directory the default tiger config will be used instead.
+	false = Use the .conf file included with ImperatorTools.
+	setting to false also allows you to use a common .conf file for all of your mods.
+	if you set this to false you can use the "Edit imperator-tiger.conf" command to change the common .conf file the plugin uses.
+	*/
+	"Vic3TigerUseDefaultConfig": true,
+
+	// Should errors that imperator-tiger finds be shown in files when they are loaded?
+	"Vic3TigerShowErrorsInline": true,
+
+	// Full path to the imperator-tiger.exe
+	// You probably don't need to set this as the plugin comes with a tiger binary
+	// but if it is outdated or not working for some reason you can use a different one with this setting.
+	"Vic3TigerBinaryPath": "",
+
 	// Should all features for script be disabled? Can be useful if you are only using the plugin for the gui or shader syntax.
 
 	"EnableVictoriaScriptingFeatures": true,
@@ -44,19 +65,9 @@
 	// Max number of textures to show when using the show_all_textures command
 	"MaxToggleTextures": 150,
 
-	// Should .bk2 videos show options for playing, browsing, and replacing when hovering over them in events?
-	// NOTE: Requires RadTools Bink Video Player to actually play the videos
-	// true = will show the video player hover popups
-	// false = no popups for .bk2 videos
-	"BinkVideoHover": true,
-
 	// Should hovering over a gfx file show a popup that will allow the file to be opened?
 	// Will open the file in it's default program
 	"TextureOpenPopup": true,
-
-	// Should hovering over an event sound file path like "event:/SFX/Events/..." 
-	// show a popup that browses all available event sounds
-	"EventSoundPopup": true,
 
 	// Should hovering over a scripted effect/scripted trigger/script value show a popup that goes to it's definition
 	"GoToScriptedDataPopup": true,

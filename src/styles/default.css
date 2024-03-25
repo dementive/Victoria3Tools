@@ -1,0 +1,92 @@
+/* default css for non-documentation popups */
+body {
+	font-family: system;
+	margin: 0;
+	padding: 0.35rem;
+	background-color: rgb(25, 25, 25);
+}
+p {
+	font-size: 1.0rem;
+	margin-top: 5;
+	margin-bottom: 5;
+}
+h1 {
+	font-size: 1.2rem;
+	margin: 0;
+	padding-bottom: 0.05rem;
+}
+h2 {
+	font-size: 1.0rem;
+	margin: 0;
+}
+a {
+	font-size: 1.0rem;
+}
+span {
+	padding-right: 0.3rem;
+}
+div {
+	padding: 0.1rem;
+}
+.icon {
+	text-decoration: none;
+	font-size: 1em;
+}
+.variable {
+	font-size: 1.0rem;
+	color: rgb(150, 150, 150);
+}
+.codebox {
+    border: 2px solid rgb(5, 5, 5);
+    border-style: groove;
+    background-color: rgb(40, 40, 40);
+    white-space: pre-line;
+    padding: 5px;
+    margin-right: 8px;
+    margin-left: 1px;
+    margin-top: 2px;
+    display: inline-block;
+    font-family: "Courier New", Courier, monospace;
+}
+.box-for-codebox {
+	margin-bottom: 14px;
+}
+.codedesc {
+	margin-left: 4px;
+	margin-right: 4px;
+	margin-top: 2px;
+	margin-bottom: 2px;
+}
+.code {
+	font-family: monospace;
+}
+.code-header {
+	margin-left: 5px;
+	margin-left: 2px;
+	font-weight: bold;
+}
+br {
+	display: block;
+	content: "";
+	margin-bottom: 0.20rem;
+}
+/* Monokai color scheme text colors */
+.red-text {
+	color: hsl(0, 93%, 59%);
+}
+.yellow-text {
+	color: hsl(54, 70%, 68%);
+}
+.blue-text {
+	color: hsl(170, 60%, 56%);
+	font-style: italic;
+}
+.green-text {
+	color: hsl(80, 76%, 53%);
+}
+.orange-text {
+	color: hsl(32, 98%, 56%);
+}
+.purple-text {
+	color: hsl(261, 100%, 75%);
+}

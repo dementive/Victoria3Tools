@@ -24,10 +24,8 @@ Make sure the folder is named `Victoria3Tools` or there will be issues with the 
 - Snippets to generate common boiler plate text like country events, decisions, journals, and more.
 - Documentation on hover for all terms in the log. Simply hovering over an effect/trigger/scope will show it's full documentation in a popup.
 - Localize command that will automatically create localization entries from a script file. Accessed from the command palette, opened with `ctrl+shift+p` and then type in `Victoria 3`.
-- Browse Video command that will allow you to play .bk2 videos directly from the command palette. Also shows a popup when hovering over a video file in an event that will let you play the video, replace the video with a new one, or replace and play the new video. Note that the [Rad Game Tools Bink Player](http://www.radgametools.com/bnkdown.htm) is required to play the games .bk2 files.
 - Hovering over texture paths will show a popup to open it.
 - Textures can be show in sublime either in a new tab or directly in script files. To show textures either hover over the path and show inline or use `ctrl+alt+t` to show all the textures in the current file.
-- Hovering over event sounds will show a popup that allows you to quickly browse and replace event sounds with the command palette.
 - Goto Definition for all game objects, saved scopes, and saved variables
 - Simple validator that will check for common easy to find errors and alert you when they happen when a script file is saved. These include: mismatched brackets, mismatched quotes, and encoding errors.
 - Full syntax highlighting of all relevant terms you may come across in Vic3 modding.
@@ -50,6 +48,17 @@ Make sure the folder is named `Victoria3Tools` or there will be issues with the 
 - Syntax highlighting for paradox shader files which is similar to HLSL in a lot of ways but has a lot of key differences.
 
 ![Shader Screenshot](/images/shader.png)
+
+# vic3-tiger integration
+
+[vic3-tiger](https://github.com/amtep/ck3-tiger) has been fully integrated into the plugin and provides validation for all of your mod files. The vic3-tiger binary comes with the plugin and it's usage within sublime can be configured with the plugin settings. The following settings can be adjusted to change the behavior of vic3-tiger:
+- Vic3TigerModPath - The path to the mod you are currently working on that you want to be validated. If you do not put a valid path in this setting the plugin will not use vic3-tiger at all and validation will be ignored.
+- Vic3TigerUseDefaultConfig - By default the plugin will call tiger with the default vic3-tiger.conf file which is located in your mod folder. If you set this setting to 'false' the plugin will instead use a common .conf file between all mods that can be edited with the `Victoria 3: Edit vic3-tiger.conf` command. For more information about the vic3-tiger.conf read [guide](https://github.com/amtep/ck3-tiger/blob/main/filter.md)
+- Vic3TigerShowErrorsInline - When you open a new file that tiger has detected errors in a squiggly line will be drawn under all the errors in the file, you can hover over these to get more information about the error. If you want to disable this feature just set this setting to false.
+
+When you have a valid path defined in the vic3TigerModPath setting the plugin will automatically call vic3-tiger when you open sublime if changes have been detected in any of the mods you are currently working on. The following commands can be used to directly interact with vic3-tiger:
+- `Victoria 3: Reload plugin objects and regenerate syntax` - The vic3-tiger output will be regenerated automatically by the plugin at the same time the syntax definition is. This means changes will only occur when sublime is first opened or when this reload objects command is run. If you have made some changes and you want vic3-tiger to validate them you can run this command to check if you made any mistakes.
+- `Victoria 3: Show Tiger Output` - You can view the results of the tiger validation directly in sublime in either a panel at the bottom of the screen or in a new tab. This will display the validator output in the same style as tiger which replicated the style of Rust compiler errors. For each error an annotation will be draw that you can click on to open the source of the error in a new tab.
 
 ## Settings
 

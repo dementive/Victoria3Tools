@@ -1,0 +1,15 @@
+<snippet>
+	<content><![CDATA[
+random_scope_state = {
+    limit = {
+        any_scope_building = {
+            
+        }
+    }
+    save_scope_as = ${1:x}
+}]]></content>
+	<!-- ${1:Selection Field 1}.${2:Selection Field 2} -->
+	<tabTrigger>random_scope_state_building</tabTrigger>
+	<scope>text.vic</scope>
+	<description>random_scope_state with limit</description>
+</snippet>

@@ -1,7 +1,0 @@
-<snippet>
-	<content><![CDATA[NOT = { has_variable = ${1:x} }]]></content>
-	<!-- ${1:Selection Field 1}.${2:Selection Field 2} -->
-	<tabTrigger>has_variable</tabTrigger>
-	<scope>text.vic</scope>
-	<description>NOT = { has_variable = x }</description>
-</snippet>
