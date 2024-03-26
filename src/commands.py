@@ -5,6 +5,40 @@ import sublime, sublime_plugin
 import Default.exec
 
 
+class GotoScriptObjectDefinitionCommand(sublime_plugin.WindowCommand):
+    def run(self, path, line):
+        if os.path.exists(path):
+            file_path = "{}:{}:{}".format(path, line, 0)
+            self.open_location(self.window, file_path)
+
+    def open_location(self, window, location):
+        flags = sublime.ENCODED_POSITION | sublime.FORCE_GROUP
+        window.open_file(location, flags)
+
+
+class GotoScriptObjectDefinitionRightCommand(sublime_plugin.WindowCommand):
+    def run(self, path, line):
+        if os.path.exists(path):
+            file_path = "{}:{}:{}".format(path, line, 0)
+            self.open_location(
+                self.window, file_path, side_by_side=True, clear_to_right=True
+            )
+
+    def open_location(
+        self, window, location, side_by_side=False, replace=False, clear_to_right=False
+    ):
+        flags = sublime.ENCODED_POSITION | sublime.FORCE_GROUP
+
+        if side_by_side:
+            flags |= sublime.ADD_TO_SELECTION | sublime.SEMI_TRANSIENT
+            if clear_to_right:
+                flags |= sublime.CLEAR_TO_RIGHT
+
+        elif replace:
+            flags |= sublime.REPLACE_MRU | sublime.SEMI_TRANSIENT
+        window.open_file(location, flags)
+
+
 class LocalizeCurrentFileCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         window = sublime.active_window()

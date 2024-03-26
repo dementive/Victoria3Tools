@@ -376,7 +376,7 @@ class VictoriaEventListener(
             [
                 x
                 for x in self.v3_mod_files
-                if is_file_in_directory(self.view.file_name(), x)
+                if is_file_in_directory(view.file_name(), x)
             ]
         )
 
