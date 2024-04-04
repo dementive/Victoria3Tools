@@ -4,6 +4,7 @@ Set a status message in the status bar to let the user know what kind of block i
 """
 
 import sublime
+
 from .utils import get_index
 
 

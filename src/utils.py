@@ -6,6 +6,7 @@ import os
 import subprocess
 import sys
 from collections import deque
+
 from .jomini import GameObjectBase
 
 

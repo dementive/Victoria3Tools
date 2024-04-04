@@ -1,10 +1,12 @@
 # Victoria 3 Game Object Class implementations
 
-from .jomini import GameObjectBase, PdxScriptObjectType, PdxScriptObject
 import os
 import re
 from colorsys import hsv_to_rgb
+
 import sublime
+
+from .jomini import GameObjectBase, PdxScriptObject, PdxScriptObjectType
 
 v3_files_path = ""
 v3_mod_files = []

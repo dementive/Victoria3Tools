@@ -2,14 +2,15 @@
 All the code for handling the integration of vic3-tiger into the plugin.
 """
 
-import os
 import json
+import os
 
-import sublime, sublime_plugin
 import Default.exec
+import sublime
+import sublime_plugin
 
-from .tiger import TigerJsonObject
 from .css import CSS
+from .tiger import TigerJsonObject
 
 css_basic_style = CSS().default
 tiger_objects = dict()

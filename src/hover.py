@@ -6,9 +6,12 @@ Also shows goto definition popups for all game objects as well as saved scopes a
 
 import os
 import re
-import sublime, sublime_plugin
-from .jomini import PdxScriptObject
+
+import sublime
+import sublime_plugin
+
 from .css import CSS
+from .jomini import PdxScriptObject
 
 css = CSS()
 

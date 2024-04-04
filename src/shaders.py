@@ -2,8 +2,10 @@
 Code for plugin features related to paradox shaders
 """
 
-import sublime
 from webbrowser import open as openwebsite
+
+import sublime
+
 from .css import CSS
 
 

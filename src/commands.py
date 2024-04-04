@@ -1,8 +1,9 @@
 import os
 import re
 
-import sublime, sublime_plugin
 import Default.exec
+import sublime
+import sublime_plugin
 
 
 class GotoScriptObjectDefinitionCommand(sublime_plugin.WindowCommand):

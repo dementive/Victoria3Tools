@@ -1,6 +1,8 @@
 # Static Vic3 Rome game data used in for autocomplete, documentation on hover, and more
 
-import os, re
+import os
+import re
+
 import sublime
 
 # Exclusion keys to not read when looking for top level keys
@@ -2894,34 +2896,124 @@ class GameData:
 
         self.simple_completion_pattern_flag_pairs = [
             (["has_strategy", "set_strategy"], "ai_strats"),
-            (["start_building_construction", "remove_building", "start_building_construction", "activate_building", "deactivate_building", "start_privately_funded_building_construction", "building", "building_type", "has_building", "is_building_type", "pop_employment_building", "has_active_building", "set_available_for_autonomous_investment", "unset_available_for_autonomous_investment", "start_privately_funded_building_construction"], "buildings"),
-            (["force_resource_depletion", "force_resource_discovery", "pop_employment_building_group", "is_building_group", "has_potential_resource", "building_group"], "bgs"),
+            (
+                [
+                    "start_building_construction",
+                    "remove_building",
+                    "start_building_construction",
+                    "activate_building",
+                    "deactivate_building",
+                    "start_privately_funded_building_construction",
+                    "building",
+                    "building_type",
+                    "has_building",
+                    "is_building_type",
+                    "pop_employment_building",
+                    "has_active_building",
+                    "set_available_for_autonomous_investment",
+                    "unset_available_for_autonomous_investment",
+                    "start_privately_funded_building_construction",
+                ],
+                "buildings",
+            ),
+            (
+                [
+                    "force_resource_depletion",
+                    "force_resource_discovery",
+                    "pop_employment_building_group",
+                    "is_building_group",
+                    "has_potential_resource",
+                    "building_group",
+                ],
+                "bgs",
+            ),
             (["add_trait", "remove_trait", "has_trait"], "char_traits"),
-            (["has_culture_graphics", "country_has_primary_culture", "has_pop_culture", "is_homeland", "add_homeland", "remove_homeland", "culture"], "cultures"),
+            (
+                [
+                    "has_culture_graphics",
+                    "country_has_primary_culture",
+                    "has_pop_culture",
+                    "is_homeland",
+                    "add_homeland",
+                    "remove_homeland",
+                    "culture",
+                ],
+                "cultures",
+            ),
             (["has_decree"], "decrees"),
             (["is_diplomatic_action_type"], "diplo_actions"),
             (["is_diplomatic_play_type"], "diplo_plays"),
             (["has_game_rule"], "game_rules"),
-            (["add_cultural_obsession", "remove_cultural_obsession", "is_taxing_goods", "has_cultural_obsession", "is_banning_goods"], "goods"),
+            (
+                [
+                    "add_cultural_obsession",
+                    "remove_cultural_obsession",
+                    "is_taxing_goods",
+                    "has_cultural_obsession",
+                    "is_banning_goods",
+                ],
+                "goods",
+            ),
             (["has_government_type"], "gov_types"),
             (["add_ideology", "remove_ideology", "ideology"], "ideologies"),
-            (["expanding_institution", "has_institution", "institution"], "institutions"),
-            (["has_ruling_interest_group", "is_interest_group_type", "law_approved_by", "interest_group"], "igs"),
+            (
+                ["expanding_institution", "has_institution", "institution"],
+                "institutions",
+            ),
+            (
+                [
+                    "has_ruling_interest_group",
+                    "is_interest_group_type",
+                    "law_approved_by",
+                    "interest_group",
+                ],
+                "igs",
+            ),
             (["has_journal_entry"], "jes"),
             (["has_modifier", "remove_modifier"], "mods"),
             (["is_party_type"], "parties"),
             (["is_pop_type", "pop_type"], "pop_types"),
             (["has_active_production_method", "production_method"], "pms"),
             (["has_pop_religion", "religion"], "religions"),
-            (["has_state_trait", "remove_state_trait", "add_state_trait"], "state_traits"),
-            (["add_declared_interest", "has_interest_marker_in_region", "hq"], "strategic_regions"),
+            (
+                ["has_state_trait", "remove_state_trait", "add_state_trait"],
+                "state_traits",
+            ),
+            (
+                ["add_declared_interest", "has_interest_marker_in_region", "hq"],
+                "strategic_regions",
+            ),
             (["is_subject_type", "change_subject_type"], "subject_types"),
-            (["technology", "add_technology_researched", "can_research", "has_technology_progress", "has_technology_researched", "is_researching_technology", "is_researching_technology_category"], "technologies"),
+            (
+                [
+                    "technology",
+                    "add_technology_researched",
+                    "can_research",
+                    "has_technology_progress",
+                    "has_technology_researched",
+                    "is_researching_technology",
+                    "is_researching_technology_category",
+                ],
+                "technologies",
+            ),
             (["has_terrain"], "terrains"),
-            (["set_capital", "set_market_capital", "country_or_subject_owns_entire_state_region", "has_state_in_state_region", "owns_entire_state_region", "owns_treaty_port_in"], "state_regions"),
+            (
+                [
+                    "set_capital",
+                    "set_market_capital",
+                    "country_or_subject_owns_entire_state_region",
+                    "has_state_in_state_region",
+                    "owns_entire_state_region",
+                    "owns_treaty_port_in",
+                ],
+                "state_regions",
+            ),
             (["is_country_type", "country_type"], "country_types"),
             (["has_culture_graphics", "graphics"], "culture_graphics"),
-            (["color", "color1", "color2", "color3", "color4", "color5"], "named_colors"),
+            (
+                ["color", "color1", "color2", "color3", "color4", "color5"],
+                "named_colors",
+            ),
             (["commander_rank"], "battle_conditions"),
             (["has_commander_order"], "commander_ranks"),
             (["has_battle_condition"], "commander_orders"),

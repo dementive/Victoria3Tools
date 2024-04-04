@@ -2,15 +2,17 @@
 Code related to loading, saving, and caching vic3 game objects
 """
 
-import sublime
+import hashlib
 import os
 import sys
-import hashlib
+
+import sublime
 
 parent_directory = os.path.abspath("..")
 sys.path.append(parent_directory)
 
 from Victoria3Tools.object_cache import GameObjectCache
+
 from .jomini import dict_to_game_object as make_object
 from .utils import get_default_game_objects
 

@@ -3,7 +3,10 @@ Code for the autocomplete features of the plugin
 """
 
 import re
-import sublime, sublime_plugin
+
+import sublime
+import sublime_plugin
+
 from .utils import get_index
 
 

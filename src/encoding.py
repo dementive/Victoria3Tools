@@ -1,8 +1,11 @@
 """
 Code to handle the UTF8-BOM encoding of vic3 script files
 """
-import sublime, sublime_plugin
+
 import re
+
+import sublime
+import sublime_plugin
 
 
 def encoding_check(self):

@@ -5,29 +5,31 @@ The init function of the event listener is treated as the main entry point for t
 
 import os
 import re
-import time
 import threading
+import time
 
-import sublime, sublime_plugin
-from .jomini import PdxScriptObject
-from .v3_objects import *
-from .game_objects import (
-    check_mod_for_changes,
-    get_objects_from_cache,
-    get_gui_objects_from_cache,
-    write_data_to_syntax,
-    cache_all_objects,
-    add_color_scheme_scopes,
-    handle_image_cache,
-)
-from .css import CSS
-from .game_data import GameData
-from .scope_match import ScopeMatch
+import sublime
+import sublime_plugin
+
 from .autocomplete import AutoComplete
-from .hover import Hover
+from .css import CSS
 from .encoding import encoding_check
+from .game_data import GameData
+from .game_objects import (
+    add_color_scheme_scopes,
+    cache_all_objects,
+    check_mod_for_changes,
+    get_gui_objects_from_cache,
+    get_objects_from_cache,
+    handle_image_cache,
+    write_data_to_syntax,
+)
+from .hover import Hover
+from .jomini import PdxScriptObject
+from .scope_match import ScopeMatch
 from .shaders import on_hover_shaders
 from .utils import *
+from .v3_objects import *
 
 
 class VictoriaEventListener(
@@ -373,11 +375,7 @@ class VictoriaEventListener(
             return
 
         in_mod_dir = any(
-            [
-                x
-                for x in self.v3_mod_files
-                if is_file_in_directory(view.file_name(), x)
-            ]
+            [x for x in self.v3_mod_files if is_file_in_directory(view.file_name(), x)]
         )
 
         if in_mod_dir:

@@ -3,11 +3,12 @@ Commands for opening and viewing textures in sublime or another program
 """
 
 import os
-import sys
-import subprocess
 import struct
+import subprocess
+import sys
 
-import sublime, sublime_plugin
+import sublime
+import sublime_plugin
 
 
 class OpenVictoriaTextureCommand(sublime_plugin.WindowCommand):
