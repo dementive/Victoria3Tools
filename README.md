@@ -76,7 +76,7 @@ With a Victoria 3 .txt file open in sublime
 Select ```Victoria Script``` as the default syntax for .txt.
 
 With a Victoria 3 .gui file open
-Select ```Victoria Gui``` as the default syntax for .gui.
+Select ```Jomini Gui``` as the default syntax for .gui.
 
 For both .yml file types select ```Victoria Localization``` as the default syntax.
 

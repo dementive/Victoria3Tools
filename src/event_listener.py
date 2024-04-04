@@ -392,7 +392,7 @@ class VictoriaEventListener(
         try:
             if view.syntax().name not in (
                 "Victoria Script",
-                "Victoria Gui",
+                "Jomini Gui",
             ):
                 return
         except AttributeError:
@@ -401,7 +401,7 @@ class VictoriaEventListener(
         if view.match_selector(point, "comment.line"):
             return
 
-        if view.syntax().name == "Victoria Gui":
+        if view.syntax().name == "Jomini Gui":
             sublime.set_timeout_async(lambda: self.do_gui_hover_async(view, point), 0)
             item = view.substr(view.word(point))
             if (
@@ -515,7 +515,7 @@ class VictoriaEventListener(
         )
         texture_raw_region = sublime.Region(texture_raw_start.a, texture_raw_end.b)
         texture_raw_path = view.substr(texture_raw_region)
-        if view.syntax().name == "Victoria Gui":
+        if view.syntax().name == "Jomini Gui":
             full_texture_path = os.path.join(self.gui_files_path, texture_raw_path)
         else:
             full_texture_path = os.path.join(self.v3_files_path, texture_raw_path)
@@ -538,7 +538,7 @@ class VictoriaEventListener(
                 if os.path.exists(mod_path):
                     full_texture_path = mod_path
 
-        if view.syntax().name == "Victoria Gui":
+        if view.syntax().name == "Jomini Gui":
             for mod in [m for m in gui_mod_files if os.path.exists(m)]:
                 if mod.endswith("mod"):
                     # if it is the path to the mod directory, get all directories in it

@@ -79,7 +79,7 @@ class V3TextureEventListener(sublime_plugin.EventListener):
             if (
                 view.file_name()
                 and view.syntax().name == "Victoria Script"
-                or view.syntax().name == "Victoria Gui"
+                or view.syntax().name == "Jomini Gui"
             ):
                 x = [v for v in views_with_shown_textures if v.id() == view.id()]
                 if x:
@@ -92,7 +92,7 @@ class V3TextureEventListener(sublime_plugin.EventListener):
         try:
             if (
                 view.syntax().name != "Victoria Script"
-                and view.syntax().name != "Victoria Gui"
+                and view.syntax().name != "Jomini Gui"
             ):
                 return None
         except AttributeError:
@@ -261,7 +261,7 @@ class V3ToggleAllTexturesCommand(sublime_plugin.ApplicationCommand):
         try:
             if (
                 view.syntax().name != "Victoria Script"
-                and view.syntax().name != "Victoria Gui"
+                and view.syntax().name != "Jomini Gui"
             ):
                 return None
         except AttributeError:

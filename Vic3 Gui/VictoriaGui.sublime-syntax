@@ -1,11 +1,11 @@
 %YAML 1.2
 ---
-name: Victoria Gui
+name: Jomini Gui
 file_extensions: [gui]
 scope: text.vic.gui
 
 variables:
-  valid_variable: '[A-Za-z_][A-Za-z_0-9]*'
+  valid_variable: '[A-Za-z_0-9][A-Za-z_0-9]*'
 
 contexts:
   main:
@@ -94,7 +94,7 @@ contexts:
   bracket-zone:
     - match: BuildTooltip
       scope: constant.numeric
-    - match: GetVariableSystem|ScriptedGui|GetScriptedGui
+    - match: GetVariableSystem|ScriptedGui
       scope: entity.name.variable.system
     - match: '\b(SetOrToggle|Set|ClearIf|Clear|Toggle|Execute)\b'
       scope: keyword.variable.system.effect
@@ -102,6 +102,28 @@ contexts:
       scope: string.variable.system.trigger
     - match: '\b(And|Not|Or)\b'
       scope: storage.type.logical.operator.gui
+    - match: \b(GetVariable|Var)\b
+      scope: variable.function
+      push:
+        - match: \(\'
+          push:
+            - match: ({{valid_variable}})
+              scope: variable.parameter.var.usage
+              pop: 2
+            - match: \'
+              scope: empty.scope.variable
+              pop: 2
+    - match: \b(ScriptValue|GetScriptedGui)\b
+      scope: variable.function
+      push:
+        - match: \(\'
+          push:
+            - match: ({{valid_variable}})
+              scope: variable.parameter.var.usage
+              pop: 2
+            - match: \'
+              scope: empty.scope
+              pop: 2
 
   template-usage:
     - match: using
