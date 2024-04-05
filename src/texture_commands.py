@@ -10,9 +10,11 @@ import sys
 import sublime
 import sublime_plugin
 
+from .utils import get_syntax_name
+
 
 class OpenVictoriaTextureCommand(sublime_plugin.WindowCommand):
-    def run(self, path, folder=False, mode="default_program"):
+    def run(self, path: str, folder=False, mode="default_program"):  # type: ignore
         if folder:
             path = path.replace("\\", "/")
             end = path.rfind("/")
@@ -75,28 +77,21 @@ class V3ClearImageCacheCommand(sublime_plugin.WindowCommand):
 
 
 class V3TextureEventListener(sublime_plugin.EventListener):
-    def on_post_text_command(self, view, command_name, args):
+    def on_post_text_command(self, view: sublime.View, command_name: str, args):
         if command_name in ("left_delete", "insert"):
-            if (
-                view.file_name()
-                and view.syntax().name == "Victoria Script"
-                or view.syntax().name == "Jomini Gui"
+            if view.file_name() and (
+                get_syntax_name(view) == "Victoria Script"
+                or get_syntax_name(view) == "Jomini Gui"
             ):
                 x = [v for v in views_with_shown_textures if v.id() == view.id()]
                 if x:
                     x[0].update_line_count(view.rowcol(view.size())[0] + 1)
 
-    def on_load_async(self, view):
+    def on_load_async(self, view: sublime.View):
         if not view:
             return None
-
-        try:
-            if (
-                view.syntax().name != "Victoria Script"
-                and view.syntax().name != "Jomini Gui"
-            ):
-                return None
-        except AttributeError:
+        syntax = get_syntax_name(view)
+        if syntax != "Victoria Script" and syntax != "Jomini Gui":
             return None
 
         settings = sublime.load_settings("Victoria Syntax.sublime-settings")
@@ -109,7 +104,7 @@ views_with_shown_textures = set()
 
 
 class V3ViewTextures(sublime.View):
-    def __init__(self, id):
+    def __init__(self, id: int):
         super(V3ViewTextures, self).__init__(id)
         self.textures = []
         self.line_count = self.rowcol(self.size())[0] + 1
@@ -143,7 +138,7 @@ class V3ViewTextures(sublime.View):
 class ShowTextureBase:
     conversion_iterations = 0
 
-    def show_texture(self, path, point):
+    def show_texture(self, path: str, point: int):
         window = sublime.active_window()
         simple_path = (
             path.replace("\\", "/")
@@ -174,7 +169,14 @@ class ShowTextureBase:
         else:
             self.toggle_async(output_file, simple_path, point, window, path)
 
-    def toggle_async(self, output_file, simple_path, point, window, original_path):
+    def toggle_async(
+        self,
+        output_file: str,
+        simple_path: str,
+        point: int,
+        window: sublime.Window,
+        original_path: str,
+    ):
         # Try to convert for 500ms
         if not os.path.exists(output_file) and self.conversion_iterations < 6:
             self.conversion_iterations += 1
@@ -187,10 +189,10 @@ class ShowTextureBase:
             height = dimensions[1]
             html = f'<img src="{image}" width="{width}" height="{height}">'
             view = window.active_view()
-            if os.path.exists(output_file):
+            if view and os.path.exists(output_file):
                 self.toggle(simple_path, view, html, point)
 
-    def toggle(self, key, view, html, point):
+    def toggle(self, key: str, view: sublime.View, html: str, point: int):
         pid = key + "|" + str(view.rowcol(point)[0] + 1)
         x = V3ViewTextures(view.id())
         views_with_shown_textures.add(x)
@@ -213,7 +215,7 @@ class ShowTextureBase:
             phantom_region = sublime.Region(start, end)
             view.add_phantom(key, phantom_region, html, sublime.LAYOUT_BELOW)
 
-    def get_png_dimensions(self, path):
+    def get_png_dimensions(self, path: str):
         height = 150
         width = 150
         file = open(path, "rb")
@@ -245,7 +247,7 @@ class ShowTextureBase:
 
 
 class V3ShowTextureCommand(sublime_plugin.ApplicationCommand, ShowTextureBase):
-    def run(self, path, point):
+    def run(self, path, point):  # type: ignore
         self.show_texture(path, point)
 
 
@@ -259,13 +261,8 @@ class V3ToggleAllTexturesCommand(sublime_plugin.ApplicationCommand):
         if not view:
             return None
 
-        try:
-            if (
-                view.syntax().name != "Victoria Script"
-                and view.syntax().name != "Jomini Gui"
-            ):
-                return None
-        except AttributeError:
+        syntax = get_syntax_name(view)
+        if syntax != "Victoria Script" and syntax != "Jomini Gui":
             return None
 
         if self.shown or len(views_with_shown_textures) > 0:
@@ -293,6 +290,9 @@ class V3ClearAllTexturesCommand(sublime_plugin.ApplicationCommand):
 class V3ShowAllTexturesCommand(sublime_plugin.WindowCommand, ShowTextureBase):
     def run(self):
         view = self.window.active_view()
+        if view is None:
+            return
+
         texture_list = [
             x
             for x in view.lines(sublime.Region(0, view.size()))
@@ -301,10 +301,10 @@ class V3ShowAllTexturesCommand(sublime_plugin.WindowCommand, ShowTextureBase):
         settings = sublime.load_settings("Victoria Syntax.sublime-settings")
         v3_files_path = settings.get("Victoria3FilesPath")
 
-        for line, i in zip(texture_list, range(settings.get("MaxToggleTextures"))):
+        for line, i in zip(texture_list, range(settings.get("MaxToggleTextures"))):  # type: ignore
             texture_raw_start = view.find("gfx", line.a)
             texture_raw_end = view.find(".dds", line.a)
             texture_raw_region = sublime.Region(texture_raw_start.a, texture_raw_end.b)
             texture_raw_path = view.substr(texture_raw_region)
-            full_texture_path = v3_files_path + "/" + texture_raw_path
+            full_texture_path = v3_files_path + "/" + texture_raw_path  # type: ignore
             self.show_texture(full_texture_path, texture_raw_start.a)

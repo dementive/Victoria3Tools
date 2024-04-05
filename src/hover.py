@@ -4,14 +4,15 @@ Shows documentation for effects/triggers/scopes from the game logs in pop ups.
 Also shows goto definition popups for all game objects as well as saved scopes and variables.
 """
 
-import os
 import re
+from typing import Any, Dict
 
 import sublime
-import sublime_plugin
 
 from .css import CSS
 from .jomini import PdxScriptObject
+from .utils import IterViews, get_file_name, get_syntax_name
+from .v3_objects import PdxColorObject
 
 css = CSS()
 
@@ -182,34 +183,30 @@ class Hover:
 
         references = []
         ref = ""
-        for win in sublime.windows():
-            for i in [v for v in win.views() if v and v.file_name()]:
-                if not i.file_name().endswith(".gui"):
-                    continue
+        for i in IterViews(sublime.windows()):
+            if not get_file_name(i).endswith(".gui"):
+                continue
 
-                view_region = sublime.Region(0, i.size())
-                view_str = i.substr(view_region)
-                for j, line in enumerate(view_str.splitlines()):
-                    definition_found = False
-                    if PdxObject.key in line:
-                        filename = (
-                            i.file_name()
-                            .replace("\\", "/")
-                            .rstrip("/")
-                            .rpartition("/")[2]
-                        )
-                        line_num = j + 1
-                        if word_line_num == line_num and word_file == filename:
-                            # Don't do current word
-                            continue
-                        elif (
-                            line_num == PdxObject.line
-                            and i.file_name() == PdxObject.path
-                        ):
-                            # Don't do definition
-                            continue
-                        if not definition_found:
-                            references.append(f"{i.file_name()}|{line_num}")
+            view_region = sublime.Region(0, i.size())
+            view_str = i.substr(view_region)
+            for j, line in enumerate(view_str.splitlines()):
+                definition_found = False
+                if PdxObject.key in line:
+                    filename = (
+                        get_file_name(view)
+                        .replace("\\", "/")
+                        .rstrip("/")
+                        .rpartition("/")[2]
+                    )
+                    line_num = j + 1
+                    if word_line_num == line_num and word_file == filename:
+                        # Don't do current word
+                        continue
+                    elif line_num == PdxObject.line and i.file_name() == PdxObject.path:
+                        # Don't do definition
+                        continue
+                    if not definition_found:
+                        references.append(f"{i.file_name()}|{line_num}")
 
         if references:
             ref = f'<p><b>References to&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
@@ -267,39 +264,43 @@ class Hover:
                 max_width=1024,
             )
 
-    def get_definitions_for_popup(self, view, point, PdxObject, header, def_value=""):
+    def get_definitions_for_popup(
+        self,
+        view: sublime.View,
+        point: int,
+        PdxObject: PdxScriptObject,
+        header: str,
+        def_value="",
+    ):
         word_line_num = view.rowcol(point)[0] + 1
         definition = ""
         definitions = []
         if header == "Saved Scope" or header == "Saved Variable":
-            for win in sublime.windows():
-                for i in [v for v in win.views() if v and v.file_name()]:
-                    if i.file_name().endswith(".txt"):
-                        variables = [
-                            x
-                            for x in i.find_by_selector(
-                                "entity.name.function.var.declaration"
-                            )
-                            if i.substr(x) == PdxObject.key
-                        ]
-                        variables.extend(
-                            [
-                                x
-                                for x in i.find_by_selector(
-                                    "entity.name.function.scope.declaration"
-                                )
-                                if i.substr(x) == PdxObject.key
-                            ]
+            for i in IterViews(sublime.windows()):
+                if get_syntax_name(i) != "Imperator Script":
+                    continue
+
+                variables = [
+                    self.handle_scripted_args(i, x.a, True)
+                    for x in i.find_by_selector("entity.name.function.var.declaration")
+                    if self.handle_scripted_args(i, x.a) == PdxObject.key
+                ]
+                variables.extend(
+                    [
+                        self.handle_scripted_args(i, x.a, True)
+                        for x in i.find_by_selector(
+                            "entity.name.function.scope.declaration"
                         )
-                        for r in variables:
-                            line = i.rowcol(r.a)[0] + 1
-                            path = i.file_name()
-                            if line == word_line_num and path == PdxObject.path:
-                                continue
-                            else:
-                                definitions.append(
-                                    PdxScriptObject(PdxObject.key, path, line)
-                                )
+                        if self.handle_scripted_args(i, x.a) == PdxObject.key
+                    ]
+                )
+                for r in variables:
+                    line = i.rowcol(r.a)[0] + 1  # type: ignore
+                    path = get_file_name(i)
+                    if line == word_line_num and path == PdxObject.path:
+                        continue
+                    else:
+                        definitions.append(PdxScriptObject(PdxObject.key, path, line))
 
             if len(definitions) == 1:
                 if def_value:
@@ -367,38 +368,42 @@ class Hover:
 
         return definition
 
-    def get_references_for_popup(self, view, point, PdxObject, header):
+    def get_references_for_popup(
+        self, view: sublime.View, point: int, PdxObject: PdxScriptObject
+    ):
         word_line_num = view.rowcol(point)[0] + 1
-        word_file = view.file_name().replace("\\", "/").rstrip("/").rpartition("/")[2]
+        filename = view.file_name()
+        if filename is None:
+            return ""
+        word_file = filename.replace("\\", "/").rstrip("/").rpartition("/")[2]
         references = []
         ref = ""
-        for win in sublime.windows():
-            for i in [v for v in win.views() if v and v.file_name()]:
-                if not i.file_name().endswith(".txt"):
-                    continue
-
-                view_region = sublime.Region(0, i.size())
-                view_str = i.substr(view_region)
-                for j, line in enumerate(view_str.splitlines()):
-                    if re.search(r"\b" + re.escape(PdxObject.key) + r"\b", line):
-                        filename = (
-                            i.file_name()
-                            .replace("\\", "/")
-                            .rstrip("/")
-                            .rpartition("/")[2]
-                        )
-                        line_num = j + 1
-                        if word_line_num == line_num and word_file == filename:
-                            # Don't do current word
-                            continue
-                        elif (
-                            line_num == PdxObject.line
-                            and i.file_name() == PdxObject.path
-                        ):
-                            # Don't do definition
-                            continue
-                        else:
-                            references.append(f"{i.file_name()}|{line_num}")
+        for i in IterViews(sublime.windows()):
+            syntax_name = get_syntax_name(i)
+            if (
+                syntax_name != "Imperator Script"
+                and syntax_name != "Imperator Localization"
+            ):
+                continue
+            view_region = sublime.Region(0, i.size())
+            view_str = i.substr(view_region)
+            for j, line in enumerate(view_str.splitlines()):
+                if re.search(r"\b" + re.escape(PdxObject.key) + r"\b", line):
+                    filename = i.file_name()
+                    if filename is None:
+                        continue
+                    filename = (
+                        filename.replace("\\", "/").rstrip("/").rpartition("/")[2]
+                    )
+                    line_num = j + 1
+                    if word_line_num == line_num and word_file == filename:
+                        # Don't do current word
+                        continue
+                    elif line_num == PdxObject.line and i.file_name() == PdxObject.path:
+                        # Don't do definition
+                        continue
+                    else:
+                        references.append(f"{i.file_name()}|{line_num}")
         if references:
             ref = f'<p><b>References to&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
             for i in references:
@@ -430,16 +435,22 @@ class Hover:
 
         return ref
 
-    def show_popup_default(self, view, point, word, PdxObject, header):
+    def show_popup_default(
+        self,
+        view: sublime.View,
+        point: int,
+        PdxObject: PdxScriptObject,
+        header: str,
+    ):
         if view.file_name() is None:
             return
 
         link = self.get_definitions_for_popup(
             view, point, PdxObject, header
-        ) + self.get_references_for_popup(view, point, PdxObject, header)
+        ) + self.get_references_for_popup(view, point, PdxObject)
         if link:
-            hoverBody = """
-                <body id="vic-body">
+            hover_body = """
+                <body id="imperator-body">
                     <style>%s</style>
                     <h1>%s</h1>
                     %s
@@ -451,7 +462,7 @@ class Hover:
             )
 
             view.show_popup(
-                hoverBody,
+                hover_body,
                 flags=(
                     sublime.HIDE_ON_MOUSE_MOVE_AWAY
                     | sublime.COOPERATE_WITH_AUTO_COMPLETE
@@ -461,12 +472,41 @@ class Hover:
                 max_width=1024,
             )
 
-    def show_popup_named_color(self, view, point, word, PdxObject, header):
+    def handle_scripted_args(self, view: sublime.View, point: int, region=False):
+        argument_found = True
+        word = view.word(point)
+        while argument_found is True:
+            one_ahead = word.b
+            one_behind = word.a - 1
+            one_ahead_word = view.substr(one_ahead)
+            one_behind_word = view.substr(one_behind)
+            if one_ahead_word == "$":
+                new_word = view.word(one_ahead + 1)
+                word = sublime.Region(word.a, new_word.b)
+            if one_behind_word == "$":
+                new_word = view.word(one_behind)
+                word = sublime.Region(new_word.a, word.b)
+            if one_behind_word != "$" and one_ahead_word != "$":
+                argument_found = False
+        if region:
+            return word
+
+        return view.substr(word).strip()
+
+    def show_popup_named_color(
+        self,
+        view: sublime.View,
+        point: int,
+        word: str,
+        PdxObject: PdxColorObject,
+        header: str,
+    ):
         if view.file_name() is None:
             return
 
         object_color = PdxObject.color
         css_color = PdxObject.rgb_color
+
         r = css_color[0]
         g = css_color[1]
         b = css_color[2]
@@ -475,8 +515,8 @@ class Hover:
 
         link = self.get_definitions_for_popup(view, point, PdxObject, header, color)
         if link:
-            hoverBody = """
-                <body id="vic-body">
+            hover_body = """
+                <body id="imperator-body">
                     <style>%s</style>
                     <h1>%s</h1>
                     %s
@@ -488,7 +528,7 @@ class Hover:
             )
 
             view.show_popup(
-                hoverBody,
+                hover_body,
                 flags=(
                     sublime.HIDE_ON_MOUSE_MOVE_AWAY
                     | sublime.COOPERATE_WITH_AUTO_COMPLETE
@@ -498,19 +538,21 @@ class Hover:
                 max_width=1024,
             )
 
-    def show_texture_hover_popup(self, view, point, texture_name, full_texture_path):
+    def show_texture_hover_popup(
+        self, view: sublime.View, point: int, texture_name: str, full_texture_path: str
+    ):
         args = {"path": full_texture_path}
-        open_texture_url = sublime.command_url("open_victoria_texture ", args)
+        open_texture_url = sublime.command_url("open_imperator_texture ", args)  # type: ignore
         folder_args = {"path": full_texture_path, "folder": True}
-        open_folder_url = sublime.command_url("open_victoria_texture ", folder_args)
+        open_folder_url = sublime.command_url("open_imperator_texture ", folder_args)
         in_sublime_args = {"path": full_texture_path, "mode": "in_sublime"}
         inline_args = {"path": full_texture_path, "point": point}
         open_in_sublime_url = sublime.command_url(
-            "open_victoria_texture ", in_sublime_args
+            "open_imperator_texture ", in_sublime_args  # type: ignore
         )
-        open_inline_url = sublime.command_url("v3_show_texture ", inline_args)
-        hoverBody = """
-            <body id=\"vic-body\">
+        open_inline_url = sublime.command_url("imperator_show_texture ", inline_args)
+        hover_body = """
+            <body id=\"imperator-body\">
                 <style>%s</style>
                 <h1>Open Texture</h1>
                 <div></div>
@@ -534,7 +576,7 @@ class Hover:
         )
 
         view.show_popup(
-            hoverBody,
+            hover_body,
             flags=(
                 sublime.HIDE_ON_MOUSE_MOVE_AWAY
                 | sublime.COOPERATE_WITH_AUTO_COMPLETE
@@ -544,9 +586,9 @@ class Hover:
             max_width=802,
         )
 
-    def show_video_hover_popup(self, view, point, word):
+    def show_video_hover_popup(self, view: sublime.View, point: int, word: str):
         args = {"play": True}
-        browse_and_play_url = sublime.command_url("browse_bink_videos", args)
+        browse_and_play_url = sublime.command_url("browse_bink_videos", args)  # type: ignore
         hoverBody = """
             <body id=\"vic-body\">
                 <style>%s</style>

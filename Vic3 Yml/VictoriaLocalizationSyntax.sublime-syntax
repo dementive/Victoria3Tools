@@ -72,9 +72,60 @@ contexts:
         - clear_scopes: true
         - meta_content_scope: empty.scope
         - include: line_ending
+        - include: data-system-functions
         - match: \]
           scope: keyword.operator
           pop: true
+
+  data-system-functions:
+    - match: \b(sB|sBT|sBuilding|sBuildingType|sC|sCF|sCM|sCMT|sCOT|sCU|sCW|sCha|sCharacter|sCivilWar|sCommanderOrderType|sCompany|sCompanyType|sCountry|sCountryFormation|sCulture|sDA|sDD|sDP|sDR|sDiplomaticAction|sDiplomaticDemand|sDiplomaticPact|sDiplomaticPlay|sDiplomaticRelations|sF|sFront|sG|sGoods|sHQ|sIGT|sIdeology|sInstitution|sInstitutionType|sInterestGroupTrait|sJE|sJournalEntry|sL|sLaw|sLawType|sMilitaryFormation|sP|sPM|sPT|sPact|sParty|sPoliticalMovement|sPop|sPopType|sProvince|sReligion|sS|sSR|sSW|sState|sStateRegion|sStrategicRegion|sSway|sT|sTechnology|sW|sWar)\b
+      scope: variable.function
+      push:
+        - match: \(\'
+          push:
+            - match: ({{valid_variable}})
+              scope: variable.parameter.scope.usage
+              pop: 2
+            - match: \'
+              scope: empty.scope.prompt # Mark char for autocomplete to fire on
+              pop: 2
+    - match: \b(GetVariable|Var)\b
+      scope: variable.function
+      push:
+        - match: \(\'
+          push:
+            - match: ({{valid_variable}})
+              scope: variable.parameter.var.usage
+              pop: 2
+            - match: \'
+              scope: empty.scope.variable
+              pop: 2
+    - match: \b(ScriptValue)\b
+      scope: variable.function
+      push:
+        - match: \(\'
+          push:
+            - match: ({{valid_variable}})
+              scope: storage.type.script.value
+              pop: 2
+            - match: \'
+              scope: empty.scope.script.value
+              pop: 2
+    - include: data-system-functions-game-link
+
+
+  data-system-functions-game-link:
+    - match: \b(Custom|GetScriptedGui|GetBattleCondition|GetBuildingType|GetCombatUnitGroup|GetCombatUnitType|GetCulture|GetDecreeType|GetDiplomaticActionType|GetIdeology|GetGoods|GetInstitutionType|GetInterestGroupVariant|GetLawGroup|GetLawType|GetPopType|GetReligion|GetStaticModifier)\b
+      scope: variable.function
+      push:
+        - match: \(\'
+          push:
+            - match: ({{valid_variable}})
+              scope: variable.parameter
+              pop: 2
+            - match: \'
+              scope: empty.scope
+              pop: 2
 
   loc-key-call:
     - match: \@

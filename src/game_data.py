@@ -5,6 +5,8 @@ import re
 
 import sublime
 
+from .game_object_manager import GameObjectManager
+
 # Exclusion keys to not read when looking for top level keys
 exclusion_keys = {
     "#",
@@ -159,6 +161,7 @@ class GameData:
     """Class to hold all data generated from the base game logs"""
 
     def __init__(self):
+        manager = GameObjectManager()
         # Manually added lists, add custom stuff here
 
         # Dictionary for all gui parameters and types
@@ -2895,7 +2898,7 @@ class GameData:
         ]
 
         self.simple_completion_pattern_flag_pairs = [
-            (["has_strategy", "set_strategy"], "ai_strats"),
+            (["has_strategy", "set_strategy"], manager.ai_strats.name),
             (
                 [
                     "start_building_construction",
@@ -2914,7 +2917,7 @@ class GameData:
                     "unset_available_for_autonomous_investment",
                     "start_privately_funded_building_construction",
                 ],
-                "buildings",
+                manager.buildings.name,
             ),
             (
                 [
@@ -2925,9 +2928,9 @@ class GameData:
                     "has_potential_resource",
                     "building_group",
                 ],
-                "bgs",
+                manager.bgs.name,
             ),
-            (["add_trait", "remove_trait", "has_trait"], "char_traits"),
+            (["add_trait", "remove_trait", "has_trait"], manager.char_traits.name),
             (
                 [
                     "has_culture_graphics",
@@ -2938,12 +2941,12 @@ class GameData:
                     "remove_homeland",
                     "culture",
                 ],
-                "cultures",
+                manager.cultures.name,
             ),
-            (["has_decree"], "decrees"),
-            (["is_diplomatic_action_type"], "diplo_actions"),
-            (["is_diplomatic_play_type"], "diplo_plays"),
-            (["has_game_rule"], "game_rules"),
+            (["has_decree"], manager.decrees.name),
+            (["is_diplomatic_action_type"], manager.diplo_actions.name),
+            (["is_diplomatic_play_type"], manager.diplo_plays.name),
+            (["has_game_rule"], manager.game_rules.name),
             (
                 [
                     "add_cultural_obsession",
@@ -2952,13 +2955,13 @@ class GameData:
                     "has_cultural_obsession",
                     "is_banning_goods",
                 ],
-                "goods",
+                manager.goods.name,
             ),
-            (["has_government_type"], "gov_types"),
-            (["add_ideology", "remove_ideology", "ideology"], "ideologies"),
+            (["has_government_type"], manager.gov_types.name),
+            (["add_ideology", "remove_ideology", "ideology"], manager.ideologies.name),
             (
                 ["expanding_institution", "has_institution", "institution"],
-                "institutions",
+                manager.institutions.name,
             ),
             (
                 [
@@ -2967,23 +2970,23 @@ class GameData:
                     "law_approved_by",
                     "interest_group",
                 ],
-                "igs",
+                manager.igs.name,
             ),
-            (["has_journal_entry"], "jes"),
-            (["has_modifier", "remove_modifier"], "mods"),
-            (["is_party_type"], "parties"),
-            (["is_pop_type", "pop_type"], "pop_types"),
-            (["has_active_production_method", "production_method"], "pms"),
-            (["has_pop_religion", "religion"], "religions"),
+            (["has_journal_entry"], manager.jes.name),
+            (["has_modifier", "remove_modifier"], manager.mods.name),
+            (["is_party_type"], manager.parties.name),
+            (["is_pop_type", "pop_type"], manager.pop_types.name),
+            (["has_active_production_method", "production_method"], manager.pms.name),
+            (["has_pop_religion", "religion"], manager.religions.name),
             (
                 ["has_state_trait", "remove_state_trait", "add_state_trait"],
-                "state_traits",
+                manager.state_traits.name,
             ),
             (
                 ["add_declared_interest", "has_interest_marker_in_region", "hq"],
-                "strategic_regions",
+                manager.strategic_regions.name,
             ),
-            (["is_subject_type", "change_subject_type"], "subject_types"),
+            (["is_subject_type", "change_subject_type"], manager.subject_types.name),
             (
                 [
                     "technology",
@@ -2994,9 +2997,9 @@ class GameData:
                     "is_researching_technology",
                     "is_researching_technology_category",
                 ],
-                "technologies",
+                manager.technologies.name,
             ),
-            (["has_terrain"], "terrains"),
+            (["has_terrain"], manager.terrains.name),
             (
                 [
                     "set_capital",
@@ -3006,94 +3009,185 @@ class GameData:
                     "owns_entire_state_region",
                     "owns_treaty_port_in",
                 ],
-                "state_regions",
+                manager.state_regions.name,
             ),
-            (["is_country_type", "country_type"], "country_types"),
-            (["has_culture_graphics", "graphics"], "culture_graphics"),
+            (["is_country_type", "country_type"], manager.country_types.name),
+            (["has_culture_graphics", "graphics"], manager.culture_graphics.name),
             (
                 ["color", "color1", "color2", "color3", "color4", "color5"],
-                "named_colors",
+                manager.named_colors.name,
             ),
-            (["commander_rank"], "battle_conditions"),
-            (["has_commander_order"], "commander_ranks"),
-            (["has_battle_condition"], "commander_orders"),
-            (["post_proposal"], "proposal_types"),
-            (["has_discrimination_trait"], "discrimination_traits"),
+            (["commander_rank"], manager.battle_conditions.name),
+            (["has_commander_order"], manager.commander_ranks.name),
+            (["has_battle_condition"], manager.commander_orders.name),
+            (["post_proposal"], manager.proposal_types.name),
+            (["has_discrimination_trait"], manager.discrimination_traits.name),
         ]
 
         self.simple_completion_scope_pattern_flag_pairs = [
-            ("b:", "buildings"),
-            ("bt:", "buildings"),
-            ("cu:", "cultures"),
-            ("decree_cost:", "decrees"),
-            ("goods:", "goods"),
-            ("g:", "goods"),
-            ("institution:", "institutions"),
-            ("ig:", "igs"),
-            ("interest_group:", "igs"),
-            ("je:", "jes"),
-            ("active_law:", "law_groups"),
-            ("law_type:", "laws"),
-            ("py:", "parties"),
-            ("party:", "parties"),
-            ("pop_type:", "pop_types"),
-            ("rel:", "religions"),
-            ("religion:", "religions"),
-            ("sr:", "strategic_regions"),
-            ("s:", "state_regions"),
-            ("c:", "countries"),
-            ("unit_type:", "combat_unit_type"),
-            ("rank_value:", "country_ranks"),
-            ("company_type:", "companies"),
-            ("mobilization_option:", "mobilization_options"),
+            ("b:", manager.buildings.name),
+            ("bt:", manager.buildings.name),
+            ("cu:", manager.cultures.name),
+            ("decree_cost:", manager.decrees.name),
+            ("goods:", manager.goods.name),
+            ("g:", manager.goods.name),
+            ("institution:", manager.institutions.name),
+            ("ig:", manager.igs.name),
+            ("interest_group:", manager.igs.name),
+            ("je:", manager.jes.name),
+            ("active_law:", manager.law_groups.name),
+            ("law_type:", manager.laws.name),
+            ("py:", manager.parties.name),
+            ("party:", manager.parties.name),
+            ("pop_type:", manager.pop_types.name),
+            ("rel:", manager.religions.name),
+            ("religion:", manager.religions.name),
+            ("sr:", manager.strategic_regions.name),
+            ("s:", manager.state_regions.name),
+            ("c:", manager.countries.name),
+            ("unit_type:", manager.combat_unit_type.name),
+            ("rank_value:", manager.country_ranks.name),
+            ("company_type:", manager.companies.name),
+            ("mobilization_option:", manager.mobilization_options.name),
+        ]
+
+        self.data_system_completion_flag_pairs = [
+            (
+                manager.battle_conditions.name,
+                (sublime.KIND_VARIABLE, "B", "Battle Conditions"),
+            ),
+            (manager.buildings.name, (sublime.KIND_VARIABLE, "B", "Buildings")),
+            (
+                manager.combat_unit_group.name,
+                (sublime.KIND_VARIABLE, "C", "Combat Unit Group"),
+            ),
+            (
+                manager.combat_unit_type.name,
+                (sublime.KIND_VARIABLE, "C", "Combat Unit Type"),
+            ),
+            (manager.cultures.name, (sublime.KIND_VARIABLE, "C", "Cultures")),
+            (manager.decrees.name, (sublime.KIND_VARIABLE, "D", "Decrees")),
+            (manager.diplo_actions.name, (sublime.KIND_VARIABLE, "D", "Diplo Actions")),
+            (manager.diplo_plays.name, (sublime.KIND_VARIABLE, "D", "Diplo Plays")),
+            (manager.goods.name, (sublime.KIND_VARIABLE, "G", "Goods")),
+            (manager.ideologies.name, (sublime.KIND_VARIABLE, "I", "Ideologies")),
+            (manager.institutions.name, (sublime.KIND_VARIABLE, "I", "Institutions")),
+            (manager.igs.name, (sublime.KIND_VARIABLE, "I", "Name")),
+            (manager.law_groups.name, (sublime.KIND_VARIABLE, "L", "Law Groups")),
+            (manager.laws.name, (sublime.KIND_VARIABLE, "L", "Laws")),
+            (manager.pop_types.name, (sublime.KIND_VARIABLE, "P", "Pop Types")),
+            (manager.religions.name, (sublime.KIND_VARIABLE, "R", "Religions")),
+            (manager.mods.name, (sublime.KIND_VARIABLE, "M", "Mods")),
+        ]
+
+        self.data_system_completion_functions = [
+            (manager.battle_conditions.name, "GetBattleCondition"),
+            (manager.buildings.name, "GetBuildingType"),
+            (manager.combat_unit_group.name, "GetCombatUnitGroup"),
+            (manager.combat_unit_type.name, "GetCombatUnitType"),
+            (manager.cultures.name, "GetCulture"),
+            (manager.decrees.name, "GetDecreeType"),
+            (manager.diplo_actions.name, "GetDiplomaticActionType"),
+            (manager.diplo_plays.name, "GetDiplomaticPlayType"),
+            (manager.goods.name, "GetGoods"),
+            (manager.ideologies.name, "GetIdeology"),
+            (manager.institutions.name, "GetInstitutionType"),
+            (manager.igs.name, "GetInterestGroupVariant"),
+            (manager.law_groups.name, "GetLawGroup"),
+            (manager.laws.name, "GetLawType"),
+            (manager.pop_types.name, "GetPopType"),
+            (manager.religions.name, "GetReligion"),
+            (manager.mods.name, "GetStaticModifier"),
         ]
 
         self.completion_flag_pairs = [
-            ("ai_strats", (sublime.KIND_ID_MARKUP, "A", "Ai Strategy")),
-            ("buildings", (sublime.KIND_ID_VARIABLE, "B", "Building")),
-            ("bgs", (sublime.KIND_ID_VARIABLE, "B", "Building Group")),
-            ("char_traits", (sublime.KIND_ID_VARIABLE, "C", "Character Trait")),
-            ("cultures", (sublime.KIND_ID_NAMESPACE, "C", "Culture")),
-            ("decrees", (sublime.KIND_ID_MARKUP, "D", "Decree")),
-            ("diplo_actions", (sublime.KIND_ID_SNIPPET, "D", "Diplomatic Action")),
-            ("diplo_plays", (sublime.KIND_ID_SNIPPET, "D", "Diplomatic Play")),
-            ("game_rules", (sublime.KIND_ID_FUNCTION, "G", "Game Rule")),
-            ("goods", (sublime.KIND_ID_NAMESPACE, "G", "Trade Good")),
-            ("gov_types", (sublime.KIND_ID_SNIPPET, "G", "Government Type")),
-            ("ideologies", (sublime.KIND_ID_NAVIGATION, "I", "Ideology")),
-            ("institutions", (sublime.KIND_ID_NAVIGATION, "I", "Institution")),
-            ("igs", (sublime.KIND_ID_MARKUP, "I", "Interest Group")),
-            ("jes", (sublime.KIND_ID_TYPE, "J", "Journal Entry")),
-            ("law_groups", (sublime.KIND_ID_VARIABLE, "L", "Law Group")),
+            (manager.ai_strats.name, (sublime.KIND_ID_MARKUP, "A", "Ai Strategy")),
+            (manager.buildings.name, (sublime.KIND_ID_VARIABLE, "B", "Building")),
+            (manager.bgs.name, (sublime.KIND_ID_VARIABLE, "B", "Building Group")),
             (
-                "mobilization_options",
+                manager.char_traits.name,
+                (sublime.KIND_ID_VARIABLE, "C", "Character Trait"),
+            ),
+            (manager.cultures.name, (sublime.KIND_ID_NAMESPACE, "C", "Culture")),
+            (manager.decrees.name, (sublime.KIND_ID_MARKUP, "D", "Decree")),
+            (
+                manager.diplo_actions.name,
+                (sublime.KIND_ID_SNIPPET, "D", "Diplomatic Action"),
+            ),
+            (
+                manager.diplo_plays.name,
+                (sublime.KIND_ID_SNIPPET, "D", "Diplomatic Play"),
+            ),
+            (manager.game_rules.name, (sublime.KIND_ID_FUNCTION, "G", "Game Rule")),
+            (manager.goods.name, (sublime.KIND_ID_NAMESPACE, "G", "Trade Good")),
+            (manager.gov_types.name, (sublime.KIND_ID_SNIPPET, "G", "Government Type")),
+            (manager.ideologies.name, (sublime.KIND_ID_NAVIGATION, "I", "Ideology")),
+            (
+                manager.institutions.name,
+                (sublime.KIND_ID_NAVIGATION, "I", "Institution"),
+            ),
+            (manager.igs.name, (sublime.KIND_ID_MARKUP, "I", "Interest Group")),
+            (manager.jes.name, (sublime.KIND_ID_TYPE, "J", "Journal Entry")),
+            (manager.law_groups.name, (sublime.KIND_ID_VARIABLE, "L", "Law Group")),
+            (
+                manager.mobilization_options.name,
                 (sublime.KIND_ID_VARIABLE, "M", "Mobilization Options"),
             ),
-            ("laws", (sublime.KIND_ID_VARIABLE, "L", "Law")),
-            ("mods", (sublime.KIND_ID_SNIPPET, "M", "Modifier")),
-            ("parties", (sublime.KIND_ID_TYPE, "P", "Political Party")),
-            ("pop_types", (sublime.KIND_ID_VARIABLE, "P", "Pop Type")),
-            ("pms", (sublime.KIND_ID_NAVIGATION, "P", "Production Method")),
-            ("religions", (sublime.KIND_ID_NAMESPACE, "R", "Religion")),
-            ("state_traits", (sublime.KIND_ID_VARIABLE, "S", "State Trait")),
-            ("strategic_regions", (sublime.KIND_ID_SNIPPET, "S", "Strategic Region")),
-            ("subject_types", (sublime.KIND_ID_TYPE, "S", "Subject Type")),
-            ("technologies", (sublime.KIND_ID_VARIABLE, "T", "Technology")),
-            ("terrains", (sublime.KIND_ID_NAVIGATION, "T", "Terrain")),
-            ("state_regions", (sublime.KIND_ID_NAMESPACE, "S", "State Region")),
-            ("countries", (sublime.KIND_ID_NAMESPACE, "C", "Country")),
-            ("country_ranks", (sublime.KIND_ID_NAMESPACE, "C", "Country Ranks")),
-            ("country_types", (sublime.KIND_ID_NAMESPACE, "C", "Country Types")),
-            ("culture_graphics", (sublime.KIND_ID_NAMESPACE, "C", "Culture Graphics")),
-            ("named_colors", (sublime.KIND_ID_VARIABLE, "C", "Named Color")),
-            ("battle_conditions", (sublime.KIND_ID_VARIABLE, "B", "Battle Condition")),
-            ("commander_ranks", (sublime.KIND_ID_VARIABLE, "C", "Commander Rank")),
-            ("commander_orders", (sublime.KIND_ID_VARIABLE, "C", "Commander Order")),
-            ("combat_unit_type", (sublime.KIND_ID_NAMESPACE, "C", "Combat Unit Type")),
-            ("proposal_types", (sublime.KIND_ID_VARIABLE, "P", "Proposal Type")),
-            ("companies", (sublime.KIND_ID_VARIABLE, "C", "Company")),
+            (manager.laws.name, (sublime.KIND_ID_VARIABLE, "L", "Law")),
+            (manager.mods.name, (sublime.KIND_ID_SNIPPET, "M", "Modifier")),
+            (manager.parties.name, (sublime.KIND_ID_TYPE, "P", "Political Party")),
+            (manager.pop_types.name, (sublime.KIND_ID_VARIABLE, "P", "Pop Type")),
+            (manager.pms.name, (sublime.KIND_ID_NAVIGATION, "P", "Production Method")),
+            (manager.religions.name, (sublime.KIND_ID_NAMESPACE, "R", "Religion")),
+            (manager.state_traits.name, (sublime.KIND_ID_VARIABLE, "S", "State Trait")),
             (
-                "discrimination_traits",
+                manager.strategic_regions.name,
+                (sublime.KIND_ID_SNIPPET, "S", "Strategic Region"),
+            ),
+            (manager.subject_types.name, (sublime.KIND_ID_TYPE, "S", "Subject Type")),
+            (manager.technologies.name, (sublime.KIND_ID_VARIABLE, "T", "Technology")),
+            (manager.terrains.name, (sublime.KIND_ID_NAVIGATION, "T", "Terrain")),
+            (
+                manager.state_regions.name,
+                (sublime.KIND_ID_NAMESPACE, "S", "State Region"),
+            ),
+            (manager.countries.name, (sublime.KIND_ID_NAMESPACE, "C", "Country")),
+            (
+                manager.country_ranks.name,
+                (sublime.KIND_ID_NAMESPACE, "C", "Country Ranks"),
+            ),
+            (
+                manager.country_types.name,
+                (sublime.KIND_ID_NAMESPACE, "C", "Country Types"),
+            ),
+            (
+                manager.culture_graphics.name,
+                (sublime.KIND_ID_NAMESPACE, "C", "Culture Graphics"),
+            ),
+            (manager.named_colors.name, (sublime.KIND_ID_VARIABLE, "C", "Named Color")),
+            (
+                manager.battle_conditions.name,
+                (sublime.KIND_ID_VARIABLE, "B", "Battle Condition"),
+            ),
+            (
+                manager.commander_ranks.name,
+                (sublime.KIND_ID_VARIABLE, "C", "Commander Rank"),
+            ),
+            (
+                manager.commander_orders.name,
+                (sublime.KIND_ID_VARIABLE, "C", "Commander Order"),
+            ),
+            (
+                manager.combat_unit_type.name,
+                (sublime.KIND_ID_NAMESPACE, "C", "Combat Unit Type"),
+            ),
+            (
+                manager.proposal_types.name,
+                (sublime.KIND_ID_VARIABLE, "P", "Proposal Type"),
+            ),
+            (manager.companies.name, (sublime.KIND_ID_VARIABLE, "C", "Company")),
+            (
+                manager.discrimination_traits.name,
                 (sublime.KIND_ID_VARIABLE, "D", "Discrimination Traits"),
             ),
         ]

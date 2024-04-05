@@ -48,6 +48,15 @@
 
 	"EnableVictoriaScriptingFeatures": true,
 
+	// Should the game objects the plugin is aware of be updated when you create new game objects in your mod?
+	// If this is set to false game objects will only be updated when sublime is first started.
+	"UpdateObjectsOnSave": true,
+
+	// Should the syntax highlighting be reloaded when a new game object is created?
+	// This will only have an effect if UpdateObjectsOnSave is true
+	// This is slow and can lag sublime a tiny bit when you save a new object but new objects are not created very often so it won't be too noticeable
+	"UpdateSyntaxOnNewObjectCreation": false,
+
 	// Should documentation show up on hover for .gui files?
 	"GuiDocsHoverEnabled": true,
 

@@ -1,5 +1,6 @@
 import os
 from json import dumps
+from typing import Any
 
 """
     All of this code is not game specific, any Jomini based paradox game can use this to parse game files and create GameObjects.
@@ -61,7 +62,7 @@ class PdxScriptObject:
     3. The line number the key is found at
     """
 
-    def __init__(self, key, path, line):
+    def __init__(self, key: str, path: str, line: int):
         self.key = key
         self.path = path
         self.line = line
@@ -125,7 +126,12 @@ class GameObjectBase:
     """
 
     def __init__(
-        self, paths=[], vanilla_path="", level=0, ignored_files=[], included_files=[]
+        self,
+        paths=[],
+        vanilla_path: Any = "",
+        level=0,
+        ignored_files=[],
+        included_files=[],
     ):
         self.paths = paths
         self.vanilla_path = vanilla_path

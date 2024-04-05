@@ -3,6 +3,7 @@
 import os
 import re
 from colorsys import hsv_to_rgb
+from typing import Union
 
 import sublime
 
@@ -21,12 +22,14 @@ def plugin_loaded():
     v3_mod_files = settings.get("PathsToModFiles")
     gui_files_path = settings.get("GuiBaseGamePath")
     gui_mod_files = settings.get("PathsToGuiModFiles")
+    v3_files_path = str(v3_files_path)
+    gui_files_path = str(gui_files_path)
 
 
 # Gui Class implementations
 class GuiType(GameObjectBase):
     def __init__(self):
-        super().__init__(gui_mod_files, settings.get("GuiBaseGamePath"))
+        super().__init__(gui_mod_files, gui_files_path)
         self.get_data("gui")
 
     def get_pdx_object_list(self, path: str) -> PdxScriptObjectType:
@@ -95,115 +98,115 @@ class GuiTemplate(GameObjectBase):
 
 
 # Victoria 3 Game Object Class implementations
-class V3AiStrategy(GameObjectBase):
+class AiStrategy(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\ai_strategies")
 
 
-class V3BuildingGroup(GameObjectBase):
+class BuildingGroup(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\building_groups")
 
 
-class V3Building(GameObjectBase):
+class Building(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\buildings")
 
 
-class V3CharacterTrait(GameObjectBase):
+class CharacterTrait(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\character_traits")
 
 
-class V3Culture(GameObjectBase):
+class Culture(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\cultures")
 
 
-class V3Decree(GameObjectBase):
+class Decree(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\decrees")
 
 
-class V3DiplomaticAction(GameObjectBase):
+class DiplomaticAction(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\diplomatic_actions")
 
 
-class V3DiplomaticPlay(GameObjectBase):
+class DiplomaticPlay(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\diplomatic_plays")
 
 
-class V3GameRules(GameObjectBase):
+class GameRules(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\game_rules")
 
 
-class V3Goods(GameObjectBase):
+class Goods(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\goods")
 
 
-class V3GovernmentType(GameObjectBase):
+class GovernmentType(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\government_types")
 
 
-class V3Institutions(GameObjectBase):
+class Institutions(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\institutions")
 
 
-class V3Ideology(GameObjectBase):
+class Ideology(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\ideologies")
 
 
-class V3InterestGroupTrait(GameObjectBase):
+class InterestGroupTrait(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\interest_group_traits")
 
 
-class V3InterestGroup(GameObjectBase):
+class InterestGroup(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\interest_groups")
 
 
-class V3JournalEntry(GameObjectBase):
+class JournalEntry(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\journal_entries")
 
 
-class V3LawGroup(GameObjectBase):
+class LawGroup(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\law_groups")
 
 
-class V3Law(GameObjectBase):
+class Law(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\laws")
 
 
-class V3Modifier(GameObjectBase):
+class Modifier(GameObjectBase):
     def __init__(self):
         super().__init__(
             v3_mod_files, v3_files_path, ignored_files=["00_static_modifiers.txt"]
@@ -211,115 +214,115 @@ class V3Modifier(GameObjectBase):
         self.get_data("common\\modifiers")
 
 
-class V3Party(GameObjectBase):
+class Party(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\parties")
 
 
-class V3PopNeed(GameObjectBase):
+class PopNeed(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\pop_needs")
 
 
-class V3PopType(GameObjectBase):
+class PopType(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\pop_types")
 
 
-class V3ProductionMethodGroup(GameObjectBase):
+class ProductionMethodGroup(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\production_method_groups")
 
 
-class V3ProductionMethod(GameObjectBase):
+class ProductionMethod(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\production_methods")
 
 
-class V3Religion(GameObjectBase):
+class Religion(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\religions")
 
 
-class V3ScriptValue(GameObjectBase):
+class ScriptValue(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\script_values")
 
 
-class V3ScriptedEffect(GameObjectBase):
+class ScriptedEffect(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\scripted_effects")
 
 
-class V3ScriptedModifier(GameObjectBase):
+class ScriptedModifier(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\scripted_modifiers")
 
 
-class V3ScriptedTrigger(GameObjectBase):
+class ScriptedTrigger(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\scripted_triggers")
 
 
-class V3StateTrait(GameObjectBase):
+class StateTrait(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\state_traits")
 
 
-class V3StrategicRegion(GameObjectBase):
+class StrategicRegion(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\strategic_regions")
 
 
-class V3SubjectType(GameObjectBase):
+class SubjectType(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\subject_types")
 
 
-class V3Technology(GameObjectBase):
+class Technology(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\technology")
 
 
-class V3Terrain(GameObjectBase):
+class Terrain(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\terrain")
 
 
-class V3StateRegion(GameObjectBase):
+class StateRegion(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("map_data\\state_regions")
 
 
-class V3Country(GameObjectBase):
+class Country(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\country_definitions")
 
 
-class V3CountryRank(GameObjectBase):
+class CountryRank(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\country_ranks")
 
 
-class V3CountryType(GameObjectBase):
+class CountryType(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\country_types")
@@ -390,7 +393,7 @@ class PdxColorObject(PdxScriptObject):
         return tuple(round(i * 255) for i in hsv_to_rgb(h, s, v))
 
     def __eq__(self, other):
-        if isinstance(other, V3NamedColor):
+        if isinstance(other, NamedColor):
             return self.key == other.key
         elif isinstance(other, str):
             return self.key == other
@@ -398,7 +401,7 @@ class PdxColorObject(PdxScriptObject):
             return False
 
     def __lt__(self, other):
-        if isinstance(other, V3NamedColor):
+        if isinstance(other, NamedColor):
             return self.key < other.key
         elif isinstance(other, str):
             return self.key < other
@@ -406,7 +409,7 @@ class PdxColorObject(PdxScriptObject):
             return False
 
     def __gt__(self, other):
-        if isinstance(other, V3NamedColor):
+        if isinstance(other, NamedColor):
             return self.key > other.key
         elif isinstance(other, str):
             return self.key > other
@@ -428,7 +431,7 @@ def make_named_color_object(objects: dict) -> GameObjectBase:
     return game_object
 
 
-class V3NamedColor(GameObjectBase):
+class NamedColor(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path, level=1)
         self.get_data("common\\named_colors")
@@ -478,67 +481,124 @@ class V3NamedColor(GameObjectBase):
         return True if out else False
 
 
-class V3BattleCondition(GameObjectBase):
+class BattleCondition(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\battle_conditions")
 
 
-class V3CommanderRank(GameObjectBase):
+class CommanderRank(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\commander_ranks")
 
 
-class V3CultureGraphics(GameObjectBase):
+class CultureGraphics(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\culture_graphics")
 
 
-class V3ProposalType(GameObjectBase):
+class ProposalType(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\proposal_types")
 
 
-class V3DiscriminationTrait(GameObjectBase):
+class DiscriminationTrait(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\discrimination_traits")
 
 
-class V3ModifierType(GameObjectBase):
+class ModifierType(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\modifier_types")
 
 
-class V3CombatUnitGroup(GameObjectBase):
+class CombatUnitGroup(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\combat_unit_groups")
 
 
-class V3CombatUnitType(GameObjectBase):
+class CombatUnitType(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\combat_unit_types")
 
 
-class V3CommanderOrder(GameObjectBase):
+class CommanderOrder(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\commander_orders")
 
 
-class V3CompanyType(GameObjectBase):
+class CompanyType(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\company_types")
 
 
-class V3MobilizationOption(GameObjectBase):
+class MobilizationOption(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data("common\\mobilization_options")
+
+
+Victoria3Object = Union[
+    GameObjectBase,
+    AiStrategy,
+    BattleCondition,
+    Building,
+    BuildingGroup,
+    CharacterTrait,
+    CombatUnitGroup,
+    CombatUnitType,
+    CommanderOrder,
+    CommanderRank,
+    CompanyType,
+    Country,
+    CountryRank,
+    CountryType,
+    Culture,
+    CultureGraphics,
+    Decree,
+    DiplomaticAction,
+    DiplomaticPlay,
+    DiscriminationTrait,
+    GameRules,
+    Goods,
+    GovernmentType,
+    GuiTemplate,
+    GuiType,
+    Ideology,
+    Institutions,
+    InterestGroup,
+    InterestGroupTrait,
+    JournalEntry,
+    Law,
+    LawGroup,
+    MobilizationOption,
+    Modifier,
+    ModifierType,
+    NamedColor,
+    Party,
+    PopNeed,
+    PopType,
+    ProductionMethod,
+    ProductionMethodGroup,
+    ProposalType,
+    Religion,
+    ScriptedEffect,
+    ScriptedModifier,
+    ScriptedTrigger,
+    ScriptValue,
+    StateRegion,
+    StateTrait,
+    StrategicRegion,
+    SubjectType,
+    Technology,
+    Terrain,
+]

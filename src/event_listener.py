@@ -7,28 +7,38 @@ import os
 import re
 import threading
 import time
+from typing import List, Set, Tuple, Union
 
 import sublime
 import sublime_plugin
 
 from .autocomplete import AutoComplete
-from .css import CSS
 from .encoding import encoding_check
 from .game_data import GameData
+from .game_object_manager import GameObjectManager
 from .game_objects import (
     add_color_scheme_scopes,
     cache_all_objects,
+    check_for_syntax_changes,
     check_mod_for_changes,
     get_gui_objects_from_cache,
     get_objects_from_cache,
     handle_image_cache,
+    load_game_objects_json,
     write_data_to_syntax,
 )
 from .hover import Hover
-from .jomini import PdxScriptObject
+from .jomini import GameObjectBase, PdxScriptObject
 from .scope_match import ScopeMatch
 from .shaders import on_hover_shaders
-from .utils import *
+from .utils import (
+    get_default_game_objects,
+    get_dir_to_game_object_dict,
+    get_file_name,
+    get_game_object_to_class_dict,
+    get_syntax_name,
+    is_file_in_directory,
+)
 from .v3_objects import *
 
 
@@ -43,87 +53,128 @@ class VictoriaEventListener(
         self.v3_mod_files = self.settings.get("PathsToModFiles")
         self.gui_files_path = self.settings.get("GuiBaseGamePath")
         self.gui_mod_files = self.settings.get("PathsToGuiModFiles")
+
         script_enabled = self.settings.get("EnableVictoriaScriptingFeatures")
-        if check_mod_for_changes(self.v3_mod_files):
+        syntax_changes = check_for_syntax_changes()
+        changed_objects_set = check_mod_for_changes(self.v3_mod_files)
+
+        if len(load_game_objects_json()) == 0:
             # Create new objects
             if script_enabled:
-                sublime.set_timeout_async(lambda: self.create_game_objects(), 0)
+                sublime.set_timeout_async(lambda: self.create_all_game_objects(), 0)
             else:
                 sublime.set_timeout_async(lambda: self.load_gui_objects(), 0)
+        elif changed_objects_set:
+            self.load_changed_objects(changed_objects_set)
         elif not script_enabled:
             self.game_objects = get_gui_objects_from_cache()
         else:
             # Load cached objects
             self.game_objects = get_objects_from_cache()
+            if syntax_changes:
+                sublime.set_timeout_async(
+                    lambda: write_data_to_syntax(self.game_objects), 0
+                )
+
+        # # Uncomment this and use the output to balance the load between the threads in create_all_game_objects
+        # from .utils import print_load_balanced_game_object_creation
+
+        # sublime.set_timeout_async(
+        #     lambda: print_load_balanced_game_object_creation(self.game_objects), 0
+        # )
 
         handle_image_cache(self.settings)
         add_color_scheme_scopes()
 
-    def create_game_objects(self):
+    def load_changed_objects(self, changed_objects_set: Set[str], write_syntax=True):
+        # Load objects that have changed since they were last cached
+        self.game_objects = get_objects_from_cache()
+
+        sublime.set_timeout_async(
+            lambda: self.create_game_objects(changed_objects_set), 0
+        )
+        if write_syntax:
+            sublime.set_timeout_async(
+                lambda: write_data_to_syntax(self.game_objects), 0
+            )
+
+        # Cache created objects
+        sublime.set_timeout_async(lambda: cache_all_objects(self.game_objects), 0)
+
+    def create_game_objects(
+        self,
+        changed_objects_set: Set[str],
+    ):
+        game_object_to_class_dict = get_game_object_to_class_dict()
+        for i in changed_objects_set:
+            # TODO - threading and load balancing here if the expected number of objects to be created is > 250
+            self.game_objects[i] = game_object_to_class_dict[i]()
+
+    def create_all_game_objects(self):
         t0 = time.time()
+        manager = GameObjectManager()
 
         def load_first():
-            self.game_objects["ai_strats"] = V3AiStrategy()
-            self.game_objects["bgs"] = V3BuildingGroup()
-            self.game_objects["buildings"] = V3Building()
-            self.game_objects["char_traits"] = V3CharacterTrait()
-            self.game_objects["cultures"] = V3Culture()
-            self.game_objects["decrees"] = V3Decree()
-            self.game_objects["diplo_actions"] = V3DiplomaticAction()
-            self.game_objects["diplo_plays"] = V3DiplomaticPlay()
-            self.game_objects["companies"] = V3CompanyType()
+            self.game_objects["mods"] = Modifier()
 
         def load_second():
-            self.game_objects["mods"] = V3Modifier()
-            self.game_objects["game_rules"] = V3GameRules()
-            self.game_objects["gov_types"] = V3GovernmentType()
-            self.game_objects["ideologies"] = V3Ideology()
-            self.game_objects["institutions"] = V3Institutions()
-            self.game_objects["ig_traits"] = V3InterestGroupTrait()
-            self.game_objects["igs"] = V3InterestGroup()
-            self.game_objects["commander_orders"] = V3CommanderOrder()
+            self.game_objects["state_regions"] = StateRegion()
+            self.game_objects["scripted_effects"] = ScriptedEffect()
+            self.game_objects["laws"] = Law()
+            self.game_objects["ig_traits"] = InterestGroupTrait()
+            self.game_objects["ai_strats"] = AiStrategy()
+            self.game_objects["pop_types"] = PopType()
+            self.game_objects["parties"] = Party()
+            self.game_objects["subject_types"] = SubjectType()
+            self.game_objects["combat_unit_group"] = CombatUnitGroup()
 
         def load_third():
-            self.game_objects["jes"] = V3JournalEntry()
-            self.game_objects["law_groups"] = V3LawGroup()
-            self.game_objects["mobilization_options"] = V3MobilizationOption()
-            self.game_objects["laws"] = V3Law()
-            self.game_objects["parties"] = V3Party()
-            self.game_objects["pop_needs"] = V3PopNeed()
-            self.game_objects["pop_types"] = V3PopType()
-            self.game_objects["pm_groups"] = V3ProductionMethodGroup()
+            self.game_objects["countries"] = Country()
+            self.game_objects["pm_groups"] = ProductionMethodGroup()
+            self.game_objects["script_values"] = ScriptValue()
+            self.game_objects["ideologies"] = Ideology()
+            self.game_objects["bgs"] = BuildingGroup()
+            self.game_objects["law_groups"] = LawGroup()
+            self.game_objects["religions"] = Religion()
+            self.game_objects["decrees"] = Decree()
+            self.game_objects["institutions"] = Institutions()
+            self.game_objects["country_types"] = CountryType()
 
         def load_fourth():
-            self.game_objects["pms"] = V3ProductionMethod()
-            self.game_objects["religions"] = V3Religion()
-            self.game_objects["script_values"] = V3ScriptValue()
-            self.game_objects["scripted_effects"] = V3ScriptedEffect()
-            self.game_objects["scripted_modifiers"] = V3ScriptedModifier()
-            self.game_objects["scripted_triggers"] = V3ScriptedTrigger()
-            self.game_objects["proposal_types"] = V3ProposalType()
-            self.game_objects["discrimination_traits"] = V3DiscriminationTrait()
+            self.game_objects["modifier_types"] = ModifierType()
+            self.game_objects["strategic_regions"] = StrategicRegion()
+            self.game_objects["companies"] = CompanyType()
+            self.game_objects["discrimination_traits"] = DiscriminationTrait()
+            self.game_objects["diplo_plays"] = DiplomaticPlay()
+            self.game_objects["terrains"] = Terrain()
+            self.game_objects["battle_conditions"] = BattleCondition()
+            self.game_objects["pop_needs"] = PopNeed()
+            self.game_objects["country_ranks"] = CountryRank()
+            self.game_objects["scripted_modifiers"] = ScriptedModifier()
 
         def load_fifth():
-            self.game_objects["combat_unit_group"] = V3CombatUnitGroup()
-            self.game_objects["strategic_regions"] = V3StrategicRegion()
-            self.game_objects["goods"] = V3Goods()
-            self.game_objects["subject_types"] = V3SubjectType()
-            self.game_objects["technologies"] = V3Technology()
-            self.game_objects["terrains"] = V3Terrain()
-            self.game_objects["state_regions"] = V3StateRegion()
-            self.game_objects["state_traits"] = V3StateTrait()
-            self.game_objects["countries"] = V3Country()
-            self.game_objects["countries"].remove("NOR")
+            self.game_objects["pms"] = ProductionMethod()
+            self.game_objects["cultures"] = Culture()
+            self.game_objects["technologies"] = Technology()
+            self.game_objects["named_colors"] = NamedColor()
+            self.game_objects["char_traits"] = CharacterTrait()
+            self.game_objects["combat_unit_type"] = CombatUnitType()
+            self.game_objects["commander_orders"] = CommanderOrder()
+            self.game_objects["game_rules"] = GameRules()
+            self.game_objects["commander_ranks"] = CommanderRank()
+            self.game_objects["culture_graphics"] = CultureGraphics()
 
         def load_sixth():
-            self.game_objects["country_ranks"] = V3CountryRank()
-            self.game_objects["country_types"] = V3CountryType()
-            self.game_objects["culture_graphics"] = V3CultureGraphics()
-            self.game_objects["modifier_types"] = V3ModifierType()
-            self.game_objects["named_colors"] = V3NamedColor()
-            self.game_objects["battle_conditions"] = V3BattleCondition()
-            self.game_objects["commander_ranks"] = V3CommanderRank()
-            self.game_objects["combat_unit_type"] = V3CombatUnitType()
+            self.game_objects["scripted_triggers"] = ScriptedTrigger()
+            self.game_objects["jes"] = JournalEntry()
+            self.game_objects["state_traits"] = StateTrait()
+            self.game_objects["gov_types"] = GovernmentType()
+            self.game_objects["buildings"] = Building()
+            self.game_objects["goods"] = Goods()
+            self.game_objects["diplo_actions"] = DiplomaticAction()
+            self.game_objects["mobilization_options"] = MobilizationOption()
+            self.game_objects["proposal_types"] = ProposalType()
+            self.game_objects["igs"] = InterestGroup()
 
         thread1 = threading.Thread(target=load_first)
         thread2 = threading.Thread(target=load_second)
@@ -155,20 +206,24 @@ class VictoriaEventListener(
 
     def load_gui_objects(self):
         global game_objects
-        self.game_objects["gui_types"] = GuiType()
-        self.game_objects["gui_templates"] = GuiTemplate()
-        self.game_objects["gui_templates"].remove("inside")
-        self.game_objects["gui_templates"].remove("you")
-        self.game_objects["gui_templates"].remove("can")
-        self.game_objects["gui_templates"].remove("but")
-        self.game_objects["gui_templates"].remove("on")
-        self.game_objects["gui_templates"].remove("within")
-        self.game_objects["gui_templates"].remove("names")
+        manager = GameObjectManager()
+        self.game_objects[manager.gui_types.name] = GuiType()
+        self.game_objects[manager.gui_templates.name] = GuiTemplate()
+        self.game_objects[manager.gui_templates.name].remove("inside")
+        self.game_objects[manager.gui_templates.name].remove("you")
+        self.game_objects[manager.gui_templates.name].remove("can")
+        self.game_objects[manager.gui_templates.name].remove("but")
+        self.game_objects[manager.gui_templates.name].remove("on")
+        self.game_objects[manager.gui_templates.name].remove("within")
+        self.game_objects[manager.gui_templates.name].remove("names")
 
         # Cache created objects
         sublime.set_timeout_async(lambda: cache_all_objects(self.game_objects), 0)
+        sublime.set_timeout_async(
+            lambda: check_mod_for_changes(self.v3_mod_files), 0
+        )  # Update hashes for each game object directory
 
-    def on_deactivated_async(self, view):
+    def on_deactivated_async(self, view: sublime.View):
         """
         Remove field states when view loses focus
         if cursor was in a field in the old view but not the new view the completions will still be accurate
@@ -184,7 +239,7 @@ class VictoriaEventListener(
                 setattr(self, field, False)
                 views.append(vid)
 
-    def on_activated_async(self, view):
+    def on_activated_async(self, view: sublime.View):
         if not self.settings.get("EnableVictoriaScriptingFeatures"):
             return
 
@@ -194,7 +249,7 @@ class VictoriaEventListener(
                 setattr(self, field, True)
                 views.remove(vid)
 
-    def create_completion_list(self, flag_name, completion_kind):
+    def create_completion_list(self, flag_name: str, completion_kind: str):
         if not getattr(self, flag_name, False):
             return None
 
@@ -217,20 +272,33 @@ class VictoriaEventListener(
             | sublime.INHIBIT_WORD_COMPLETIONS,
         )
 
-    def on_query_completions(self, view, prefix, locations):
+    def on_query_completions(
+        self, view: sublime.View, prefix: str, locations: List[int]
+    ) -> Union[
+        None,
+        List[Union[str, Tuple[str, str], sublime.CompletionItem]],
+        Tuple[
+            List[Union[str, Tuple[str, str], sublime.CompletionItem]],
+            sublime.AutoCompleteFlags,
+        ],
+        sublime.CompletionList,
+    ]:
         if not view:
             return None
 
-        try:
-            if view.syntax().name != "Victoria Script":
-                return None
-        except AttributeError:
+        syntax_name = get_syntax_name(view)
+
+        if (
+            syntax_name != "Victoria Script"
+            and syntax_name != "Victoria Localization"
+            and syntax_name != "Jomini Gui"
+        ):
             return None
 
         if not self.settings.get("EnableVictoriaScriptingFeatures"):
             return
 
-        fname = view.file_name()
+        fname = get_file_name(view)
 
         for flag, completion in self.GameData.completion_flag_pairs:
             completion_list = self.create_completion_list(flag, completion)
@@ -322,7 +390,7 @@ class VictoriaEventListener(
             )
         return None
 
-    def check_for_simple_completions(self, view, point):
+    def check_for_simple_completions(self, view: sublime.View, point: int):
         """
         Check if the current cursor position should trigger a autocompletion item
         this is for simple declarations like: remove_building = CursorHere
@@ -341,15 +409,18 @@ class VictoriaEventListener(
         for pattern, flag in self.GameData.simple_completion_scope_pattern_flag_pairs:
             self.check_pattern_and_set_flag(pattern, flag, view, line, point)
 
-    def on_selection_modified_async(self, view):
+    def on_selection_modified_async(self, view: sublime.View):
         if not view:
             return
 
-        try:
-            if view.syntax().name != "Victoria Script":
-                return
-        except AttributeError:
-            return
+        syntax_name = get_syntax_name(view)
+
+        if (
+            syntax_name != "Victoria Script"
+            and syntax_name != "Victoria Localization"
+            and syntax_name != "Jomini Gui"
+        ):
+            return None
 
         if not self.settings.get("EnableVictoriaScriptingFeatures"):
             return
@@ -381,25 +452,25 @@ class VictoriaEventListener(
         if in_mod_dir:
             encoding_check(view)
 
-    def on_hover(self, view, point, hover_zone):
+    def on_hover(self, view: sublime.View, point: int, hover_zone: sublime.HoverZone):
         if not view:
             return
 
         on_hover_shaders(view, point, self.settings, self.GameData)
 
-        try:
-            if view.syntax().name not in (
-                "Victoria Script",
-                "Jomini Gui",
-            ):
-                return
-        except AttributeError:
-            return
+        syntax_name = get_syntax_name(view)
+
+        if (
+            syntax_name != "Victoria Script"
+            and syntax_name != "Victoria Localization"
+            and syntax_name != "Jomini Gui"
+        ):
+            return None
 
         if view.match_selector(point, "comment.line"):
             return
 
-        if view.syntax().name == "Jomini Gui":
+        if syntax_name == "Jomini Gui":
             sublime.set_timeout_async(lambda: self.do_gui_hover_async(view, point), 0)
             item = view.substr(view.word(point))
             if (
@@ -411,7 +482,7 @@ class VictoriaEventListener(
                     0,
                 )
 
-        if view.syntax().name == "Victoria Script" and self.settings.get(
+        if syntax_name == "Victoria Script" and self.settings.get(
             "EnableVictoriaScriptingFeatures"
         ):
             if self.settings.get("DocsHoverEnabled") is True:
@@ -456,9 +527,9 @@ class VictoriaEventListener(
             return
 
         if (
-            view.syntax().name == "Victoria Script"
-            and "common/coat_of_arms" in view.file_name()
-            or "common\\coat_of_arms" in view.file_name()
+            syntax_name == "Victoria Script"
+            and "common/coat_of_arms" in get_file_name(view)
+            or "common\\coat_of_arms" in get_file_name(view)
         ):
             if "pattern" in linestr:
                 raw_start = view.find("pattern", posLine.a)
@@ -513,7 +584,7 @@ class VictoriaEventListener(
         )
         texture_raw_region = sublime.Region(texture_raw_start.a, texture_raw_end.b)
         texture_raw_path = view.substr(texture_raw_region)
-        if view.syntax().name == "Jomini Gui":
+        if syntax_name == "Jomini Gui":
             full_texture_path = os.path.join(self.gui_files_path, texture_raw_path)
         else:
             full_texture_path = os.path.join(self.v3_files_path, texture_raw_path)
@@ -536,7 +607,7 @@ class VictoriaEventListener(
                 if os.path.exists(mod_path):
                     full_texture_path = mod_path
 
-        if view.syntax().name == "Jomini Gui":
+        if syntax_name == "Jomini Gui":
             for mod in [m for m in gui_mod_files if os.path.exists(m)]:
                 if mod.endswith("mod"):
                     # if it is the path to the mod directory, get all directories in it
@@ -554,7 +625,7 @@ class VictoriaEventListener(
             texture_name = view.substr(view.word(texture_raw_end.a - 1))
             self.show_texture_hover_popup(view, point, texture_name, full_texture_path)
 
-    def do_gui_hover_async(self, view, point):
+    def do_gui_hover_async(self, view: sublime.View, point: int):
         word = view.substr(view.word(point))
 
         if view.match_selector(point, "comment.line"):
@@ -578,32 +649,53 @@ class VictoriaEventListener(
                 "Gui Type",
             )
 
-    def do_hover_async(self, view, point):
+    def do_hover_async(self, view: sublime.View, point: int):
         word_region = view.word(point)
         word = view.substr(word_region)
-        fname = view.file_name()
+        fname = get_file_name(view)
         current_line_num = view.rowcol(point)[0] + 1
 
         if view.match_selector(point, "comment.line"):
             return
 
         if view.match_selector(point, "entity.name.function.scope.declaration"):
+            if fname and (
+                "scripted_triggers" in fname
+                or "scripted_effects" in fname
+                or "scripted_modifiers" in fname
+            ):
+                word = self.handle_scripted_args(view, point)
             self.show_popup_default(
                 view,
                 point,
-                word,
-                PdxScriptObject(word, fname, current_line_num),
+                PdxScriptObject(word, fname, current_line_num),  # type: ignore
                 "Scope Declaration",
             )
 
         if view.match_selector(point, "entity.name.function.var.declaration"):
+            if fname and (
+                "scripted_triggers" in fname
+                or "scripted_effects" in fname
+                or "scripted_modifiers" in fname
+            ):
+                word = self.handle_scripted_args(view, point)
             self.show_popup_default(
                 view,
                 point,
-                word,
-                PdxScriptObject(word, fname, current_line_num),
+                PdxScriptObject(word, fname, current_line_num),  # type: ignore
                 "Variable Declaration",
             )
+
+        if view.match_selector(
+            point, "entity.name.scripted.arg"
+        ) or view.match_selector(point, "variable.language.scripted.arg"):
+            self.show_popup_default(
+                view,
+                point,
+                PdxScriptObject(word, fname, current_line_num),  # type: ignore
+                "Scripted Argument",
+            )
+            return
 
         if (
             view.match_selector(point, "variable.parameter.scope.usage")
@@ -611,89 +703,119 @@ class VictoriaEventListener(
             or view.match_selector(point, "variable.parameter.trigger.usage")
             or view.match_selector(point, "variable.parameter.variable.usage")
         ):
+            if fname and (
+                "scripted_triggers" in fname
+                or "scripted_effects" in fname
+                or "scripted_modifiers" in fname
+            ):
+                word = self.handle_scripted_args(view, point)
             if view.match_selector(point, "variable.parameter.scope.usage"):
                 self.show_popup_default(
                     view,
                     point,
-                    word,
-                    PdxScriptObject(word, fname, current_line_num),
+                    PdxScriptObject(word, fname, current_line_num),  # type: ignore
                     "Saved Scope",
                 )
             else:
                 self.show_popup_default(
                     view,
                     point,
-                    word,
-                    PdxScriptObject(word, fname, current_line_num),
+                    PdxScriptObject(word, fname, current_line_num),  # type: ignore
                     "Saved Variable",
                 )
 
-        hover_objects = [
-            ("ai_strats", "Ai Strategies"),
-            ("bgs", "Building Group"),
-            ("buildings", "Building"),
-            ("char_traits", "Character Trait"),
-            ("cultures", "Culture"),
-            ("decrees", "Decree"),
-            ("diplo_actions", "Diplomatic Action"),
-            ("diplo_plays", "Diplomatic Play"),
-            ("game_rules", "Game Rule"),
-            ("goods", "Trade Good"),
-            ("gov_types", "Government Type"),
-            ("ideologies", "Ideology"),
-            ("institutions", "Institution"),
-            ("ig_traits", "Group Traits"),
-            ("igs", "Interest Group"),
-            ("jes", "Journal Entry"),
-            ("law_groups", "Law Group"),
-            ("laws", "Law"),
-            ("mods", "Modifier"),
-            ("parties", "Party"),
-            ("pop_needs", "Pop Need"),
-            ("pop_types", "Pop Type"),
-            ("pm_groups", "Method Group"),
-            ("pms", "Production Method"),
-            ("religions", "Religion"),
-            ("script_values", "Script Value"),
-            ("scripted_effects", "Scripted Effect"),
-            ("scripted_modifiers", "Scripted Modifer"),
-            ("scripted_triggers", "Scripted Trigger"),
-            ("state_traits", "State Trait"),
-            ("strategic_regions", "Strategic Region"),
-            ("subject_types", "Subject Types"),
-            ("technologies", "Technology"),
-            ("terrains", "Terrain"),
-            ("state_regions", "State Region"),
-            ("countries", "Country"),
-            ("country_ranks", "Country Rank"),
-            ("companies", "Company"),
-            ("country_types", "Country Type"),
-            ("culture_graphics", "Culture Graphic"),
-            ("named_colors", "Named Color"),
-            ("battle_conditions", "Battle Condition"),
-            ("commander_ranks", "Commander Rank"),
-            ("commander_orders", "Commander Order"),
-            ("proposal_types", "Proposal Type"),
-            ("discrimination_traits", "Discrimination Trait"),
-            ("combat_unit_group", "Combat Unit Group"),
-            ("combat_unit_type", "Combat Unit Type"),
-            ("mobilization_options", "Mobilization Options"),
-        ]
+        hover_objects = list()
+        syntax_name = get_syntax_name(view)
+        manager = GameObjectManager()
+        if syntax_name == "Victoria Script":
+            hover_objects = [
+                (manager.ai_strats.name, "Ai Strategies"),
+                (manager.bgs.name, "Building Group"),
+                (manager.buildings.name, "Building"),
+                (manager.char_traits.name, "Character Trait"),
+                (manager.cultures.name, "Culture"),
+                (manager.decrees.name, "Decree"),
+                (manager.diplo_actions.name, "Diplomatic Action"),
+                (manager.diplo_plays.name, "Diplomatic Play"),
+                (manager.game_rules.name, "Game Rule"),
+                (manager.goods.name, "Trade Good"),
+                (manager.gov_types.name, "Government Type"),
+                (manager.ideologies.name, "Ideology"),
+                (manager.institutions.name, "Institution"),
+                (manager.ig_traits.name, "Group Traits"),
+                (manager.igs.name, "Interest Group"),
+                (manager.jes.name, "Journal Entry"),
+                (manager.law_groups.name, "Law Group"),
+                (manager.laws.name, "Law"),
+                (manager.mods.name, "Modifier"),
+                (manager.parties.name, "Party"),
+                (manager.pop_needs.name, "Pop Need"),
+                (manager.pop_types.name, "Pop Type"),
+                (manager.pm_groups.name, "Method Group"),
+                (manager.pms.name, "Production Method"),
+                (manager.religions.name, "Religion"),
+                (manager.script_values.name, "Script Value"),
+                (manager.scripted_effects.name, "Scripted Effect"),
+                (manager.scripted_modifiers.name, "Scripted Modifer"),
+                (manager.scripted_triggers.name, "Scripted Trigger"),
+                (manager.state_traits.name, "State Trait"),
+                (manager.strategic_regions.name, "Strategic Region"),
+                (manager.subject_types.name, "Subject Types"),
+                (manager.technologies.name, "Technology"),
+                (manager.terrains.name, "Terrain"),
+                (manager.state_regions.name, "State Region"),
+                (manager.countries.name, "Country"),
+                (manager.country_ranks.name, "Country Rank"),
+                (manager.companies.name, "Company"),
+                (manager.country_types.name, "Country Type"),
+                (manager.culture_graphics.name, "Culture Graphic"),
+                (manager.named_colors.name, "Named Color"),
+                (manager.battle_conditions.name, "Battle Condition"),
+                (manager.commander_ranks.name, "Commander Rank"),
+                (manager.commander_orders.name, "Commander Order"),
+                (manager.proposal_types.name, "Proposal Type"),
+                (manager.discrimination_traits.name, "Discrimination Trait"),
+                (manager.combat_unit_group.name, "Combat Unit Group"),
+                (manager.combat_unit_type.name, "Combat Unit Type"),
+                (manager.mobilization_options.name, "Mobilization Options"),
+            ]
+
+        if syntax_name == "Victoria Localization" or syntax_name == "Jomini Gui":
+            hover_objects = [
+                (manager.battle_conditions.name, "Battle Condition"),
+                (manager.buildings.name, "Building"),
+                (manager.combat_unit_group.name, "Combat Unit_Group"),
+                (manager.combat_unit_type.name, "Combat Unit Type"),
+                (manager.cultures.name, "Culture"),
+                (manager.decrees.name, "Decree"),
+                (manager.diplo_actions.name, "Diplo_Action"),
+                (manager.diplo_plays.name, "Diplo Play"),
+                (manager.goods.name, "Goods"),
+                (manager.ideologies.name, "Ideology"),
+                (manager.institutions.name, "Institution"),
+                (manager.igs.name, "Interest Group"),
+                (manager.law_groups.name, "Law Group"),
+                (manager.laws.name, "Law"),
+                (manager.pop_types.name, "Pop Type"),
+                (manager.religions.name, "Religion"),
+                (manager.mods.name, "Modifier"),
+            ]
 
         # Iterate over the list and call show_popup_default for each game object
         for hover_object, name in hover_objects:
-            if self.game_objects[hover_object].contains(word):
+            game_object = self.game_objects[hover_object].access(word)
+            if game_object:
                 self.show_popup_default(
                     view,
                     point,
-                    word,
-                    self.game_objects[hover_object].access(word),
+                    game_object,
                     name,
                 )
+                break
 
 
 class BrowseBinkVideosCommand(sublime_plugin.TextCommand):
-    def run(self, edit, video, play=False):
+    def run(self, edit, video, play=False):  # type: ignore
         if video:
             if play:
                 self.on_done(video, play=True)

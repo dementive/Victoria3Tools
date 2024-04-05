@@ -7,18 +7,18 @@ import sublime_plugin
 
 
 class GotoScriptObjectDefinitionCommand(sublime_plugin.WindowCommand):
-    def run(self, path, line):
+    def run(self, path: str, line: str):  # type: ignore
         if os.path.exists(path):
             file_path = "{}:{}:{}".format(path, line, 0)
             self.open_location(self.window, file_path)
 
-    def open_location(self, window, location):
+    def open_location(self, window, l):
         flags = sublime.ENCODED_POSITION | sublime.FORCE_GROUP
-        window.open_file(location, flags)
+        window.open_file(l, flags)
 
 
 class GotoScriptObjectDefinitionRightCommand(sublime_plugin.WindowCommand):
-    def run(self, path, line):
+    def run(self, path: str, line: str):  # type: ignore
         if os.path.exists(path):
             file_path = "{}:{}:{}".format(path, line, 0)
             self.open_location(
@@ -37,6 +37,7 @@ class GotoScriptObjectDefinitionRightCommand(sublime_plugin.WindowCommand):
 
         elif replace:
             flags |= sublime.REPLACE_MRU | sublime.SEMI_TRANSIENT
+
         window.open_file(location, flags)
 
 
@@ -44,6 +45,8 @@ class LocalizeCurrentFileCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         window = sublime.active_window()
         view = window.active_view()
+        if not view:
+            return
         view_region = sublime.Region(0, view.size())
         view_str = view.substr(view_region)
         loc_list = self.localize_tokens(view_str)
@@ -51,6 +54,8 @@ class LocalizeCurrentFileCommand(sublime_plugin.TextCommand):
         # Insert into new view
         window.run_command("new_file")
         loc_view = window.active_view()
+        if not loc_view:
+            return
         loc_view.set_name("Localization")
         for i in loc_list:
             loc_view.insert(edit, len(loc_view), i)
@@ -101,7 +106,7 @@ class FolderHandler(sublime_plugin.TextCommand):
         if "level" not in args:
             return FoldingInputHandler()
 
-    def run(self, edit, level):
+    def run(self, edit: sublime.Edit, level: str):  # type: ignore
         if level != "Unfold All":
             self.view.run_command("fold_by_level", {"level": int(level)})
         else:
