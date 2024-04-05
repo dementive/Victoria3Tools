@@ -277,7 +277,7 @@ class Hover:
         definitions = []
         if header == "Saved Scope" or header == "Saved Variable":
             for i in IterViews(sublime.windows()):
-                if get_syntax_name(i) != "Imperator Script":
+                if get_syntax_name(i) != "Victoria Script":
                     continue
 
                 variables = [
@@ -381,8 +381,8 @@ class Hover:
         for i in IterViews(sublime.windows()):
             syntax_name = get_syntax_name(i)
             if (
-                syntax_name != "Imperator Script"
-                and syntax_name != "Imperator Localization"
+                syntax_name != "Victoria Script"
+                and syntax_name != "Victoria Localization"
             ):
                 continue
             view_region = sublime.Region(0, i.size())
@@ -450,7 +450,7 @@ class Hover:
         ) + self.get_references_for_popup(view, point, PdxObject)
         if link:
             hover_body = """
-                <body id="imperator-body">
+                <body id="vic-body">
                     <style>%s</style>
                     <h1>%s</h1>
                     %s
@@ -516,7 +516,7 @@ class Hover:
         link = self.get_definitions_for_popup(view, point, PdxObject, header, color)
         if link:
             hover_body = """
-                <body id="imperator-body">
+                <body id="vic-body">
                     <style>%s</style>
                     <h1>%s</h1>
                     %s
@@ -542,17 +542,17 @@ class Hover:
         self, view: sublime.View, point: int, texture_name: str, full_texture_path: str
     ):
         args = {"path": full_texture_path}
-        open_texture_url = sublime.command_url("open_imperator_texture ", args)  # type: ignore
+        open_texture_url = sublime.command_url("open_victoria_texture ", args)  # type: ignore
         folder_args = {"path": full_texture_path, "folder": True}
-        open_folder_url = sublime.command_url("open_imperator_texture ", folder_args)
+        open_folder_url = sublime.command_url("open_victoria_texture ", folder_args)
         in_sublime_args = {"path": full_texture_path, "mode": "in_sublime"}
         inline_args = {"path": full_texture_path, "point": point}
         open_in_sublime_url = sublime.command_url(
-            "open_imperator_texture ", in_sublime_args  # type: ignore
+            "open_victoria_texture ", in_sublime_args  # type: ignore
         )
-        open_inline_url = sublime.command_url("imperator_show_texture ", inline_args)
+        open_inline_url = sublime.command_url("v3_show_texture ", inline_args)
         hover_body = """
-            <body id=\"imperator-body\">
+            <body id=\"vic-body\">
                 <style>%s</style>
                 <h1>Open Texture</h1>
                 <div></div>
