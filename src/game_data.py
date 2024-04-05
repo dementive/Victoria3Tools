@@ -3033,6 +3033,7 @@ class GameData:
             ("g:", manager.goods.name),
             ("institution:", manager.institutions.name),
             ("ig:", manager.igs.name),
+            ("ideology:", manager.ideologies.name),
             ("interest_group:", manager.igs.name),
             ("je:", manager.jes.name),
             ("active_law:", manager.law_groups.name),

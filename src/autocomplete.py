@@ -85,7 +85,7 @@ class AutoComplete:
         point: int,
     ):
         for pattern in patterns_list:
-            r = re.search(rf'{pattern}\s?=\s?(")?', line)
+            r = re.search(rf'\b{pattern}\s?=\s?(")?', line)
             if not r:
                 continue
             y = 0
