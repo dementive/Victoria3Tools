@@ -396,6 +396,16 @@ def write_data_to_syntax(game_objects):
         "Combat Unit Type",
         "entity.name.combat.unit.type",
     )
+    lines += write_syntax(
+        game_objects[manager.scripted_gui.name].keys(),
+        "Scripted Gui",
+        "entity.name.scripted.gui",
+    )
+    lines += write_syntax(
+        game_objects[manager.custom_loc.name].keys(),
+        "Customizable Localization",
+        "entity.name.custom.loc",
+    )
 
     # Dynamic modifiers
     country_modifs = list()

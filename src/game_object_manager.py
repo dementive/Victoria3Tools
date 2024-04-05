@@ -51,6 +51,9 @@ class GameObjectManager:
             "culture_graphics", CultureGraphics, "common\\culture_graphics"
         )
         self.cultures = GameObjectData("cultures", Culture, "common\\cultures")
+        self.custom_loc = GameObjectData(
+            "custom_loc", CustomLoc, "common\\customizable_localization"
+        )
         self.decrees = GameObjectData("decrees", Decree, "common\\decrees")
         self.diplo_actions = GameObjectData(
             "diplo_actions", DiplomaticAction, "common\\diplomatic_actions"
@@ -107,6 +110,9 @@ class GameObjectManager:
         )
         self.scripted_effects = GameObjectData(
             "scripted_effects", ScriptedEffect, "common\\scripted_effects"
+        )
+        self.scripted_gui = GameObjectData(
+            "scripted_gui", ScriptedGui, "common\\scripted_guis"
         )
         self.scripted_modifiers = GameObjectData(
             "scripted_modifiers", ScriptedModifier, "common\\scripted_modifiers"

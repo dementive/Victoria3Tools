@@ -10,6 +10,7 @@ from typing import Any, Dict
 import sublime
 
 from .css import CSS
+from .game_data import GameData
 from .jomini import PdxScriptObject
 from .utils import IterViews, get_file_name, get_syntax_name
 from .v3_objects import PdxColorObject
@@ -18,7 +19,14 @@ css = CSS()
 
 
 class Hover:
-    def show_hover_docs(self, view, point, scope, collection, settings):
+    def show_hover_docs(
+        self,
+        view: sublime.View,
+        point: int,
+        scope: str,
+        collection: Dict[Any, Any],
+        settings: sublime.Settings,
+    ):
         style = settings.get("DocsPopupStyle")
         if style == "dark":
             style = css.dark
@@ -56,7 +64,9 @@ class Hover:
             )
             return
 
-    def show_gui_docs_popup(self, view, point, item, GameData):
+    def show_gui_docs_popup(
+        self, view: sublime.View, point: int, item: str, GameData: GameData
+    ):
         data = GameData.GuiContent[item]
         color = data[0]
         desc = data[1]
@@ -153,9 +163,13 @@ class Hover:
             max_width=1024,
         )
 
-    def show_gui_popup(self, view, point, word, PdxObject, header):
+    def show_gui_popup(
+        self, view: sublime.View, point: int, PdxObject: PdxScriptObject, header: str
+    ):
         word_line_num = view.rowcol(point)[0] + 1
-        word_file = view.file_name().replace("\\", "/").rstrip("/").rpartition("/")[2]
+        word_file = (
+            get_file_name(view).replace("\\", "/").rstrip("/").rpartition("/")[2]
+        )
         definition = ""
 
         if word_line_num != PdxObject.line:

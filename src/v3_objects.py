@@ -547,6 +547,29 @@ class MobilizationOption(GameObjectBase):
         self.get_data("common\\mobilization_options")
 
 
+class CustomLoc(GameObjectBase):
+    def __init__(self):
+        super().__init__(
+            v3_mod_files,
+            v3_files_path,
+            ignored_files=[
+                "99_ru_custom_loc.txt",
+                "99_de_custom_loc.txt",
+                "99_pl_custom_loc.txt",
+                "99_fr_custom_loc.txt",
+                "99_es_custom_loc.txt",
+                "99_br_custom_loc.txt",
+            ],
+        )
+        self.get_data("common\\customizable_localization")
+
+
+class ScriptedGui(GameObjectBase):
+    def __init__(self):
+        super().__init__(v3_mod_files, v3_files_path)
+        self.get_data("common\\scripted_guis")
+
+
 Victoria3Object = Union[
     GameObjectBase,
     AiStrategy,
@@ -564,6 +587,7 @@ Victoria3Object = Union[
     CountryType,
     Culture,
     CultureGraphics,
+    CustomLoc,
     Decree,
     DiplomaticAction,
     DiplomaticPlay,
@@ -592,6 +616,7 @@ Victoria3Object = Union[
     ProposalType,
     Religion,
     ScriptedEffect,
+    ScriptedGui,
     ScriptedModifier,
     ScriptedTrigger,
     ScriptValue,

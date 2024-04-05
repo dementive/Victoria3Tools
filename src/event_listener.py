@@ -58,7 +58,7 @@ class VictoriaEventListener(
         syntax_changes = check_for_syntax_changes()
         changed_objects_set = check_mod_for_changes(self.v3_mod_files)
 
-        if len(load_game_objects_json()) == 0:
+        if len(load_game_objects_json()) != len(self.game_objects):
             # Create new objects
             if script_enabled:
                 sublime.set_timeout_async(lambda: self.create_all_game_objects(), 0)
@@ -175,6 +175,8 @@ class VictoriaEventListener(
             self.game_objects["mobilization_options"] = MobilizationOption()
             self.game_objects["proposal_types"] = ProposalType()
             self.game_objects["igs"] = InterestGroup()
+            self.game_objects["scripted_gui"] = ScriptedGui()
+            self.game_objects["custom_loc"] = CustomLoc()
 
         thread1 = threading.Thread(target=load_first)
         thread2 = threading.Thread(target=load_second)
@@ -249,7 +251,7 @@ class VictoriaEventListener(
                 setattr(self, field, True)
                 views.remove(vid)
 
-    def create_completion_list(self, flag_name: str, completion_kind: str):
+    def create_completion_list(self, flag_name: str, completion_kind):
         if not getattr(self, flag_name, False):
             return None
 
@@ -298,13 +300,19 @@ class VictoriaEventListener(
         if not self.settings.get("EnableVictoriaScriptingFeatures"):
             return
 
-        fname = get_file_name(view)
+        if syntax_name == "Victoria Localization" or syntax_name == "Jomini Gui":
+            for flag, completion in self.GameData.data_system_completion_flag_pairs:
+                completion_list = self.create_completion_list(flag, completion)
+                if completion_list is not None:
+                    return completion_list
+            return  # Don't need to check anything else for data system
 
         for flag, completion in self.GameData.completion_flag_pairs:
             completion_list = self.create_completion_list(flag, completion)
             if completion_list is not None:
                 return completion_list
 
+        fname = get_file_name(view)
         # Special completions
         if "script_values" in fname or "scripted_modifiers" in fname:
             e_list = []
@@ -428,8 +436,18 @@ class VictoriaEventListener(
         self.simple_scope_match(view)
         # Only do when there is 1 selection, doens't make sense with multiple selections
         if len(view.sel()) == 1:
-            self.check_for_simple_completions(view, view.sel()[0].a)
-            self.check_complex_completions(view, view.sel()[0].a)
+            point = view.sel()[0].a
+            if (
+                syntax_name == "Victoria Localization" or syntax_name == "Jomini Gui"
+            ) and view.substr(point) == "'":
+                for i in self.GameData.data_system_completion_functions:
+                    function_start = point - len(i[1] + "('")
+                    if view.substr(view.word(function_start)) == i[1]:
+                        setattr(self, i[0], True)
+                        view.run_command("auto_complete")
+                        return
+            self.check_for_simple_completions(view, point)
+            self.check_complex_completions(view, point)
 
     def on_post_save_async(self, view):
         if view is None:
@@ -482,6 +500,13 @@ class VictoriaEventListener(
                     0,
                 )
 
+        # Do everything that requires fetching GameObjects in non-blocking thread
+        sublime.set_timeout_async(lambda: self.do_hover_async(view, point), 0)
+
+        if syntax_name != "Victoria Script":
+            # For yml only the saved scopes/variables/game objects get hover
+            return
+
         if syntax_name == "Victoria Script" and self.settings.get(
             "EnableVictoriaScriptingFeatures"
         ):
@@ -515,9 +540,6 @@ class VictoriaEventListener(
                         self.settings,
                     )
 
-                # Do everything that requires fetching GameObjects in non-blocking thread
-                sublime.set_timeout_async(lambda: self.do_hover_async(view, point), 0)
-
         if self.settings.get("TextureOpenPopup") != True:
             return
 
@@ -541,7 +563,7 @@ class VictoriaEventListener(
                 raw_region = sublime.Region(raw_start.a + 10, raw_end.b)
                 raw_path = view.substr(raw_region).replace('"', "")
                 full_texture_path = os.path.join(
-                    self.v3_files_path, "/gfx/coat_of_arms/patterns/", raw_path
+                    self.v3_files_path, "/gfx/coat_of_arms/patterns/", raw_path  # type: ignore
                 )
 
                 full_texture_path = full_texture_path
@@ -635,7 +657,6 @@ class VictoriaEventListener(
             self.show_gui_popup(
                 view,
                 point,
-                word,
                 self.game_objects["gui_templates"].access(word),
                 "Gui Template",
             )
@@ -644,7 +665,6 @@ class VictoriaEventListener(
             self.show_gui_popup(
                 view,
                 point,
-                word,
                 self.game_objects["gui_types"].access(word),
                 "Gui Type",
             )
@@ -784,9 +804,10 @@ class VictoriaEventListener(
             hover_objects = [
                 (manager.battle_conditions.name, "Battle Condition"),
                 (manager.buildings.name, "Building"),
-                (manager.combat_unit_group.name, "Combat Unit_Group"),
+                (manager.combat_unit_group.name, "Combat Unit Group"),
                 (manager.combat_unit_type.name, "Combat Unit Type"),
                 (manager.cultures.name, "Culture"),
+                (manager.custom_loc.name, "Customizable Localization"),
                 (manager.decrees.name, "Decree"),
                 (manager.diplo_actions.name, "Diplo_Action"),
                 (manager.diplo_plays.name, "Diplo Play"),
@@ -796,6 +817,7 @@ class VictoriaEventListener(
                 (manager.igs.name, "Interest Group"),
                 (manager.law_groups.name, "Law Group"),
                 (manager.laws.name, "Law"),
+                (manager.scripted_gui.name, "Scripted Gui"),
                 (manager.pop_types.name, "Pop Type"),
                 (manager.religions.name, "Religion"),
                 (manager.mods.name, "Modifier"),
