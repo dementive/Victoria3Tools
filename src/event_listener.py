@@ -62,10 +62,13 @@ class VictoriaEventListener(
             # Create new objects
             if script_enabled:
                 sublime.set_timeout_async(lambda: self.create_all_game_objects(), 0)
+                sublime.active_window().run_command("vic_run_tiger")
             else:
                 sublime.set_timeout_async(lambda: self.load_gui_objects(), 0)
         elif changed_objects_set:
             self.load_changed_objects(changed_objects_set)
+            if script_enabled:
+                sublime.active_window().run_command("vic_run_tiger")
         elif not script_enabled:
             self.game_objects = get_gui_objects_from_cache()
         else:
