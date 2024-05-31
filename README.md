@@ -108,7 +108,7 @@ I am currently using [ruff](https://github.com/astral-sh/ruff) for linting and f
 
 To setup the pre-commit hooks you'll first need to (install pre-commit)[https://pre-commit.com/#install] then run `pre-commit install`. You can use `pre-commit run --all-files` to make sure ruff is being run.
 
-For more information on contributing see [[Contributing.md]]
+For more information on contributing see [Contributing.md](https://github.com/dementive/Victoria3Tools/blob/main/Contributing.md)
 
 
 ## License
