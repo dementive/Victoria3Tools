@@ -37,6 +37,7 @@ from .utils import (
     get_game_object_to_class_dict,
     get_syntax_name,
     is_file_in_directory,
+    open_path,
 )
 from .v3_objects import *
 
@@ -371,7 +372,7 @@ class VictoriaEventListener(
         if (
             self.effect_field
             or "scripted_effects" in fname
-            or "common/history" in fname
+            or f"common{os.sep}history" in fname
         ):
             return sublime.CompletionList(
                 [
@@ -554,8 +555,7 @@ class VictoriaEventListener(
 
         if (
             syntax_name == "Victoria Script"
-            and "common/coat_of_arms" in get_file_name(view)
-            or "common\\coat_of_arms" in get_file_name(view)
+            and f"common{os.sep}coat_of_arms" in get_file_name(view)
         ):
             if "pattern" in linestr:
                 raw_start = view.find("pattern", posLine.a)
@@ -568,7 +568,7 @@ class VictoriaEventListener(
                 raw_path = view.substr(raw_region).replace('"', "")
                 full_texture_path = os.path.join(
                     self.v3_files_path,
-                    "/gfx/coat_of_arms/patterns/",
+                    f"{os.sep}gfx{os.sep}coat_of_arms{os.sep}patterns{os.sep}",
                     raw_path,  # type: ignore
                 )
 
@@ -589,12 +589,14 @@ class VictoriaEventListener(
                 raw_region = sublime.Region(raw_start.a + 10, raw_end.b)
                 raw_path = view.substr(raw_region).replace('"', "")
                 full_texture_path = os.path.join(
-                    self.v3_files_path, "/gfx/coat_of_arms/colored_emblems/", raw_path
+                    self.v3_files_path,
+                    f"{os.sep}gfx{os.sep}coat_of_arms{os.sep}colored_emblems{os.sep}",
+                    raw_path,
                 )
                 if not os.path.exists(full_texture_path):
                     full_texture_path = os.path.join(
                         self.v3_files_path,
-                        "/gfx/coat_of_arms/textured_emblems/",
+                        f"{os.sep}gfx{os.sep}coat_of_arms{os.sep}textured_emblems{os.sep}",
                         raw_path,
                     )
                 if raw_region.contains(point) and os.path.exists(full_texture_path):
@@ -659,19 +661,19 @@ class VictoriaEventListener(
         if view.match_selector(point, "comment.line"):
             return
 
-        if self.game_objects["gui_templates"].contains(word):
+        if gtemplate := self.game_objects["gui_templates"].access(word):
             self.show_gui_popup(
                 view,
                 point,
-                self.game_objects["gui_templates"].access(word),
+                gtemplate,
                 "Gui Template",
             )
 
-        if self.game_objects["gui_types"].contains(word):
+        if gtype := self.game_objects["gui_types"].access(word):
             self.show_gui_popup(
                 view,
                 point,
-                self.game_objects["gui_types"].access(word),
+                gtype,
                 "Gui Type",
             )
 
@@ -858,14 +860,14 @@ class BrowseBinkVideosCommand(sublime_plugin.TextCommand):
             return VideoInputHandler()
 
     def on_done(self, video, play=False):
-        video = "gfx/event_pictures/" + video
+        video = f"gfx{os.sep}event_pictures{os.sep}" + video
         settings = sublime.load_settings("Victoria Syntax.sublime-settings")
         v3_files_path = settings.get("Victoria3FilesPath")
-        video_path = v3_files_path + "/" + video
+        video_path = v3_files_path + os.sep + video
         if not os.path.exists(video_path):
             # Check mod paths if it's not vanilla
             for mod in v3_mod_files:
-                mod_path = mod + "/" + video
+                mod_path = mod + os.sep + video
                 if os.path.exists(mod_path):
                     video_path = mod_path
 
@@ -880,5 +882,5 @@ class VideoInputHandler(sublime_plugin.ListInputHandler):
         keys = []
         game_data = GameData()
         for x in game_data.EventVideos:
-            keys.append(x.replace("gfx/event_pictures/", ""))
+            keys.append(x.replace(f"gfx{os.sep}event_pictures{os.sep}", ""))
         return keys

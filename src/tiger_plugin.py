@@ -307,10 +307,10 @@ class VicShowTigerOutputCommand(sublime_plugin.WindowCommand):
 
     def annotation_callback(self, string):
         string = string.replace("\n", "").split(":")
-        path = self.settings.get("Vic3TigerModPath") + "\\" + string[0]
+        path = self.settings.get("Vic3TigerModPath") + os.sep + string[0]
 
         if not os.path.exists(path):
-            path = self.v3_files_path + "\\" + string[0]
+            path = self.v3_files_path + os.sep + string[0]
 
         if os.path.exists(path):
             file_path = "{}:{}:{}".format(path, string[1], string[2])

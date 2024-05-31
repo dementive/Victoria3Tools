@@ -4,13 +4,11 @@ Commands for opening and viewing textures in sublime or another program
 
 import os
 import struct
-import subprocess
-import sys
 
 import sublime
 import sublime_plugin
 
-from .utils import get_syntax_name
+from .utils import get_syntax_name, open_path
 
 
 class OpenVictoriaTextureCommand(sublime_plugin.WindowCommand):
@@ -19,10 +17,10 @@ class OpenVictoriaTextureCommand(sublime_plugin.WindowCommand):
             path = path.replace("\\", "/")
             end = path.rfind("/")
             path = path[0:end:]
-            OpenVictoriaTextureCommand.open_path(path)
+            open_path(path)
         else:
             if mode == "default_program":
-                OpenVictoriaTextureCommand.open_path(path)
+                open_path(path)
             elif mode == "in_sublime":
                 simple_path = (
                     path.replace("\\", "/")
@@ -54,16 +52,6 @@ class OpenVictoriaTextureCommand(sublime_plugin.WindowCommand):
                 else:
                     # File is already in cache, don't need to convert
                     sublime.active_window().open_file(output_file)
-
-    @staticmethod
-    def open_path(path):
-        system = sys.platform
-        if system == "Darwin":  # macOS
-            subprocess.call(("open", path))
-        elif system == "Windows" or system == "win32" or system == "win":  # Windows
-            os.startfile(path)
-        else:  # Linux and other Unix-like systems
-            subprocess.call(("xdg-open", path))
 
 
 class V3ClearImageCacheCommand(sublime_plugin.WindowCommand):

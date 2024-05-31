@@ -1,3 +1,4 @@
+import os
 from typing import Set
 
 from .v3_objects import *
@@ -13,129 +14,153 @@ class GameObjectData:
 class GameObjectManager:
     def __init__(self):
         self.ai_strats = GameObjectData(
-            "ai_strats", AiStrategy, "common\\ai_strategies"
+            "ai_strats", AiStrategy, f"common{os.sep}ai_strategies"
         )
         self.battle_conditions = GameObjectData(
-            "battle_conditions", BattleCondition, "common\\battle_conditions"
+            "battle_conditions", BattleCondition, f"common{os.sep}battle_conditions"
         )
-        self.bgs = GameObjectData("bgs", BuildingGroup, "common\\building_groups")
-        self.buildings = GameObjectData("buildings", Building, "common\\buildings")
+        self.bgs = GameObjectData(
+            "bgs", BuildingGroup, f"common{os.sep}building_groups"
+        )
+        self.buildings = GameObjectData(
+            "buildings", Building, f"common{os.sep}buildings"
+        )
         self.char_traits = GameObjectData(
-            "char_traits", CharacterTrait, "common\\character_traits"
+            "char_traits", CharacterTrait, f"common{os.sep}character_traits"
         )
         self.combat_unit_group = GameObjectData(
-            "combat_unit_group", CombatUnitGroup, "common\\combat_unit_groups"
+            "combat_unit_group", CombatUnitGroup, f"common{os.sep}combat_unit_groups"
         )
         self.combat_unit_type = GameObjectData(
-            "combat_unit_type", CombatUnitType, "common\\combat_unit_types"
+            "combat_unit_type", CombatUnitType, f"common{os.sep}combat_unit_types"
         )
         self.commander_orders = GameObjectData(
-            "commander_orders", CommanderOrder, "common\\commander_orders"
+            "commander_orders", CommanderOrder, f"common{os.sep}commander_orders"
         )
         self.commander_ranks = GameObjectData(
-            "commander_ranks", CommanderRank, "common\\commander_ranks"
+            "commander_ranks", CommanderRank, f"common{os.sep}commander_ranks"
         )
         self.companies = GameObjectData(
-            "companies", CompanyType, "common\\company_types"
+            "companies", CompanyType, f"common{os.sep}company_types"
         )
         self.countries = GameObjectData(
-            "countries", Country, "common\\country_definitions"
+            "countries", Country, f"common{os.sep}country_definitions"
         )
         self.country_ranks = GameObjectData(
-            "country_ranks", CountryRank, "common\\country_ranks"
+            "country_ranks", CountryRank, f"common{os.sep}country_ranks"
         )
         self.country_types = GameObjectData(
-            "country_types", CountryType, "common\\country_types"
+            "country_types", CountryType, f"common{os.sep}country_types"
         )
         self.culture_graphics = GameObjectData(
-            "culture_graphics", CultureGraphics, "common\\culture_graphics"
+            "culture_graphics", CultureGraphics, f"common{os.sep}culture_graphics"
         )
-        self.cultures = GameObjectData("cultures", Culture, "common\\cultures")
+        self.cultures = GameObjectData("cultures", Culture, f"common{os.sep}cultures")
         self.custom_loc = GameObjectData(
-            "custom_loc", CustomLoc, "common\\customizable_localization"
+            "custom_loc", CustomLoc, f"common{os.sep}customizable_localization"
         )
-        self.decrees = GameObjectData("decrees", Decree, "common\\decrees")
+        self.decrees = GameObjectData("decrees", Decree, f"common{os.sep}decrees")
         self.diplo_actions = GameObjectData(
-            "diplo_actions", DiplomaticAction, "common\\diplomatic_actions"
+            "diplo_actions", DiplomaticAction, f"common{os.sep}diplomatic_actions"
         )
         self.diplo_plays = GameObjectData(
-            "diplo_plays", DiplomaticPlay, "common\\diplomatic_plays"
+            "diplo_plays", DiplomaticPlay, f"common{os.sep}diplomatic_plays"
         )
         self.discrimination_traits = GameObjectData(
             "discrimination_traits",
             DiscriminationTrait,
-            "common\\discrimination_traits",
+            f"common{os.sep}discrimination_traits",
         )
-        self.game_rules = GameObjectData("game_rules", GameRules, "common\\game_rules")
-        self.goods = GameObjectData("goods", Goods, "common\\goods")
+        self.game_rules = GameObjectData(
+            "game_rules", GameRules, f"common{os.sep}game_rules"
+        )
+        self.goods = GameObjectData("goods", Goods, f"common{os.sep}goods")
         self.gov_types = GameObjectData(
-            "gov_types", GovernmentType, "common\\government_types"
+            "gov_types", GovernmentType, f"common{os.sep}government_types"
         )
         self.gui_templates = GameObjectData("gui_templates", GuiTemplate, "gui")
         self.gui_types = GameObjectData("gui_types", GuiType, "gui")
-        self.ideologies = GameObjectData("ideologies", Ideology, "common\\ideologies")
+        self.ideologies = GameObjectData(
+            "ideologies", Ideology, f"common{os.sep}ideologies"
+        )
         self.ig_traits = GameObjectData(
-            "ig_traits", InterestGroupTrait, "common\\interest_group_traits"
+            "ig_traits", InterestGroupTrait, f"common{os.sep}interest_group_traits"
         )
-        self.igs = GameObjectData("igs", InterestGroup, "common\\interest_groups")
+        self.igs = GameObjectData(
+            "igs", InterestGroup, f"common{os.sep}interest_groups"
+        )
         self.institutions = GameObjectData(
-            "institutions", Institutions, "common\\institutions"
+            "institutions", Institutions, f"common{os.sep}institutions"
         )
-        self.jes = GameObjectData("jes", JournalEntry, "common\\journal_entries")
-        self.law_groups = GameObjectData("law_groups", LawGroup, "common\\law_groups")
-        self.laws = GameObjectData("laws", Law, "common\\laws")
+        self.jes = GameObjectData("jes", JournalEntry, f"common{os.sep}journal_entries")
+        self.law_groups = GameObjectData(
+            "law_groups", LawGroup, f"common{os.sep}law_groups"
+        )
+        self.laws = GameObjectData("laws", Law, f"common{os.sep}laws")
         self.mobilization_options = GameObjectData(
-            "mobilization_options", MobilizationOption, "common\\mobilization_options"
+            "mobilization_options",
+            MobilizationOption,
+            f"common{os.sep}mobilization_options",
         )
         self.modifier_types = GameObjectData(
-            "modifier_types", ModifierType, "common\\modifier_types"
+            "modifier_types", ModifierType, f"common{os.sep}modifier_types"
         )
-        self.mods = GameObjectData("mods", Modifier, "common\\modifiers")
+        self.mods = GameObjectData("mods", Modifier, f"common{os.sep}modifiers")
         self.named_colors = GameObjectData(
-            "named_colors", NamedColor, "common\\named_colors"
+            "named_colors", NamedColor, f"common{os.sep}named_colors"
         )
-        self.parties = GameObjectData("parties", Party, "common\\parties")
+        self.parties = GameObjectData("parties", Party, f"common{os.sep}parties")
         self.pm_groups = GameObjectData(
-            "pm_groups", ProductionMethodGroup, "common\\production_method_groups"
+            "pm_groups",
+            ProductionMethodGroup,
+            f"common{os.sep}production_method_groups",
         )
-        self.pms = GameObjectData("pms", ProductionMethod, "common\\production_methods")
-        self.pop_needs = GameObjectData("pop_needs", PopNeed, "common\\pop_needs")
-        self.pop_types = GameObjectData("pop_types", PopType, "common\\pop_types")
+        self.pms = GameObjectData(
+            "pms", ProductionMethod, f"common{os.sep}production_methods"
+        )
+        self.pop_needs = GameObjectData(
+            "pop_needs", PopNeed, f"common{os.sep}pop_needs"
+        )
+        self.pop_types = GameObjectData(
+            "pop_types", PopType, f"common{os.sep}pop_types"
+        )
         self.proposal_types = GameObjectData(
-            "proposal_types", ProposalType, "common\\proposal_types"
+            "proposal_types", ProposalType, f"common{os.sep}proposal_types"
         )
-        self.religions = GameObjectData("religions", Religion, "common\\religions")
+        self.religions = GameObjectData(
+            "religions", Religion, f"common{os.sep}religions"
+        )
         self.script_values = GameObjectData(
-            "script_values", ScriptValue, "common\\script_values"
+            "script_values", ScriptValue, f"common{os.sep}script_values"
         )
         self.scripted_effects = GameObjectData(
-            "scripted_effects", ScriptedEffect, "common\\scripted_effects"
+            "scripted_effects", ScriptedEffect, f"common{os.sep}scripted_effects"
         )
         self.scripted_gui = GameObjectData(
-            "scripted_gui", ScriptedGui, "common\\scripted_guis"
+            "scripted_gui", ScriptedGui, f"common{os.sep}scripted_guis"
         )
         self.scripted_modifiers = GameObjectData(
-            "scripted_modifiers", ScriptedModifier, "common\\scripted_modifiers"
+            "scripted_modifiers", ScriptedModifier, f"common{os.sep}scripted_modifiers"
         )
         self.scripted_triggers = GameObjectData(
-            "scripted_triggers", ScriptedTrigger, "common\\scripted_triggers"
+            "scripted_triggers", ScriptedTrigger, f"common{os.sep}scripted_triggers"
         )
         self.state_regions = GameObjectData(
-            "state_regions", StateRegion, "map_data\\state_regions"
+            "state_regions", StateRegion, f"map_data{os.sep}state_regions"
         )
         self.state_traits = GameObjectData(
-            "state_traits", StateTrait, "common\\state_traits"
+            "state_traits", StateTrait, f"common{os.sep}state_traits"
         )
         self.strategic_regions = GameObjectData(
-            "strategic_regions", StrategicRegion, "common\\strategic_regions"
+            "strategic_regions", StrategicRegion, f"common{os.sep}strategic_regions"
         )
         self.subject_types = GameObjectData(
-            "subject_types", SubjectType, "common\\subject_types"
+            "subject_types", SubjectType, f"common{os.sep}subject_types"
         )
         self.technologies = GameObjectData(
-            "technologies", Technology, "common\\technology"
+            "technologies", Technology, f"common{os.sep}technology"
         )
-        self.terrains = GameObjectData("terrains", Terrain, "common\\terrain")
+        self.terrains = GameObjectData("terrains", Terrain, f"common{os.sep}terrain")
 
     def __iter__(self):
         for attr in self.__dict__:
