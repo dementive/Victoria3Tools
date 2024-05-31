@@ -366,7 +366,7 @@ class GameObjectBase:
         if (
             "= {" in y
             and z.count("\t") + z.count("    ") == self.level
-            and not z.strip() in self.exclusion_keys
+            and z.strip() not in self.exclusion_keys
         ):
             return True
         w = y.find("=")

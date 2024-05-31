@@ -98,9 +98,9 @@ class Hover:
                 )
 
         if item == "template" or item == "using":
-            template_example = f'<div class="box-for-codebox"><div class="codebox code">template example_name {{<br>&nbsp;&nbsp;&nbsp;&nbsp;size = {{ 50 50 }}<br>}}<br></div></div>'
+            template_example = '<div class="box-for-codebox"><div class="codebox code">template example_name {<br>&nbsp;&nbsp;&nbsp;&nbsp;size = { 50 50 }<br>}<br></div></div>'
             template_example = template_example.replace(
-                "template", f'<code class="purple-text">template</code>'
+                "template", '<code class="purple-text">template</code>'
             )
             template_example_text = (
                 '<p class="code-header">Example template definition:</p>'
@@ -108,7 +108,7 @@ class Hover:
             template_example_text2 = (
                 '<br><br><br><p class="code-header">Example template usage:</p>'
             )
-            example = example.replace("using", f'<code class="green-text">using</code>')
+            example = example.replace("using", '<code class="green-text">using</code>')
             example = (
                 template_example_text
                 + template_example
@@ -117,26 +117,24 @@ class Hover:
             )
 
         if item == "block" or item == "blockoverride":
-            block_example = f'<div class="box-for-codebox"><div class="codebox code">block "example_name" {{<br>&nbsp;&nbsp;&nbsp;&nbsp;visible = no<br>}}<br></div></div>'
+            block_example = '<div class="box-for-codebox"><div class="codebox code">block "example_name" {<br>&nbsp;&nbsp;&nbsp;&nbsp;visible = no<br>}<br></div></div>'
             block_example = block_example.replace(
-                "block", f'<code class="red-text">block</code>'
+                "block", '<code class="red-text">block</code>'
             )
             block_example_text = '<p class="code-header">Example block definition:</p>'
             block_example_text2 = (
                 '<br><br><br><p class="code-header">Example blockoverride:</p>'
             )
-            example = f'<div class="box-for-codebox"><div class="codebox code">blockoverride "example_name" {{<br>&nbsp;&nbsp;&nbsp;&nbsp;visible = yes<br>}}<br></div></div>'
+            example = '<div class="box-for-codebox"><div class="codebox code">blockoverride "example_name" {<br>&nbsp;&nbsp;&nbsp;&nbsp;visible = yes<br>}<br></div></div>'
             example = example.replace(
-                "blockoverride", f'<code class="red-text">blockoverride</code>'
+                "blockoverride", '<code class="red-text">blockoverride</code>'
             )
             example = block_example_text + block_example + block_example_text2 + example
 
         if item == "type" or item == "types":
-            example = f'<div class="box-for-codebox"><div class="codebox code">types My_Types<br>{{<br>&nbsp;&nbsp;&nbsp;&nbsp;type widget_with_size = widget {{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;size = {{ 50 50 }}<br>&nbsp;&nbsp;&nbsp;&nbsp;}}<br>}}<br></div></div>'
-            example = example.replace(
-                "types", f'<code class="purple-text">types</code>'
-            )
-            example = example.replace("type", f'<code class="purple-text">type</code>')
+            example = '<div class="box-for-codebox"><div class="codebox code">types My_Types<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;type widget_with_size = widget {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;size = { 50 50 }<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}<br></div></div>'
+            example = example.replace("types", '<code class="purple-text">types</code>')
+            example = example.replace("type", '<code class="purple-text">type</code>')
             type_example_text = '<p class="code-header">Example type definition:</p>'
             example = type_example_text + example
 
@@ -562,7 +560,8 @@ class Hover:
         in_sublime_args = {"path": full_texture_path, "mode": "in_sublime"}
         inline_args = {"path": full_texture_path, "point": point}
         open_in_sublime_url = sublime.command_url(
-            "open_victoria_texture ", in_sublime_args  # type: ignore
+            "open_victoria_texture ",
+            in_sublime_args,  # type: ignore
         )
         open_inline_url = sublime.command_url("v3_show_texture ", inline_args)
         hover_body = """

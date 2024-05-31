@@ -212,13 +212,13 @@ def write_extra(file):
         "\n    # --------------------------------\n    # -     Manually Added Terms     -\n    # --------------------------------\n\n"
     )
     file.write(
-        f"    # Essential Scipt Functions\n    - match: \\b(texture|icon)\\b\n      scope: constant.numeric\n"
+        "    # Essential Scipt Functions\n    - match: \\b(texture|icon)\\b\n      scope: constant.numeric\n"
     )
     file.write(
-        f"    # Math/Sound\n    - match: \\b(add)\\b\n      scope: variable.language\n"
+        "    # Math/Sound\n    - match: \\b(add)\\b\n      scope: variable.language\n"
     )
     file.write(
-        f"    # Gui Defaults\n    - match: \\b(textbox)\\b\n      scope: keyword.onaction\n"
+        "    # Gui Defaults\n    - match: \\b(textbox)\\b\n      scope: keyword.onaction\n"
     )
 
 

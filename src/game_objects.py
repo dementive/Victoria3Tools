@@ -25,11 +25,11 @@ def check_mod_for_changes(v3_mod_files: List[Any], write_syntax=False) -> Set[st
     Check if any changes have been made to mod files
     if changes have been made this returns a set of game objects that need to be recreated and cached
     """
-    object_cache_path = sublime.packages_path() + f"/Victoria3Tools/object_cache.json"
+    object_cache_path = sublime.packages_path() + "/Victoria3Tools/object_cache.json"
     if os.stat(object_cache_path).st_size < 200:
         # If there are no objects in the cache, they all need to be created
         return set(get_dir_to_game_object_dict().values())
-    mod_cache_path = sublime.packages_path() + f"/Victoria3Tools/mod_cache.json"
+    mod_cache_path = sublime.packages_path() + "/Victoria3Tools/mod_cache.json"
     with open(mod_cache_path, "r", encoding="utf-8") as file:
         data = json.load(file)
 
@@ -91,7 +91,7 @@ def compare_dicts(dict1: Dict, dict2: Dict):
 
 
 def check_for_syntax_changes() -> bool:
-    mod_cache_path = sublime.packages_path() + f"/Victoria3Tools/mod_cache.json"
+    mod_cache_path = sublime.packages_path() + "/Victoria3Tools/mod_cache.json"
     with open(mod_cache_path, "r", encoding="utf-8") as file:
         data = json.load(file)
     if len(data) > 1:
@@ -100,7 +100,7 @@ def check_for_syntax_changes() -> bool:
 
 
 def load_game_objects_json():
-    path = sublime.packages_path() + f"/Victoria3Tools/object_cache.json"
+    path = sublime.packages_path() + "/Victoria3Tools/object_cache.json"
     with open(path, "r") as f:
         data = json.load(f)
     return data
@@ -108,7 +108,7 @@ def load_game_objects_json():
 
 def cache_all_objects(game_objects: Dict[str, Victoria3Object]):
     # Write all generated objects to cache
-    path = sublime.packages_path() + f"/Victoria3Tools/object_cache.json"
+    path = sublime.packages_path() + "/Victoria3Tools/object_cache.json"
     objects = dict()
     for i in game_objects:
         objects[i] = game_objects[i].to_json()
@@ -117,7 +117,7 @@ def cache_all_objects(game_objects: Dict[str, Victoria3Object]):
 
 
 def get_gui_objects_from_cache() -> Dict[str, Victoria3Object]:
-    path = sublime.packages_path() + f"/Victoria3Tools/object_cache.json"
+    path = sublime.packages_path() + "/Victoria3Tools/object_cache.json"
     game_objects = get_default_game_objects()
     with open(path, "r") as f:
         data = json.load(f)
@@ -129,7 +129,7 @@ def get_gui_objects_from_cache() -> Dict[str, Victoria3Object]:
 
 
 def get_objects_from_cache() -> Dict[str, Victoria3Object]:
-    path = sublime.packages_path() + f"/Victoria3Tools/object_cache.json"
+    path = sublime.packages_path() + "/Victoria3Tools/object_cache.json"
     game_objects = get_default_game_objects()
     with open(path, "r") as f:
         data = json.load(f)
@@ -156,7 +156,10 @@ def add_color_scheme_scopes():
     prefs = sublime.load_settings("Preferences.sublime-settings")
     cs = prefs.get("color_scheme", DEFAULT_CS)
     scheme_cache_path = os.path.join(
-        sublime.packages_path(), "User", "PdxTools", cs  # type: ignore
+        sublime.packages_path(),
+        "User",
+        "PdxTools",
+        cs,  # type: ignore
     ).replace("tmTheme", "sublime-color-scheme")
     if not os.path.exists(scheme_cache_path):
         os.makedirs(os.path.dirname(scheme_cache_path), exist_ok=True)

@@ -7,82 +7,6 @@ import sublime
 
 from .game_object_manager import GameObjectManager
 
-# Exclusion keys to not read when looking for top level keys
-exclusion_keys = {
-    "#",
-    "@",
-    "modifier",
-    "character_modifier",
-    "if",
-    "else",
-    "elseif",
-    "else_if",
-    "\n",
-    "can_have",
-    "can_keep",
-    "can_pass",
-    "on_pass",
-    "on_revoke",
-    "should_start_with",
-    "graphical_cultures",
-    "pass_cost",
-    "desc",
-    "compatibility",
-    "name",
-    "opposites",
-    "triggered_opinion",
-    "icon",
-    "random_list",
-    "limit",
-    "random",
-    "potential",
-    "abort",
-    "chance",
-    "on_potential",
-    "on_start",
-    "on_abort",
-    "on_completion",
-    "requires",
-    "highlight",
-    "allow",
-    "bypass",
-    "ai_chance",
-    "trigger",
-    "family",
-    "male_names",
-    "female_names",
-    "stability",
-    "raise_legion",
-    "alternative_limit",
-    "hidden_effect",
-    "OR",
-    "or",
-    "prevented_by",
-    "trigger_event",
-    "current_ruler",
-    "value",
-}
-
-
-def should_read(x, level=0):
-    # Check if a line should be read
-    y = x.split("#")[0]
-    z = y.split("=")[0]
-    return_bool = False
-    if (
-        "= {" in y
-        and z.count("\t") + z.count("    ") == level
-        and not z.strip() in exclusion_keys
-    ):
-        return_bool = True
-    w = y.find("=")
-    if w != -1:
-        w = y[0:w].rstrip()
-        if "\t" not in w and " " not in w:
-            return_bool = True
-
-    return return_bool
-
 
 def get_game_data():
     # Get game data for static lists
@@ -100,8 +24,6 @@ def get_game_data():
             if x:
                 event_sounds.add(x.group().replace('"', ""))
         return event_sounds
-
-    lamb = lambda x: should_read(x)
 
     event_sounds = set()
     EventVideos = list()
@@ -2559,7 +2481,6 @@ class GameData:
             "global_gdp": "Get the global yearly predicted GDP<br>Output Scopes: value",
             "global_var": "Reference a previous set global variable via its name eg: global_var:important_thing<br>Requires Data: yes<br>Global Link: yes",
             "i": "Scope to ideology specified by key<br>Requires Data: yes<br>Global Link: yes<br>Output Scopes: ideology",
-            "ideology": "Scope to a ideology from its name (ideology:ideology_anarchist)<br>Requires Data: yes<br>Output Scopes: ideology",
             "ig_trait": "Scope to the Interest Group trait with specified key<br>Requires Data: yes<br>Global Link: yes<br>Output Scopes: interest_group_trait",
             "ig_type": "Scope to an interest group type<br>Requires Data: yes<br>Global Link: yes<br>Output Scopes: interest_group_type",
             "infamy_threshold": "Scope to infamy level threshold for comparison purposes (infamy_threshold:infamous)<br>Requires Data: yes<br>Output Scopes: value",
@@ -2654,7 +2575,6 @@ class GameData:
             "num_natural_interests": "Scope to the number of natural interests a country has (including inactive)<br>num_natural_interests &gt; 5<br>Input Scopes: country<br>Output Scopes: value",
             "num_obligations_earned": "Scope from a country to the number of obligations others owe them (=which they have earned)<br>Input Scopes: country<br>Output Scopes: value",
             "num_pending_events": "Scope to the number of pending events in scope country<br>num_pending_events &gt; 0<br>Input Scopes: country<br>Output Scopes: value",
-            "num_pending_events": "Scope to the number of pending events of given category in scope country<br>num_pending_events:enactment &gt; 0<br>Requires Data: yes<br>Input Scopes: country<br>Output Scopes: value",
             "num_politicians": "Scope to the country's number of politicians<br>Input Scopes: country<br>Output Scopes: value",
             "num_positive_relations": "Get the current number of countries with positive Relation with the scoped country<br>Input Scopes: country<br>Output Scopes: value",
             "num_queued_constructions": "Scope to the number of queued constructions target country has in total (example: num_queued_constructions >= 2)<br>Input Scopes: country<br>Output Scopes: value",

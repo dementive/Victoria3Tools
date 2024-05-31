@@ -12,9 +12,9 @@ class GotoScriptObjectDefinitionCommand(sublime_plugin.WindowCommand):
             file_path = "{}:{}:{}".format(path, line, 0)
             self.open_location(self.window, file_path)
 
-    def open_location(self, window, l):
+    def open_location(self, window, line):
         flags = sublime.ENCODED_POSITION | sublime.FORCE_GROUP
-        window.open_file(l, flags)
+        window.open_file(line, flags)
 
 
 class GotoScriptObjectDefinitionRightCommand(sublime_plugin.WindowCommand):

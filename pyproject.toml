@@ -1,15 +1,13 @@
-[tool.black]
+[tool.ruff]
+target-version = "py38"
 line-length =  88
-target-version = ['py38']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | blib2to3
-  | tests/data
-)/
-'''
+exclude = [
+    ".git",
+    ".ruff_cache",
+    "parse_docs.py"
+]
+include = ["pyproject.toml", "src/*.py",]
 
-[tool.isort]
-profile = "black"
-line_length = 88
+
+[tool.ruff.lint]
+ignore = ["E741", "E402", "F403", "F405"] # ignore ambigous import rules

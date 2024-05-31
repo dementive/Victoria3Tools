@@ -32,7 +32,7 @@ class Vic3TigerEventListener(sublime_plugin.EventListener):
         error_regions = list()
         warning_regions = list()
         tips_regions = list()
-        if type(file_errors) == list:
+        if isinstance(file_errors, list):
             for i in file_errors:
                 point = view.text_point(i["linenr"] - 1, i["column"] - 1)
                 length = i["length"] if i["length"] is not None else 0
@@ -77,7 +77,7 @@ class Vic3TigerEventListener(sublime_plugin.EventListener):
 
         file_errors = tiger_objects[path]
         file_error = ""
-        if type(file_errors) == list:
+        if isinstance(file_errors, list):
             for i in file_errors:
                 # We can deduce the current error being hovered over by knowing the Region of the row and column it is in
                 region_start = view.text_point(i["linenr"] - 1, i["column"] - 1)
@@ -143,7 +143,7 @@ class Vic3TigerEventListener(sublime_plugin.EventListener):
 # Tiger json object creation
 def get_tiger_objects():
     global tiger_objects
-    path = sublime.packages_path() + f"/Victoria3Tools/tiger.json"
+    path = sublime.packages_path() + "/Victoria3Tools/tiger.json"
     with open(path, "r", encoding="utf-8") as file:
         data = json.load(file)
 
@@ -164,7 +164,7 @@ def get_tiger_objects():
                         "column": j["column"],
                         "length": j["length"],
                     }
-                    if type(old_data) == list:
+                    if isinstance(old_data, list):
                         old_data.append(new_data)
                     else:
                         old_data = [old_data, new_data]
@@ -207,7 +207,7 @@ class VicTigerInputHandler(sublime_plugin.ListInputHandler):
 
 class VicShowTigerOutputCommand(sublime_plugin.WindowCommand):
     def run(self, view_type):
-        path = sublime.packages_path() + f"/Victoria3Tools/tiger.json"
+        path = sublime.packages_path() + "/Victoria3Tools/tiger.json"
         self.settings = sublime.load_settings("Victoria Syntax.sublime-settings")
         self.v3_files_path = self.settings.get("Victoria3FilesPath")
 
@@ -408,7 +408,7 @@ class VicExecuteTigerCommand(sublime_plugin.WindowCommand):
 
         if json_start_index != -1:
             tiger_json_output = text[json_start_index:]
-            output_file = sublime.packages_path() + f"/Victoria3Tools/tiger.json"
+            output_file = sublime.packages_path() + "/Victoria3Tools/tiger.json"
             with open(output_file, "w", encoding="utf-8") as f:
                 f.write(tiger_json_output)
             sublime.status_message("vic3-tiger.exe has finished running.")
@@ -427,13 +427,13 @@ class VicRunTigerCommand(sublime_plugin.WindowCommand):
 
         if not os.path.exists(tiger_exe_path):
             tiger_exe_path = (
-                sublime.packages_path() + f"/Victoria3Tools/Vic3Tiger/vic3-tiger.exe"
+                sublime.packages_path() + "/Victoria3Tools/Vic3Tiger/vic3-tiger.exe"
             )
         window = sublime.active_window()
 
         if not settings.get("Vic3TigerUseDefaultConfig"):
             conf_file = (
-                sublime.packages_path() + f"/Victoria3Tools/Vic3Tiger/vic3-tiger.conf"
+                sublime.packages_path() + "/Victoria3Tools/Vic3Tiger/vic3-tiger.conf"
             )
             cmd = [tiger_exe_path, mod_path, "--json", "--config", conf_file]
         else:
@@ -446,7 +446,7 @@ class VicRunTigerCommand(sublime_plugin.WindowCommand):
 class VicEditTigerConfigCommand(sublime_plugin.WindowCommand):
     def run(self):
         conf_file = (
-            sublime.packages_path() + f"/Victoria3Tools/Vic3Tiger/vic3-tiger.conf"
+            sublime.packages_path() + "/Victoria3Tools/Vic3Tiger/vic3-tiger.conf"
         )
         view = self.window.open_file(conf_file)
         view.assign_syntax("scope:source.ruby")
