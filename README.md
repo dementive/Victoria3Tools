@@ -85,3 +85,32 @@ For both .log file types select ```Victoria Logs``` as the default syntax.
 For both .asset file types select ```Victoria Asset``` as the default syntax.
 
 For both .shader and .fxh file types select ```PdxShader``` as the default syntax.
+
+
+## Contributing to Victoria3Tools
+
+All contributions are appreciated, whether they're bug fixes, feature additions, or improvements to documentation. Here's how you can contribute:
+
+#### Getting Started
+
+- Check Existing Issues: Before starting, please check our existing issues to see if someone has already reported the problem or suggested the feature you're interested in. If not, feel free to open a new issue.
+
+- Create a Fork: Fork the project on GitHub to start making your changes.
+
+- Open a Pull Request: Open a pull request against the main branch of the original repository. Include a detailed description of your changes and why they should be merged.
+
+#### Code Guidelines
+
+Victoria3Tools is written in python 3.8 and runs in the [Sublime Text 4 API environment](https://www.sublimetext.com/docs/api_environments.html), which means external dependencies cannot be used and some standard library modules are missing.
+
+I am currently using [ruff](https://github.com/astral-sh/ruff) for linting and formatting that I have setup to run on [pre-commit](https://pre-commit.com/) hooks as well as [pyright](https://github.com/microsoft/pyright) for type checking.
+
+
+To setup the pre-commit hooks you'll first need to (install pre-commit)[https://pre-commit.com/#install] then run `pre-commit install`. You can use `pre-commit run --all-files` to make sure ruff is being run.
+
+For more information on contributing see [[Contributing.md]]
+
+
+## License
+
+Victoria3Tools uses the MIT license.
