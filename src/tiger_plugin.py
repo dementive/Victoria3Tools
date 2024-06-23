@@ -75,7 +75,12 @@ class VicExecuteTigerCommand(JominiExecuteTigerCommand, sublime_plugin.WindowCom
 class RunTigerCommand(JominiRunTigerCommand, sublime_plugin.WindowCommand):
     def __init__(self, window):
         self.window = window
-        super().__init__(sublime.load_settings("Victoria.sublime-settings"))
+        super().__init__(
+            sublime.load_settings("Victoria.sublime-settings"),
+            "/Victoria3Tools/Vic3Tiger/vic3-tiger",
+            "vic3-tiger",
+            "vic_execute_tiger",
+        )
 
     def run(self):
         self._run()
