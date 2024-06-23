@@ -1,0 +1,80 @@
+{
+	// The path to the Victoria 3 Game files, update if it is not correct. (must use double \\)
+	// This is necessary for several features to work
+	"GameFilesPath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Victoria 3\\game",
+
+	// The path to your mods files. Should be a mod, not the mod folder (must use double \\)
+	// This is necessary for several features to work
+	// Note that this has to be a valid system path 
+	"PathsToModFiles":
+	[
+		//"C:\\Users\\ADDYOURUSERNAMEHERE\\Documents\\Paradox Interactive\\Victoria 3\\mod\\MOD1",
+		//"C:\\Users\\ADDYOURUSERNAMEHERE\\Documents\\Paradox Interactive\\Victoria 3\\mod\\MOD2"
+	],
+
+
+	// This is a path to the mod you want imperator-tiger to validate
+	"TigerModPath": "C:\\Users\\ADDYOURUSERNAMEHERE\\Documents\\Paradox Interactive\\Victoria 3\\mod\\MODNAME",
+
+	/*
+	Should the default imperator-tiger.conf file be used?
+	true = Use the .conf file located in the mod directory that is listed in the ImperatorTigerModPath setting.
+	If there is no imperator-tiger.conf file in the mod directory the default tiger config will be used instead.
+	false = Use the .conf file included with ImperatorTools.
+	setting to false also allows you to use a common .conf file for all of your mods.
+	if you set this to false you can use the "Edit imperator-tiger.conf" command to change the common .conf file the plugin uses.
+	*/
+	"TigerUseDefaultConfig": true,
+
+	// Should errors that imperator-tiger finds be shown in files when they are loaded?
+	"TigerShowErrorsInline": true,
+
+	// Full path to the imperator-tiger.exe
+	// You probably don't need to set this as the plugin comes with a tiger binary
+	// but if it is outdated or not working for some reason you can use a different one with this setting.
+	"TigerBinaryPath": "",
+
+	// Should the game objects the plugin is aware of be updated when you create new game objects in your mod?
+	// If this is set to false game objects will only be updated when sublime is first started.
+	"UpdateObjectsOnSave": true,
+
+	// Should the syntax highlighting be reloaded when a new game object is created?
+	// This will only have an effect if UpdateObjectsOnSave is true
+	// This is slow and can lag sublime a tiny bit when you save a new object but new objects are not created very often so it won't be too noticeable
+	"UpdateSyntaxOnNewObjectCreation": false,
+
+	// Should documentation show up on hover for .gui files?
+	"GuiDocsHoverEnabled": true,
+
+	// Should documentation show up on hover for script files?
+	// true = will show docs
+	// false = won't show docs
+	"DocsHoverEnabled": true,
+
+	// Should texture paths be rendered in the editor when a victoria 3 file is loaded?
+	"ShowInlineTexturesOnLoad": false,
+
+	// The max number of png images that can be in the cache before they are automatically cleared
+	"MaxImageCacheSize": 9999,
+
+	// Max number of textures to show when using the show_all_textures command
+	"MaxToggleTextures": 150,
+
+	// Should hovering over a gfx file show a popup that will allow the file to be opened?
+	// Will open the file in it's default program
+	"TextureOpenPopup": true,
+
+	// Should on save validation for script files be enabled?
+	"ScriptValidator": true,
+
+	// What style should the documentation popups use?
+	// dark = grey border with black background
+	// none = no css styling
+	// dynamic = will change the border color based on what is being hovered over, for example effects = red. 
+	"DocsPopupStyle": "dynamic",
+
+	// PDX SHADER SETTINGS
+
+	// Doc hover for PdxShader syntax
+	"IntrinsicHoverEnabled": true,
+}

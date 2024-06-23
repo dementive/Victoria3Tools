@@ -4,17 +4,19 @@
 
 Run the following script in the Sublime Text terminal ```(ctrl+` )``` which utilizes git clone for easy installation:
 ```
-import os; path=sublime.packages_path(); (os.makedirs(path) if not os.path.exists(path) else None); window.run_command('exec', {'cmd': ['git', 'clone', 'https://github.com/dementive/Victoria3Tools', 'Victoria3Tools'], 'working_dir': path})
+import os; path=sublime.packages_path(); (os.makedirs(path) if not os.path.exists(path) else None); window.run_command('exec', {'cmd': ['git', 'clone', 'https://github.com/dementive/JominiTools', 'JominiTools'], 'working_dir': path}); window.run_command('exec', {'cmd': ['git', 'clone', 'https://github.com/dementive/Victoria3Tools', 'Victoria3Tools'], 'working_dir': path})
 ```
-This will only work with git installed on your system.
+This script will automatically clone the JominiTools and ImperatorTools packages into your sublime text packages folder. It will only work with git installed on your system. If you do not have git you will have to [install it](https://git-scm.com/downloads) prior to running the script.
 
-Alternatively you can download the zip file from github and put the Victoria3Tools folder in the packages folder. This is not recommended because you will not receive updates unless you redownload it manually.
+Alternatively you can download the zip file from github and put the ImperatorTools folder in the packages folder. However, this is **NOT** recommended as you will not get automatic updates and will have to update the plugin manually, which could result in missing out on essential bug fixes.
 The packages folder can easily be found by going to ```preferences``` in the main menu and selecting ```Browse Packages```.
 ```
 C:\Users\YOURUSERNAME\AppData\Roaming\Sublime Text 3\Packages\Victoria3Tools
 ```
 
 Make sure the folder is named `Victoria3Tools` or there will be issues with the plugin.
+
+Regardless of how you install you will need to make sure [JominiTools](https://github.com/dementive/JominiTools) is also cloned into your packages folder as all plugin functionality relies on it.
 
 ## Features
 
@@ -29,6 +31,7 @@ Make sure the folder is named `Victoria3Tools` or there will be issues with the 
 - Goto Definition for all game objects, saved scopes, and saved variables
 - Simple validator that will check for common easy to find errors and alert you when they happen when a script file is saved. These include: mismatched brackets, mismatched quotes, and encoding errors.
 - Full syntax highlighting of all relevant terms you may come across in Vic3 modding.
+- Automatic updating of the plugin via git pull
 
 ![Script Screenshot](/images/script.png)
 ![Script Screenshot2](/images/textures.png)
@@ -86,6 +89,17 @@ For both .asset file types select ```Victoria Asset``` as the default syntax.
 
 For both .shader and .fxh file types select ```PdxShader``` as the default syntax.
 
+# Dependencies
+
+Only 1 dependency is absolutely necessary for the plugin to work:
+
+The [JominiTools](https://github.com/dementive/JominiTools) package. All of the core plugin functionality comes from JominiTools and the plugin will not work at all without it. If you use the install script at the top of this README it will be installed automatically.
+
+There are 2 additional dependencies that will add more functionality but are not necessary for the core features to work
+
+- [Git](https://git-scm.com/downloads) - Git is used to automatically update the plugin whenever any changes are made. Without git you'll have to pull all changes manually which is not recommended because you may miss out on essential bug fixes.
+
+- [ImageMagick](https://imagemagick.org/script/download.php) - ImageMagick has to be installed on your system PATH, it is used to convert dds files to png so they can be displayed in sublime. This is only used when showing textures in sublime so if you don't use this feature it won't be necessary to install image magick.
 
 ## Contributing to Victoria3Tools
 

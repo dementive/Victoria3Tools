@@ -1,17 +1,9 @@
-import os
-from typing import Set
-
 from .v3_objects import *
+from JominiTools.src.jomini_objects import *
+from JominiTools.src import JominiGameObjectManager, GameObjectData
 
 
-class GameObjectData:
-    def __init__(self, name: str, obj: type, path: str):
-        self.name = name
-        self.obj = obj
-        self.path = path
-
-
-class GameObjectManager:
+class GameObjectManager(JominiGameObjectManager):
     def __init__(self):
         self.ai_strats = GameObjectData(
             "ai_strats", AiStrategy, f"common{os.sep}ai_strategies"
@@ -161,13 +153,3 @@ class GameObjectManager:
             "technologies", Technology, f"common{os.sep}technology"
         )
         self.terrains = GameObjectData("terrains", Terrain, f"common{os.sep}terrain")
-
-    def __iter__(self):
-        for attr in self.__dict__:
-            yield getattr(self, attr)
-
-    def get_objects(self) -> Set[GameObjectData]:
-        objects = set()
-        for i in self:
-            objects.add(i)
-        return objects

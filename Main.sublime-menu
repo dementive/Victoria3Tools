@@ -19,8 +19,8 @@
 								"command": "edit_settings",
 								"args":
 								{
-									"base_file": "${packages}/Victoria3Tools/Victoria Syntax.sublime-settings",
-									"user_file": "${packages}/User/Victoria Syntax.sublime-settings"
+									"base_file": "${packages}/Victoria3Tools/Victoria.sublime-settings",
+									"user_file": "${packages}/User/Victoria.sublime-settings"
 								}
 							}
 						]
