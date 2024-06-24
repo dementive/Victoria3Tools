@@ -1,8 +1,0 @@
-<snippet>
-	<description>Intrinsics</description>
-	<content>
-		<![CDATA[dot(${1:/* x */}, ${2:/* y */})]]>
-	</content>
-	<tabTrigger>dot</tabTrigger>
-	<scope>source.hlsl</scope>
-</snippet>

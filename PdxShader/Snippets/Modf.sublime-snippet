@@ -1,8 +1,0 @@
-<snippet>
-	<description>Intrinsics</description>
-	<content>
-		<![CDATA[modf(${1:/* x */}, ${2:/* out ip */})]]>
-	</content>
-	<tabTrigger>modf</tabTrigger>
-	<scope>source.hlsl</scope>
-</snippet>

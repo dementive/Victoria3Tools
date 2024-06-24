@@ -6,6 +6,6 @@ set_variable = {
 }]]></content>
 	<!-- ${1:Selection Field 1}.${2:Selection Field 2} -->
 	<tabTrigger>set_variable</tabTrigger>
-	<scope>text.vic</scope>
+	<scope>text.vic.script</scope>
 	<description>Set a Variable for a duration</description>
 </snippet>

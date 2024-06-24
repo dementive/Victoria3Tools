@@ -1,8 +1,0 @@
-<snippet>
-	<description>Intrinsics</description>
-	<content>
-		<![CDATA[asuint(${1:/* x */})]]>
-	</content>
-	<tabTrigger>asuint</tabTrigger>
-	<scope>source.hlsl</scope>
-</snippet>

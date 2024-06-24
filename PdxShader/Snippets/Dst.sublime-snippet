@@ -1,8 +1,0 @@
-<snippet>
-	<description>Intrinsics</description>
-	<content>
-		<![CDATA[dst(${1:/* src0 */}, ${2:/* src1 */})]]>
-	</content>
-	<tabTrigger>dst</tabTrigger>
-	<scope>source.hlsl</scope>
-</snippet>

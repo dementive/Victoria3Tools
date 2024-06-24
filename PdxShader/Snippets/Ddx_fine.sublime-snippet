@@ -1,8 +1,0 @@
-<snippet>
-	<description>Intrinsics</description>
-	<content>
-		<![CDATA[ddx_fine(${1:/* value */})]]>
-	</content>
-	<tabTrigger>ddx_fine</tabTrigger>
-	<scope>source.hlsl</scope>
-</snippet>

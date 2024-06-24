@@ -4,7 +4,7 @@
 	<key>name</key>
 	<string>Vic3 Symbols</string>
 	<key>scope</key>
-	<string>text.vic variable.parameter.remove.var, text.vic variable.parameter.scope.usage, text.vic entity.name.function.vic, text.vic variable.parameter.var.usage, text.vic meta.function.vic</string>
+	<string>text.vic.script variable.parameter.remove.var, text.vic.script variable.parameter.scope.usage, text.vic.script entity.name.function.vic, text.vic.script variable.parameter.var.usage, text.vic.script meta.function.vic</string>
 	<key>settings</key>
 	<dict>
 		<key>showInSymbolList</key>

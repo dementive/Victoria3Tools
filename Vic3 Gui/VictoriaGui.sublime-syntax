@@ -1,6 +1,6 @@
 %YAML 1.2
 ---
-name: Jomini Gui
+name: Victoria Gui
 file_extensions: [gui]
 scope: text.vic.gui
 
@@ -13,7 +13,6 @@ contexts:
       scope: constant.numeric
 
     - include: comments
-    - include: bracket-zone
     - include: at-symbol
     - include: at-symbol-expanded
     - include: template-usage
@@ -84,46 +83,12 @@ contexts:
       push: single_quoted_string
 
   single_quoted_string:
-    - include: bracket-zone
+    - include: function-zone
     - match: '\\.'
       scope: constant.character.escape.example-c
     - match: '"|\n'
       scope: punctuation.definition.string.end.example-c
       pop: true
-
-  bracket-zone:
-    - match: BuildTooltip
-      scope: constant.numeric
-    - match: GetVariableSystem|ScriptedGui
-      scope: entity.name.variable.system
-    - match: '\b(SetOrToggle|Set|ClearIf|Clear|Toggle|Execute)\b'
-      scope: keyword.variable.system.effect
-    - match: '\b(Exists|HasValue|IsShown|IsValid)\b'
-      scope: string.variable.system.trigger
-    - match: '\b(And|Not|Or)\b'
-      scope: storage.type.logical.operator.gui
-    - match: \b(GetVariable|Var)\b
-      scope: variable.function
-      push:
-        - match: \(\'
-          push:
-            - match: ({{valid_variable}})
-              scope: variable.parameter.var.usage
-              pop: 2
-            - match: \'
-              scope: empty.scope.variable
-              pop: 2
-    - match: \b(ScriptValue|GetScriptedGui)\b
-      scope: variable.function
-      push:
-        - match: \(\'
-          push:
-            - match: ({{valid_variable}})
-              scope: variable.parameter.var.usage
-              pop: 2
-            - match: \'
-              scope: empty.scope
-              pop: 2
 
   template-usage:
     - match: using
@@ -140,3 +105,85 @@ contexts:
   line_ending:
     - match: $\n
       pop: true
+
+  # Make sure everything below this always stays the same as the data system stuff in the gui sytnax as well.
+  function-zone:
+    - match: \[
+      scope: keyword.operator
+      push:
+        - clear_scopes: true
+        - meta_content_scope: empty.scope
+        - include: line_ending
+        - include: data-system-functions
+        - match: \]
+          scope: keyword.operator
+          pop: true
+
+  data-system-functions:
+    - match: \b(sB|sBT|sBuilding|sBuildingType|sC|sCF|sCM|sCMT|sCOT|sCU|sCW|sCha|sCharacter|sCivilWar|sCommanderOrderType|sCompany|sCompanyType|sCountry|sCountryFormation|sCulture|sDA|sDD|sDP|sDR|sDiplomaticAction|sDiplomaticDemand|sDiplomaticPact|sDiplomaticPlay|sDiplomaticRelations|sF|sFront|sG|sGoods|sHQ|sIGT|sIdeology|sInstitution|sInstitutionType|sInterestGroupTrait|sJE|sJournalEntry|sL|sLaw|sLawType|sMilitaryFormation|sP|sPM|sPT|sPact|sParty|sPoliticalMovement|sPop|sPopType|sProvince|sReligion|sS|sSR|sSW|sState|sStateRegion|sStrategicRegion|sSway|sT|sTechnology|sW|sWar)\b
+      scope: variable.function
+      push:
+        - match: \(\'
+          push:
+            - match: ({{valid_variable}})
+              scope: variable.parameter.scope.usage
+              pop: 2
+            - match: \'
+              scope: empty.scope.prompt # Mark char for autocomplete to fire on
+              pop: 2
+        - match: \n
+          pop: 2
+    - match: \b(GetVariable|Var)\b
+      scope: variable.function
+      push:
+        - match: \(\'
+          push:
+            - match: ({{valid_variable}})
+              scope: variable.parameter.var.usage
+              pop: 2
+            - match: \'
+              scope: empty.scope.variable
+              pop: 2
+        - match: \n
+          pop: true
+    - match: BuildTooltip
+      scope: constant.numeric
+    - match: GetVariableSystem|ScriptedGui
+      scope: entity.name.variable.system
+    - match: '\b(ExecuteConsoleCommand|SetOrToggle|Set|ClearIf|Clear|Toggle|Execute)\b'
+      scope: keyword.effect
+    - match: '\b(Exists|HasValue|IsShown|IsValid)\b'
+      scope: string.variable.system.trigger
+    - match: '\b(And|Not|Or)\b'
+      scope: storage.type.logical.operator.gui
+    - match: \b(ScriptValue)\b
+      scope: variable.function
+      push:
+        - match: \(\'
+          push:
+            - match: ({{valid_variable}})
+              scope: storage.type.script.value
+              pop: 2
+            - match: \'
+              scope: empty.scope.script.value
+              pop: 2
+        - match: \n
+          pop: true
+    - include: data-system-functions-game-link
+
+
+  data-system-functions-game-link:
+    - match: \b(GetCustom|Custom|GetScriptedGui|GetBattleCondition|GetBuildingType|GetCombatUnitGroup|GetCombatUnitType|GetCulture|GetDecreeType|GetDiplomaticActionType|GetIdeology|GetGoods|GetInstitutionType|GetInterestGroupVariant|GetLawGroup|GetLawType|GetPopType|GetReligion|GetStaticModifier)\b
+      scope: variable.function
+      push:
+        - match: \(\'
+          push:
+            - match: ({{valid_variable}})
+              scope: variable.parameter
+              pop: 2
+            - match: \'
+              scope: empty.scope
+              pop: 2
+
+        - match: \n
+          pop: true

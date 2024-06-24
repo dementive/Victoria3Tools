@@ -2,7 +2,7 @@
 <plist version="1.0">
 <dict>
 	<key>scope</key>
-	<string>text.vic</string>
+	<string>text.vic.script</string>
 	<key>settings</key>
 	<dict>
 		<key>decreaseIndentPattern</key>

@@ -1,8 +1,0 @@
-<snippet>
-	<description>Intrinsics</description>
-	<content>
-		<![CDATA[reversebits(${1:/* value */})]]>
-	</content>
-	<tabTrigger>reversebits</tabTrigger>
-	<scope>source.hlsl</scope>
-</snippet>

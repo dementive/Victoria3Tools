@@ -1,8 +1,0 @@
-<snippet>
-	<description>Intrinsics</description>
-	<content>
-		<![CDATA[InterlockedOr(${1:/* dest */}, ${2:/* value */}, ${3:/* out original_value */});]]>
-	</content>
-	<tabTrigger>InterlockedOr</tabTrigger>
-	<scope>meta.function.hlsl, meta.preprocessor.hlsl</scope>
-</snippet>

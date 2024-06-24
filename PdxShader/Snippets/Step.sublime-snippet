@@ -1,8 +1,0 @@
-<snippet>
-	<description>Intrinsics</description>
-	<content>
-		<![CDATA[step(${1:/* y */}, ${2:/* x */})]]>
-	</content>
-	<tabTrigger>step</tabTrigger>
-	<scope>source.hlsl</scope>
-</snippet>

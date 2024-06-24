@@ -2029,6 +2029,10 @@ class VictoriaGameData(JominiGameData):
                 manager.scripted_gui.name,
                 (sublime.KIND_ID_VARIABLE, "S", "Scripted Gui"),
             ),
+            (
+                manager.script_values.name,
+                (sublime.KIND_ID_NAMESPACE, "S", "Script Value"),
+            ),
         ]
 
     @property
@@ -2054,6 +2058,7 @@ class VictoriaGameData(JominiGameData):
             (manager.pop_types.name, "GetPopType"),
             (manager.religions.name, "GetReligion"),
             (manager.scripted_gui.name, "GetScriptedGui"),
+            (manager.script_values.name, "ScriptValue"),
         ]
 
     @property
@@ -2291,4 +2296,5 @@ class VictoriaGameData(JominiGameData):
             (manager.pop_types.name, "Pop Type"),
             (manager.religions.name, "Religion"),
             (manager.mods.name, "Modifier"),
+            (manager.script_values.name, "Script Value"),
         ]

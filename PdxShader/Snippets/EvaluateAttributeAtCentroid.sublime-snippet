@@ -1,8 +1,0 @@
-<snippet>
-	<description>Intrinsics</description>
-	<content>
-		<![CDATA[EvaluateAttributeAtCentroid(${1:/* value */})]]>
-	</content>
-	<tabTrigger>EvaluateAttributeAtCentroid</tabTrigger>
-	<scope>source.hlsl</scope>
-</snippet>

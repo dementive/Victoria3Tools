@@ -1,8 +1,0 @@
-<snippet>
-	<description>Intrinsics</description>
-	<content>
-		<![CDATA[asfloat(${1:/* x */})]]>
-	</content>
-	<tabTrigger>asfloat</tabTrigger>
-	<scope>source.hlsl</scope>
-</snippet>

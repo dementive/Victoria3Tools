@@ -1,8 +1,0 @@
-<snippet>
-	<description>Intrinsics</description>
-	<content>
-		<![CDATA[distance(${1:/* x */}, ${2:/* y */})]]>
-	</content>
-	<tabTrigger>distance</tabTrigger>
-	<scope>source.hlsl</scope>
-</snippet>

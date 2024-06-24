@@ -1,8 +1,0 @@
-<snippet>
-	<description>Intrinsics</description>
-	<content>
-		<![CDATA[atan2(${1:/* y */}, ${2:/* x */})]]>
-	</content>
-	<tabTrigger>atan2</tabTrigger>
-	<scope>source.hlsl</scope>
-</snippet>

@@ -1,8 +1,0 @@
-<snippet>
-	<description>Intrinsics</description>
-	<content>
-		<![CDATA[fma(${1:/* a */}, ${2:/* b */}, ${3:/* c */})]]>
-	</content>
-	<tabTrigger>fma</tabTrigger>
-	<scope>source.hlsl</scope>
-</snippet>

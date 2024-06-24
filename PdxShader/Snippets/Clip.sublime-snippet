@@ -1,8 +1,0 @@
-<snippet>
-	<description>Intrinsics</description>
-	<content>
-		<![CDATA[clip(${1:/* x */});]]>
-	</content>
-	<tabTrigger>clip</tabTrigger>
-	<scope>source.hlsl</scope>
-</snippet>

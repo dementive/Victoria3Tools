@@ -1,8 +1,0 @@
-<snippet>
-	<description>Intrinsics</description>
-	<content>
-		<![CDATA[mad(${1:/* mvalue */}, ${2:/* avalue */}, ${3:/* bvalue */})]]>
-	</content>
-	<tabTrigger>mad</tabTrigger>
-	<scope>source.hlsl</scope>
-</snippet>

@@ -1,8 +1,0 @@
-<snippet>
-	<description>Intrinsics</description>
-	<content>
-		<![CDATA[DeviceMemoryBarrierWithGroupSync();]]>
-	</content>
-	<tabTrigger>DeviceMemoryBarrierWithGroupSync</tabTrigger>
-	<scope>meta.function.hlsl, meta.preprocessor.hlsl</scope>
-</snippet>

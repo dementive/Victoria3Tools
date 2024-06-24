@@ -75,7 +75,7 @@ contexts:
       captures:
         0: keyword.victoria.embedding.start
 
-      embed: scope:text.vic
+      embed: scope:text.vic.script
       embed_scope: meta.embedded.pdx
       # IMPORTANT NOTE: This escape is matching an invisible character that is put here by tiger.py
       escape: ⁭
@@ -100,7 +100,7 @@ contexts:
           captures:
             0: keyword.victoria.embedding.start
 
-          embed: scope:text.vic
+          embed: scope:text.vic.script
           embed_scope: meta.embedded.pdx
           # IMPORTANT NOTE: This escape is matching an invisible character that is put here by tiger.py
           escape: ⁭

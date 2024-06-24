@@ -2,7 +2,7 @@
 ---
 name: Victoria Script
 file_extensions: [txt]
-scope: text.vic
+scope: text.vic.script
 
 variables:
   valid_variable: '[A-Za-z_][A-Za-z_0-9]*'
@@ -23,7 +23,6 @@ contexts:
     - include: remove-var
     - include: one-line-var-trigger
     - include: scope-usage
-    - include: variable-usage
     # Blocks
     - include: trigger-block-start
     - include: effect-block-start

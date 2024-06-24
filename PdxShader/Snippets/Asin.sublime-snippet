@@ -1,8 +1,0 @@
-<snippet>
-	<description>Intrinsics</description>
-	<content>
-		<![CDATA[asin(${1:/* x */})]]>
-	</content>
-	<tabTrigger>asin</tabTrigger>
-	<scope>source.hlsl</scope>
-</snippet>

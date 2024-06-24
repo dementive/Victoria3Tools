@@ -1,8 +1,0 @@
-<snippet>
-	<description>Intrinsics</description>
-	<content>
-		<![CDATA[lerp(${1:/* x */}, ${2:/* y */}, ${3:/* s */})]]>
-	</content>
-	<tabTrigger>lerp</tabTrigger>
-	<scope>source.hlsl</scope>
-</snippet>

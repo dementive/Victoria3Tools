@@ -38,6 +38,6 @@ ${1:NAMESPACE}.${2:NUM} = {
 <!-- ${1:Selection Field 1}.${2:Selection Field 2} -->
 
 <tabTrigger>Template - country_event</tabTrigger>
-<scope>text.vic</scope>
+<scope>text.vic.script</scope>
 <description>Create a country event</description>
 </snippet>

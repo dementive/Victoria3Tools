@@ -15,6 +15,6 @@ any_scope_state = {
 }]]></content>
 	<!-- ${1:Selection Field 1}.${2:Selection Field 2} -->
 	<tabTrigger>any_scope_state_building</tabTrigger>
-	<scope>text.vic</scope>
+	<scope>text.vic.script</scope>
 	<description>any_scope_state with any_scope_building</description>
 </snippet>

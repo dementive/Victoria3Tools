@@ -19,3 +19,7 @@ class VictoriaPlugin(JominiPlugin):
     @property
     def localization_syntax_name(self):
         return "Victoria Localization"
+
+    @property
+    def gui_syntax_name(self) -> str:
+        return "Victoria Gui"

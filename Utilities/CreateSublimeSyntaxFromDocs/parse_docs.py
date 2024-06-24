@@ -288,7 +288,7 @@ def write_mods_to_log(modifiers):
 
 
 if __name__ == "__main__":
-    syntax_scope = "text.vic"
+    syntax_scope = "text.vic.script"
     game = "Victoria"
 
     effects = parse_logs("docs/effects.log", "normal")

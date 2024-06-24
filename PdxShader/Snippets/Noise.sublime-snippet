@@ -1,8 +1,0 @@
-<snippet>
-	<description>Intrinsics</description>
-	<content>
-		<![CDATA[noise(${1:/* x */})]]>
-	</content>
-	<tabTrigger>noise</tabTrigger>
-	<scope>source.hlsl</scope>
-</snippet>

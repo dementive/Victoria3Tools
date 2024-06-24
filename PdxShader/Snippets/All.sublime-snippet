@@ -1,8 +1,0 @@
-<snippet>
-	<description>Intrinsics</description>
-	<content>
-		<![CDATA[all(${1:/* x */})]]>
-	</content>
-	<tabTrigger>all</tabTrigger>
-	<scope>source.hlsl</scope>
-</snippet>

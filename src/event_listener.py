@@ -40,7 +40,7 @@ class VictoriaEventListener(
     sublime_plugin.EventListener,
 ):
     def write_data_to_syntax(self, game_objects):
-        return write_data_to_syntax(game_objects)
+        write_data_to_syntax(game_objects)
 
     def on_init(self, views):
         self.init(VictoriaPlugin())
@@ -53,98 +53,99 @@ class VictoriaEventListener(
 
     def create_all_game_objects(self):
         t0 = time.time()
-        manager = GameObjectManager()
 
         def load_first():
             self.game_objects["mods"] = Modifier()
 
         def load_second():
-            self.game_objects[manager.state_regions.name] = StateRegion()
-            self.game_objects[manager.scripted_effects.name] = ScriptedEffect(
+            self.game_objects[self.manager.state_regions.name] = StateRegion()
+            self.game_objects[self.manager.scripted_effects.name] = ScriptedEffect(
                 self.mod_files, self.game_files_path
             )
-            self.game_objects[manager.laws.name] = Law()
-            self.game_objects[manager.ig_traits.name] = InterestGroupTrait()
-            self.game_objects[manager.ai_strats.name] = AiStrategy()
-            self.game_objects[manager.pop_types.name] = PopType()
-            self.game_objects[manager.parties.name] = Party()
-            self.game_objects[manager.subject_types.name] = SubjectType()
-            self.game_objects[manager.combat_unit_group.name] = CombatUnitGroup()
+            self.game_objects[self.manager.laws.name] = Law()
+            self.game_objects[self.manager.ig_traits.name] = InterestGroupTrait()
+            self.game_objects[self.manager.ai_strats.name] = AiStrategy()
+            self.game_objects[self.manager.pop_types.name] = PopType()
+            self.game_objects[self.manager.parties.name] = Party()
+            self.game_objects[self.manager.subject_types.name] = SubjectType()
+            self.game_objects[self.manager.combat_unit_group.name] = CombatUnitGroup()
 
         def load_third():
-            self.game_objects[manager.countries.name] = Country()
-            self.game_objects[manager.pm_groups.name] = ProductionMethodGroup()
-            self.game_objects[manager.script_values.name] = ScriptValue(
+            self.game_objects[self.manager.countries.name] = Country()
+            self.game_objects[self.manager.pm_groups.name] = ProductionMethodGroup()
+            self.game_objects[self.manager.script_values.name] = ScriptValue(
                 self.mod_files, self.game_files_path
             )
-            self.game_objects[manager.ideologies.name] = Ideology()
-            self.game_objects[manager.bgs.name] = BuildingGroup()
-            self.game_objects[manager.law_groups.name] = LawGroup()
-            self.game_objects[manager.religions.name] = Religion()
-            self.game_objects[manager.decrees.name] = Decree()
-            self.game_objects[manager.institutions.name] = Institutions()
-            self.game_objects[manager.country_types.name] = CountryType()
+            self.game_objects[self.manager.ideologies.name] = Ideology()
+            self.game_objects[self.manager.bgs.name] = BuildingGroup()
+            self.game_objects[self.manager.law_groups.name] = LawGroup()
+            self.game_objects[self.manager.religions.name] = Religion()
+            self.game_objects[self.manager.decrees.name] = Decree()
+            self.game_objects[self.manager.institutions.name] = Institutions()
+            self.game_objects[self.manager.country_types.name] = CountryType()
 
         def load_fourth():
-            self.game_objects[manager.modifier_types.name] = ModifierType()
-            self.game_objects[manager.strategic_regions.name] = StrategicRegion()
-            self.game_objects[manager.companies.name] = CompanyType()
-            self.game_objects[manager.discrimination_traits.name] = (
+            self.game_objects[self.manager.modifier_types.name] = ModifierType()
+            self.game_objects[self.manager.strategic_regions.name] = StrategicRegion()
+            self.game_objects[self.manager.companies.name] = CompanyType()
+            self.game_objects[self.manager.discrimination_traits.name] = (
                 DiscriminationTrait()
             )
-            self.game_objects[manager.diplo_plays.name] = DiplomaticPlay()
-            self.game_objects[manager.terrains.name] = Terrain()
-            self.game_objects[manager.battle_conditions.name] = BattleCondition()
-            self.game_objects[manager.pop_needs.name] = PopNeed()
-            self.game_objects[manager.country_ranks.name] = CountryRank()
-            self.game_objects[manager.scripted_modifiers.name] = ScriptedModifier(
+            self.game_objects[self.manager.diplo_plays.name] = DiplomaticPlay()
+            self.game_objects[self.manager.terrains.name] = Terrain()
+            self.game_objects[self.manager.battle_conditions.name] = BattleCondition()
+            self.game_objects[self.manager.pop_needs.name] = PopNeed()
+            self.game_objects[self.manager.country_ranks.name] = CountryRank()
+            self.game_objects[self.manager.scripted_modifiers.name] = ScriptedModifier(
                 self.mod_files, self.game_files_path
             )
 
         def load_fifth():
-            self.game_objects[manager.pms.name] = ProductionMethod()
-            self.game_objects[manager.cultures.name] = Culture()
-            self.game_objects[manager.technologies.name] = Technology()
-            self.game_objects[manager.named_colors.name] = NamedColor(
+            self.game_objects[self.manager.pms.name] = ProductionMethod()
+            self.game_objects[self.manager.cultures.name] = Culture()
+            self.game_objects[self.manager.technologies.name] = Technology()
+            self.game_objects[self.manager.named_colors.name] = NamedColor(
                 self.mod_files, self.game_files_path
             )
-            self.game_objects[manager.char_traits.name] = CharacterTrait()
-            self.game_objects[manager.combat_unit_type.name] = CombatUnitType()
-            self.game_objects[manager.commander_orders.name] = CommanderOrder()
-            self.game_objects[manager.game_rules.name] = GameRules()
-            self.game_objects[manager.commander_ranks.name] = CommanderRank()
-            self.game_objects[manager.culture_graphics.name] = CultureGraphics()
+            self.game_objects[self.manager.char_traits.name] = CharacterTrait()
+            self.game_objects[self.manager.combat_unit_type.name] = CombatUnitType()
+            self.game_objects[self.manager.commander_orders.name] = CommanderOrder()
+            self.game_objects[self.manager.game_rules.name] = GameRules()
+            self.game_objects[self.manager.commander_ranks.name] = CommanderRank()
+            self.game_objects[self.manager.culture_graphics.name] = CultureGraphics()
 
         def load_sixth():
-            self.game_objects[manager.scripted_triggers.name] = ScriptedTrigger(
+            self.game_objects[self.manager.scripted_triggers.name] = ScriptedTrigger(
                 self.mod_files, self.game_files_path
             )
-            self.game_objects[manager.jes.name] = JournalEntry()
-            self.game_objects[manager.state_traits.name] = StateTrait()
-            self.game_objects[manager.gov_types.name] = GovernmentType()
-            self.game_objects[manager.buildings.name] = Building()
-            self.game_objects[manager.goods.name] = Goods()
-            self.game_objects[manager.diplo_actions.name] = DiplomaticAction()
-            self.game_objects[manager.mobilization_options.name] = MobilizationOption()
-            self.game_objects[manager.proposal_types.name] = ProposalType()
-            self.game_objects[manager.igs.name] = InterestGroup()
-            self.game_objects[manager.scripted_gui.name] = ScriptedGui(
+            self.game_objects[self.manager.jes.name] = JournalEntry()
+            self.game_objects[self.manager.state_traits.name] = StateTrait()
+            self.game_objects[self.manager.gov_types.name] = GovernmentType()
+            self.game_objects[self.manager.buildings.name] = Building()
+            self.game_objects[self.manager.goods.name] = Goods()
+            self.game_objects[self.manager.diplo_actions.name] = DiplomaticAction()
+            self.game_objects[self.manager.mobilization_options.name] = (
+                MobilizationOption()
+            )
+            self.game_objects[self.manager.proposal_types.name] = ProposalType()
+            self.game_objects[self.manager.igs.name] = InterestGroup()
+            self.game_objects[self.manager.scripted_gui.name] = ScriptedGui(
                 self.mod_files, self.game_files_path
             )
-            self.game_objects[manager.custom_loc.name] = CustomLoc()
-            self.game_objects[manager.gui_types.name] = GuiType(
+            self.game_objects[self.manager.custom_loc.name] = CustomLoc()
+            self.game_objects[self.manager.gui_types.name] = GuiType(
                 self.mod_files, self.game_files_path
             )
-            self.game_objects[manager.gui_templates.name] = GuiTemplate(
+            self.game_objects[self.manager.gui_templates.name] = GuiTemplate(
                 self.mod_files, self.game_files_path
             )
-            self.game_objects[manager.gui_templates.name].remove("inside")
-            self.game_objects[manager.gui_templates.name].remove("you")
-            self.game_objects[manager.gui_templates.name].remove("can")
-            self.game_objects[manager.gui_templates.name].remove("but")
-            self.game_objects[manager.gui_templates.name].remove("on")
-            self.game_objects[manager.gui_templates.name].remove("within")
-            self.game_objects[manager.gui_templates.name].remove("names")
+            self.game_objects[self.manager.gui_templates.name].remove("inside")
+            self.game_objects[self.manager.gui_templates.name].remove("you")
+            self.game_objects[self.manager.gui_templates.name].remove("can")
+            self.game_objects[self.manager.gui_templates.name].remove("but")
+            self.game_objects[self.manager.gui_templates.name].remove("on")
+            self.game_objects[self.manager.gui_templates.name].remove("within")
+            self.game_objects[self.manager.gui_templates.name].remove("names")
 
         thread1 = threading.Thread(target=load_first)
         thread2 = threading.Thread(target=load_second)
@@ -196,7 +197,7 @@ class VictoriaEventListener(
         if not self.plugin.valid_syntax(syntax_name):
             return None
 
-        if syntax_name == "Victoria Localization" or syntax_name == "Jomini Gui":
+        if self.plugin.is_data_system_syntax(syntax_name):
             for flag, completion in self.game_data.data_system_completion_flag_pairs:
                 completion_list = self.create_completion_list(flag, completion)
                 if completion_list is not None:
@@ -355,7 +356,7 @@ class VictoriaEventListener(
         if view.match_selector(point, "comment.line"):
             return
 
-        if syntax_name == "Jomini Gui":
+        if syntax_name == self.plugin.gui_syntax_name:
             sublime.set_timeout_async(lambda: self.do_gui_hover_async(view, point), 0)
             item = view.substr(view.word(point))
             if (
@@ -388,7 +389,7 @@ class VictoriaEventListener(
             return
 
         if (
-            syntax_name != self.plugin.script_syntax_name
+            syntax_name == self.plugin.script_syntax_name
             and self.settings.get("DocsHoverEnabled") is True
         ):
             if view.match_selector(point, "keyword.effect"):

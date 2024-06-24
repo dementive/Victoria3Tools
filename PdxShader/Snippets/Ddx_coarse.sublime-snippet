@@ -1,8 +1,0 @@
-<snippet>
-	<description>Intrinsics</description>
-	<content>
-		<![CDATA[ddx_coarse(${1:/* value */})]]>
-	</content>
-	<tabTrigger>ddx_coarse</tabTrigger>
-	<scope>source.hlsl</scope>
-</snippet>
