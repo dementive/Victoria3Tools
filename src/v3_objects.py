@@ -10,19 +10,14 @@ from JominiTools.src.jomini_objects import JominiObject
 
 v3_files_path = ""
 v3_mod_files = []
-gui_files_path = ""
-gui_mod_files = []
 
 
 def plugin_loaded():
-    global settings, v3_files_path, v3_mod_files, gui_files_path, gui_mod_files
+    global settings, v3_files_path, v3_mod_files
     settings = sublime.load_settings("Victoria.sublime-settings")
     v3_files_path = settings.get("GameFilesPath")
     v3_mod_files = settings.get("PathsToModFiles")
-    gui_files_path = settings.get("GuiBaseGamePath")
-    gui_mod_files = settings.get("PathsToGuiModFiles")
     v3_files_path = str(v3_files_path)
-    gui_files_path = str(gui_files_path)
 
 
 # Victoria 3 Game Object Class implementations
@@ -30,6 +25,18 @@ class AiStrategy(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data(f"common{os.sep}ai_strategies")
+
+
+class AlertGroup(GameObjectBase):
+    def __init__(self):
+        super().__init__(v3_mod_files, v3_files_path)
+        self.get_data(f"common{os.sep}alert_groups")
+
+
+class BattleCondition(GameObjectBase):
+    def __init__(self):
+        super().__init__(v3_mod_files, v3_files_path)
+        self.get_data(f"common{os.sep}battle_conditions")
 
 
 class BuildingGroup(GameObjectBase):
@@ -44,10 +51,22 @@ class Building(GameObjectBase):
         self.get_data(f"common{os.sep}buildings")
 
 
+class Canal(GameObjectBase):
+    def __init__(self):
+        super().__init__(v3_mod_files, v3_files_path)
+        self.get_data(f"common{os.sep}canals")
+
+
 class CharacterTrait(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data(f"common{os.sep}character_traits")
+
+
+class CharacterTemplate(GameObjectBase):
+    def __init__(self):
+        super().__init__(v3_mod_files, v3_files_path)
+        self.get_data(f"common{os.sep}character_templates")
 
 
 class Culture(GameObjectBase):
@@ -232,12 +251,6 @@ class CountryType(GameObjectBase):
         self.get_data(f"common{os.sep}country_types")
 
 
-class BattleCondition(GameObjectBase):
-    def __init__(self):
-        super().__init__(v3_mod_files, v3_files_path)
-        self.get_data(f"common{os.sep}battle_conditions")
-
-
 class CommanderRank(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
@@ -292,10 +305,76 @@ class CompanyType(GameObjectBase):
         self.get_data(f"common{os.sep}company_types")
 
 
+class DiplomaticCatalyst(GameObjectBase):
+    def __init__(self):
+        super().__init__(v3_mod_files, v3_files_path)
+        self.get_data(f"common{os.sep}diplomatic_catalysts")
+
+
+class TerrainLabel(GameObjectBase):
+    def __init__(self):
+        super().__init__(v3_mod_files, v3_files_path)
+        self.get_data(f"common{os.sep}labels")
+
+
 class MobilizationOption(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
         self.get_data(f"common{os.sep}mobilization_options")
+
+
+class Message(GameObjectBase):
+    def __init__(self):
+        super().__init__(v3_mod_files, v3_files_path)
+        self.get_data(f"common{os.sep}messages")
+
+
+class Objective(GameObjectBase):
+    def __init__(self):
+        super().__init__(v3_mod_files, v3_files_path)
+        self.get_data(f"common{os.sep}objectives")
+
+
+class ObjectiveSubgoal(GameObjectBase):
+    def __init__(self):
+        super().__init__(v3_mod_files, v3_files_path)
+        self.get_data(f"common{os.sep}objective_subgoals")
+
+
+class PoliticalLobby(GameObjectBase):
+    def __init__(self):
+        super().__init__(v3_mod_files, v3_files_path)
+        self.get_data(f"common{os.sep}political_lobbies")
+
+
+class PoliticalLobbyAppeasement(GameObjectBase):
+    def __init__(self):
+        super().__init__(v3_mod_files, v3_files_path)
+        self.get_data(f"common{os.sep}political_lobby_appeasement")
+
+
+class PowerBlocIdentity(GameObjectBase):
+    def __init__(self):
+        super().__init__(v3_mod_files, v3_files_path)
+        self.get_data(f"common{os.sep}power_bloc_identities")
+
+
+class PowerBlocPrincipleGroup(GameObjectBase):
+    def __init__(self):
+        super().__init__(v3_mod_files, v3_files_path)
+        self.get_data(f"common{os.sep}power_bloc_principle_groups")
+
+
+class PowerBlocPrinciple(GameObjectBase):
+    def __init__(self):
+        super().__init__(v3_mod_files, v3_files_path)
+        self.get_data(f"common{os.sep}power_bloc_principles")
+
+
+class ScriptedProgressBar(GameObjectBase):
+    def __init__(self):
+        super().__init__(v3_mod_files, v3_files_path)
+        self.get_data(f"common{os.sep}scripted_progress_bars")
 
 
 class CustomLoc(GameObjectBase):
@@ -319,9 +398,12 @@ Victoria3Object = Union[
     GameObjectBase,
     JominiObject,
     AiStrategy,
+    AlertGroup,
     BattleCondition,
     Building,
     BuildingGroup,
+    Canal,
+    CharacterTemplate,
     CharacterTrait,
     CombatUnitGroup,
     CombatUnitType,
@@ -336,6 +418,7 @@ Victoria3Object = Union[
     CustomLoc,
     Decree,
     DiplomaticAction,
+    DiplomaticCatalyst,
     DiplomaticPlay,
     DiscriminationTrait,
     GameRules,
@@ -348,20 +431,30 @@ Victoria3Object = Union[
     JournalEntry,
     Law,
     LawGroup,
+    Message,
     MobilizationOption,
     Modifier,
     ModifierType,
+    Objective,
+    ObjectiveSubgoal,
     Party,
+    PoliticalLobby,
+    PoliticalLobbyAppeasement,
     PopNeed,
     PopType,
+    PowerBlocIdentity,
+    PowerBlocPrinciple,
+    PowerBlocPrincipleGroup,
     ProductionMethod,
     ProductionMethodGroup,
     ProposalType,
     Religion,
+    ScriptedProgressBar,
     StateRegion,
     StateTrait,
     StrategicRegion,
     SubjectType,
     Technology,
     Terrain,
+    TerrainLabel,
 ]

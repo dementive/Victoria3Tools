@@ -249,6 +249,76 @@ def write_data_to_syntax(game_objects):
         "Customizable Localization",
         "entity.name.custom.loc",
     )
+    lines += write_syntax(
+        game_objects[manager.alert_group.name].keys(),
+        "Alert Group",
+        "entity.name.alert.group",
+    )
+    lines += write_syntax(
+        game_objects[manager.canals.name].keys(),
+        "Canal",
+        "entity.name.canal",
+    )
+    lines += write_syntax(
+        game_objects[manager.char_template.name].keys(),
+        "Character Template",
+        "entity.name.char.template",
+    )
+    lines += write_syntax(
+        game_objects[manager.diplo_cat.name].keys(),
+        "Diplomatic Catalyst",
+        "entity.name.diplo.catalyst",
+    )
+    lines += write_syntax(
+        game_objects[manager.terrain_label.name].keys(),
+        "Terrain Label",
+        "entity.name.terrain.label",
+    )
+    lines += write_syntax(
+        game_objects[manager.messages.name].keys(),
+        "Messages",
+        "entity.name.message",
+    )
+    lines += write_syntax(
+        game_objects[manager.objectives.name].keys(),
+        "Objectives",
+        "entity.name.objective",
+    )
+    lines += write_syntax(
+        game_objects[manager.objective_subgoal.name].keys(),
+        "Objective Subgoal",
+        "entity.name.objective.subgoal",
+    )
+    lines += write_syntax(
+        game_objects[manager.political_lobby.name].keys(),
+        "Political Lobby",
+        "entity.name.political.lobby",
+    )
+    lines += write_syntax(
+        game_objects[manager.political_lobby_appeasement.name].keys(),
+        "Political Lobby Appeasement",
+        "entity.name.political.lobby.appeasement",
+    )
+    lines += write_syntax(
+        game_objects[manager.pb_identity.name].keys(),
+        "Power Block Identity",
+        "entity.name.power.bloc.identiy",
+    )
+    lines += write_syntax(
+        game_objects[manager.pb_principle_group.name].keys(),
+        "Power Block Principle Group",
+        "entity.name.power.bloc.principle.group",
+    )
+    lines += write_syntax(
+        game_objects[manager.pb_principle.name].keys(),
+        "Power Block Principle",
+        "entity.name.power.bloc.principle",
+    )
+    lines += write_syntax(
+        game_objects[manager.scripted_progress_bar.name].keys(),
+        "Scripted Progress Bars",
+        "entity.name.scripted.progress.bar",
+    )
 
     # Dynamic modifiers
     country_modifs = list()

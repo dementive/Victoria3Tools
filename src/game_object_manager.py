@@ -8,6 +8,9 @@ class GameObjectManager(JominiGameObjectManager):
         self.ai_strats = GameObjectData(
             "ai_strats", AiStrategy, f"common{os.sep}ai_strategies"
         )
+        self.alert_group = GameObjectData(
+            "alert_group", AlertGroup, f"common{os.sep}alert_groups"
+        )
         self.battle_conditions = GameObjectData(
             "battle_conditions", BattleCondition, f"common{os.sep}battle_conditions"
         )
@@ -16,6 +19,10 @@ class GameObjectManager(JominiGameObjectManager):
         )
         self.buildings = GameObjectData(
             "buildings", Building, f"common{os.sep}buildings"
+        )
+        self.canals = GameObjectData("canals", Canal, f"common{os.sep}canals")
+        self.char_template = GameObjectData(
+            "char_template", CharacterTemplate, f"common{os.sep}character_templates"
         )
         self.char_traits = GameObjectData(
             "char_traits", CharacterTrait, f"common{os.sep}character_traits"
@@ -54,6 +61,9 @@ class GameObjectManager(JominiGameObjectManager):
         self.decrees = GameObjectData("decrees", Decree, f"common{os.sep}decrees")
         self.diplo_actions = GameObjectData(
             "diplo_actions", DiplomaticAction, f"common{os.sep}diplomatic_actions"
+        )
+        self.diplo_cat = GameObjectData(
+            "diplo_cat", DiplomaticCatalyst, f"common{os.sep}diplomatic_catalysts"
         )
         self.diplo_plays = GameObjectData(
             "diplo_plays", DiplomaticPlay, f"common{os.sep}diplomatic_plays"
@@ -152,4 +162,38 @@ class GameObjectManager(JominiGameObjectManager):
         self.technologies = GameObjectData(
             "technologies", Technology, f"common{os.sep}technology"
         )
+        self.terrain_label = GameObjectData(
+            "terrain_label", TerrainLabel, f"common{os.sep}labels"
+        )
         self.terrains = GameObjectData("terrains", Terrain, f"common{os.sep}terrain")
+        self.messages = GameObjectData("messages", Message, f"common{os.sep}messages")
+        self.objectives = GameObjectData(
+            "objectives", Objective, f"common{os.sep}objectives"
+        )
+        self.objective_subgoal = GameObjectData(
+            "objective_subgoal", ObjectiveSubgoal, f"common{os.sep}objective_subgoals"
+        )
+        self.political_lobby = GameObjectData(
+            "political_lobby", PoliticalLobby, f"common{os.sep}political_lobbies"
+        )
+        self.political_lobby_appeasement = GameObjectData(
+            "political_lobby_appeasement",
+            PoliticalLobbyAppeasement,
+            f"common{os.sep}political_lobby_appeasement",
+        )
+        self.pb_identity = GameObjectData(
+            "pb_identity", PowerBlocIdentity, f"common{os.sep}power_bloc_identities"
+        )
+        self.pb_principle_group = GameObjectData(
+            "pb_principle_group",
+            PowerBlocPrincipleGroup,
+            f"common{os.sep}power_bloc_principle_groups",
+        )
+        self.pb_principle = GameObjectData(
+            "pb_principle", PowerBlocPrinciple, f"common{os.sep}power_bloc_principles"
+        )
+        self.scripted_progress_bar = GameObjectData(
+            "scripted_progress_bar",
+            ScriptedProgressBar,
+            f"common{os.sep}scripted_progress_bars",
+        )

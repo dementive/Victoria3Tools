@@ -72,6 +72,25 @@ class VictoriaEventListener(
 
         def load_third():
             self.game_objects[self.manager.countries.name] = Country()
+            self.game_objects[self.manager.canals.name] = Canal()
+            self.game_objects[self.manager.char_template.name] = CharacterTemplate()
+            self.game_objects[self.manager.diplo_cat.name] = DiplomaticCatalyst()
+            self.game_objects[self.manager.terrain_label.name] = TerrainLabel()
+            self.game_objects[self.manager.messages.name] = Message()
+            self.game_objects[self.manager.objectives.name] = Objective()
+            self.game_objects[self.manager.objective_subgoal.name] = ObjectiveSubgoal()
+            self.game_objects[self.manager.political_lobby.name] = PoliticalLobby()
+            self.game_objects[self.manager.political_lobby_appeasement.name] = (
+                PoliticalLobbyAppeasement()
+            )
+            self.game_objects[self.manager.pb_identity.name] = PowerBlocIdentity()
+            self.game_objects[self.manager.pb_principle_group.name] = (
+                PowerBlocPrincipleGroup()
+            )
+            self.game_objects[self.manager.pb_principle.name] = PowerBlocPrinciple()
+            self.game_objects[self.manager.scripted_progress_bar.name] = (
+                ScriptedProgressBar()
+            )
             self.game_objects[self.manager.pm_groups.name] = ProductionMethodGroup()
             self.game_objects[self.manager.script_values.name] = ScriptValue(
                 self.mod_files, self.game_files_path
@@ -83,6 +102,7 @@ class VictoriaEventListener(
             self.game_objects[self.manager.decrees.name] = Decree()
             self.game_objects[self.manager.institutions.name] = Institutions()
             self.game_objects[self.manager.country_types.name] = CountryType()
+            self.game_objects[self.manager.alert_group.name] = AlertGroup()
 
         def load_fourth():
             self.game_objects[self.manager.modifier_types.name] = ModifierType()

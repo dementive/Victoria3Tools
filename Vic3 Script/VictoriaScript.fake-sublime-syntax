@@ -31,6 +31,10 @@ contexts:
     - include: bg-block-start
     - include: building-block-start
     - include: char-trait-block-start
+    - include: objective-subgoal-block-start
+    - include: lobby-appeasement-block-multi-start
+    - include: lobby-appeasement-block-start
+    - include: political-lobby-block-start
     - include: diplo-action-block-start
     - include: diplo-action-effects-block-start
     - include: diplo-play-block-start
@@ -43,6 +47,8 @@ contexts:
     - include: law-block-start
     - include: technology-block-start
     - include: ideology-block-start
+    - include: pbar-block-start-effect
+    - include: pbar-block-start-trigger
 
     - include: manually-entered-content
     - include: auto-generated-content
@@ -300,7 +306,7 @@ contexts:
           pop: true
 
   value-block-start:
-    - match: \b(weekly_progress|monthly_progress|yearly_progress|cohesion|female_agitator_chance|agitator_weight|lobby_pro_country|lobby_pro_overlord|lobby_anti_overlord|lobby_anti_country|upper_strata_pops|middle_strata_pops|lower_strata_pops|score|evaluation_chance|ai_enact_weight_modifier|weight|qualifications|portrait_age|portrait_pose|political_engagement_mult|join_weight|opinion|decay|loyalties_gain|pop_support|current_value|goal_add_value|commander_leader_chance|female_politician_chance|noble_chance|female_commander_chance|pop_weight|monarch_weight|commander_weight|leader_weight|use_favor_chance|owe_favor_chance|accept_break_score|use_obligation_chance|owe_obligation_chance|junior_accept_score|propose_score|propose_break_score|accept_score|ai_chance|ai_weight)\b
+    - match: \b(weekly_progress|monthly_progress|yearly_progress|cohesion|female_agitator_chance|agitator_weight|upper_strata_pops|middle_strata_pops|lower_strata_pops|score|evaluation_chance|ai_enact_weight_modifier|weight|qualifications|portrait_age|portrait_pose|political_engagement_mult|join_weight|opinion|decay|loyalties_gain|pop_support|current_value|goal_add_value|commander_leader_chance|female_politician_chance|noble_chance|female_commander_chance|pop_weight|monarch_weight|commander_weight|leader_weight|use_favor_chance|owe_favor_chance|accept_break_score|use_obligation_chance|owe_obligation_chance|junior_accept_score|propose_score|propose_break_score|accept_score|ai_chance|ai_weight)\b
       scope: storage.type.value.block.start
       push:
         - include: line_ending
@@ -310,7 +316,7 @@ contexts:
           pop: true
 
   mod-block-start:
-    - match: \b(member_modifier|power_bloc_modifier|leader_modifier|non_leader_modifier|second_modifier|agitator_modifier|upkeep_modifier_unscaled|prosperity_modifier|unit_modifier|upkeep_modifier|battle_modifier|construction_modifier|country_modifiers|state_modifiers|building_modifiers|timed_modifiers|workforce_scaled|level_scaled|unscaled|character_modifier|command_modifier|country_modifier|interest_group_modifier|general_modifier|admiral_modifier|modifier)\b
+    - match: \b(member_modifier|power_bloc_modifier|leader_modifier|non_leader_modifier|first_modifier|second_modifier|agitator_modifier|upkeep_modifier_unscaled|prosperity_modifier|unit_modifier|upkeep_modifier|battle_modifier|construction_modifier|country_modifiers|state_modifiers|building_modifiers|timed_modifiers|workforce_scaled|level_scaled|unscaled|character_modifier|command_modifier|country_modifier|interest_group_modifier|general_modifier|admiral_modifier|modifier)\b
       scope: string.modifier.start
       push:
         - include: line_ending
@@ -339,6 +345,36 @@ contexts:
           scope: meta.building.bracket
           pop: true
 
+  pbar-block-start-effect:
+    - match: \b(add_progress)\b
+      scope: keyword.effect
+      push:
+        - include: line_ending
+        - include: equal_sign
+        - match: \{
+          scope: meta.pbar.bracket
+          pop: true
+
+  pbar-block-start-trigger:
+    - match: \b(scripted_bar_progress)\b
+      scope: string.trigger
+      push:
+        - include: line_ending
+        - include: equal_sign
+        - match: \{
+          scope: meta.pbar.bracket
+          pop: true
+
+  political-lobby-block-start:
+    - match: \b(create_political_lobby)\b
+      scope: keyword.effect
+      push:
+        - include: line_ending
+        - include: equal_sign
+        - match: \{
+          scope: meta.political.lobby.bracket
+          pop: true
+
   char-trait-block-start:
     - match: \b(create_character)\b
       scope: keyword.effect
@@ -349,8 +385,38 @@ contexts:
           scope: meta.char.trait.bracket
           pop: true
 
+  lobby-appeasement-block-multi-start:
+    - match: \b(appeasement_factors_pro|appeasement_factors_anti)\b
+      scope: keyword.effect
+      push:
+        - include: line_ending
+        - include: equal_sign
+        - match: \{
+          scope: meta.lobby.appeasement.multi.bracket
+          pop: true
+
+  lobby-appeasement-block-start:
+    - match: \b(change_appeasement)\b
+      scope: keyword.effect
+      push:
+        - include: line_ending
+        - include: equal_sign
+        - match: \{
+          scope: meta.lobby.appeasement.bracket
+          pop: true
+
+  objective-subgoal-block-start:
+    - match: \b(unlocking_subgoals_all|unlocking_subgoals_any|objective_subgoals)\b
+      scope: string.trigger
+      push:
+        - include: line_ending
+        - include: equal_sign
+        - match: \{
+          scope: meta.objective.subgoal
+          pop: true
+
   diplo-action-block-start:
-    - match: \b(can_afford_diplomatic_action|has_diplomatic_pact)\b
+    - match: \b(can_afford_diplomatic_action|has_diplomatic_pact|would_accept_diplomatic_action)\b
       scope: string.trigger
       push:
         - include: line_ending
@@ -509,22 +575,22 @@ contexts:
     - match: (\?=|<=|<|!=|>=|>|=|:)
       scope: keyword.operator.comparison.victoria
     # Essential Scipt Functions
-    - match: \b(highlight_widget_dynamic_loc|highlight_target|gui_tag|window_name|animation|header_info|highlight_widget|highlight_widget|button_id|chain|button_text|second_desc|piece|objective_subgoal|enabled_background|disabled_background|widget|message|scripted_progress_bar|modifier_key|layer|catalyst_effect_cooldown|groups|state_selection|first_state_list|second_state_list|forced_duration|unification_play|auto_support_type|leadership_play|ownership_type|decimals|game_data|orphan|dynamic_country_name|dynamic_company_type_names|naval_entity|default_group|entity_animation|behaviors|upgrades|map_object|pdxmesh|ui_skin|entity|papermap_textures_file|pattern|combat_unit_image|default_rank|meshes|default_subject_type|toggle_map_object_layers|created_material|materials|label|textures|path|dynamic_texture_postfix|open_popup|background|law_group_category|scripted_button|background_texture|propose_string|break_string|ask_to_end_string|pact|center_icon|triggered_desc|minor_left_icon|minor_right_icon|right_icon|namespace|parent_group|default_building|chance|mode|adjective|default|popup_name|male_ruler|female_ruler|male_heir|female_heir|ethnicities|ai_weight|group|building_group|entity_not_constructed|city_gfx_interactions|entity_under_construction|entity_constructed|gui_window|left_icon|base|progress|status_desc|progress_desc|how_tutorial|why_tutorial|timeout|first_name|last_name|texture|icon|placement|title|desc|flavor|event_image|duration|default_option|months|days|years|hidden|id|text|log_loc_errors|name|country_type|tier|flag_definition|allow_overlord_canton|order_by|qualifications_growth_desc)\b
+    - match: \b(founding_date|alert_group|density_curve|scale_curve|scale_fuzziness_curve|window_file|title_text|accept_text|decline_text|highlight_widget_dynamic_loc|highlight_target|gui_tag|window_name|animation|header_info|highlight_widget|highlight_widget|button_id|chain|button_text|second_desc|piece|objective_subgoal|enabled_background|disabled_background|widget|message|scripted_progress_bar|modifier_key|layer|catalyst_effect_cooldown|groups|state_selection|first_state_list|second_state_list|forced_duration|unification_play|auto_support_type|leadership_play|ownership_type|decimals|game_data|orphan|dynamic_country_name|dynamic_company_type_names|naval_entity|default_group|entity_animation|behaviors|upgrades|map_object|pdxmesh|ui_skin|entity|papermap_textures_file|pattern|combat_unit_image|default_rank|meshes|default_subject_type|toggle_map_object_layers|created_material|materials|label|textures|path|dynamic_texture_postfix|open_popup|background|law_group_category|scripted_button|background_texture|propose_string|break_string|ask_to_end_string|pact|center_icon|triggered_desc|minor_left_icon|minor_right_icon|right_icon|namespace|parent_group|default_building|chance|mode|adjective|default|popup_name|male_ruler|female_ruler|male_heir|female_heir|ethnicities|ai_weight|group|building_group|entity_not_constructed|city_gfx_interactions|entity_under_construction|entity_constructed|gui_window|left_icon|base|progress|status_desc|progress_desc|how_tutorial|why_tutorial|timeout|first_name|last_name|texture|icon|placement|title|desc|flavor|event_image|duration|default_option|months|days|years|hidden|id|text|log_loc_errors|name|country_type|tier|flag_definition|allow_overlord_canton|order_by|qualifications_growth_desc)\b
       scope: constant.numeric
     # Math/Sound/Video
     - match: \b(sound|confirmation_sound|request_sound|hostile_sound|benign_sound|all|range|factor|percent|nearest|multiplier|amount|add|subtract|max|min|round|ceiling|floor|divide|modulo|multiply|divide|video|on_created_soundeffect|on_opened_soundeffect|integer_range|clicksound)\b
       scope: variable.language
     # Effects
-    - match: \b(swap_type_on_failed|combat_unit|open_panel|on_character_ig_membership|weekly_effect|commander_usage|break_effect|accept_effect|on_start|on_enable|on_disable|on_war_begins|on_enact|on_activate|on_deactivate|add_war_goal|activate_production_methods|set_secret_goal|on_yearly_pulse|on_weekly_pulse|on_fail|on_invalid|on_timeout|on_monthly_pulse|on_complete|effect|immediate|option|after|when_taken)\b
+    - match: \b(add_interest_group|swap_type_on_failed|combat_unit|open_panel|on_character_ig_membership|weekly_effect|commander_usage|break_effect|accept_effect|on_start|on_enable|on_disable|on_war_begins|on_enact|on_activate|on_deactivate|add_war_goal|activate_production_methods|set_secret_goal|on_yearly_pulse|on_weekly_pulse|on_fail|on_invalid|on_timeout|on_monthly_pulse|on_complete|effect|immediate|option|after|when_taken)\b
       scope: keyword.effect
     # Triggers
-    - match: \b(pause_game|force_pause_game|finish_gamestate_tutorial|shown_in_encyclopedia|gui_transition|trigger_transition|save_progress_in_gamestate|start_automatically|can_target_with_transfer_wargoal|higher_autonomy_subject_type_alternatives|lower_autonomy_subject_type_alternatives|same_autonomy_subject_type_alternatives|can_offer_to_become_in_sway_offers|default_bad|default_green|double_sided_bad|double_sided_gold|primary_for_identity|unlocking_identity|is_slave|can_always_hire|paid_private_wage|appeasement_factors_pro|is_always_usable|appeasement_factors_anti|available_for_all_countries|required_dlc_feature|show_interaction_text_on_click|valid_sway_wargoals_against_overlord|affected_by_regime_change|transferable|can_revolution_inherit|is_loading_tip|uses_plural_naming|use_for_flavored_companies|heritage|political_lobby_creation|ai_country_goal_recalculation|is_two_sided_pact|infamy_affects_maintenance|show_in_outliner|show_in_lens|income_transfer_to_pops|allow_discriminated|second_country_gets_income_transfer|income_transfer_based_on_second_country|uses_random_approval|requirement_to_maintain|ai_usage|is_major_formation|is_basic_order_type|recruits_combat_units|cannot_switch_owner|show_requirements|ignores_productivity_when_hiring|is_shown_in_outliner|owns_other_buildings|stance|is_agitator|historical|new_leader_on_reform_government|use_overlord_prefix|is_main_tag_only|uses_dynamic_naming|flavored_company|dlc|ai_order_type|map_interaction|allows_advance|causes_general_travel|military_type|generates_residences|ignore_stateregion_max_level|clear_collision_mesh_area|is_colonizable|is_unrecognized|uses_prestige|has_events|has_military|has_economy|has_politics|enforce_subject_rank_check|is_named_from_capital|join_violator|created_terrain|terrain_mask|preferred_terrain|diplomatic_action|gives_prestige_to_overlord|subservient_to_overlord|can_start_own_diplomatic_plays|breaks_if_subject_not_protected|join_overlord_wars|overlord_must_be_higher_rank|overlord_must_be_same_country_type|use_for_release_country|allow_change_country_flag|use_overlord_map_color|use_overlord_ruler|is_default|has_dynamic_texture|unemployment|final_subgoal|blocking_subgoals_none_of|objective_subgoals|recommended_tags|recommended_game_rules|blocking_subgoals_not_all|objective_subgoals|recommended_tags|recommended_game_rules|unlocking_subgoals_all|unlocking_subgoals_any|is_exclusive|is_repeatable|neutral|boolean|good|character_ideology|add_infamy_for_starting_initiator_wargoals|add_infamy_for_starting_target_wargoals|is_epic|subject_relation|annex_on_country_formation|is_breaking_hostile|is_target_breaking_hostile|actor_requires_approval_to_break|counts_for_tech_spread|show_confirmation_box|is_hostile|required_techs_for_colonization|disabling_technologies|city|port|farm|mine|naval_exit_id|impassable|subsistence_building|arable_resources|capped_resources|resource|naval_exit_iddynamic_country_name|language_accepted|cooldown|clear_size_area|inheritable_construction|is_military|is_subsistence|hires_unemployed_only|subsidized|stateregion_max_level|created_by_trade_routes|land_usage|always_possible|capped_by_resources|economy_of_scale|auto_place_buildings|discoverable_resource|depletable_resource|pays_taxes|fired_pops_become_radical|can_use_slaves|timed_modifiers|fail|valid_country_types|general_modifier|admiral_modifier|role|earliest_usage_date|latest_usage_date|filter|dna|enable_switch_sides|allow_negotiated_peace|initiator_can_add_war_goals|target_can_add_war_goals|is_alliance|additional_involvement_trigger|show_effect_in_tooltip|recipient_gets_income_transfer|income_transfer_based_on_recipient|check_acceptance_for_will_break|will_propose|actor_can_break|target_can_break|should_notify_third_parties|target_requires_approval_to_break|has_junior_participant|recipient_pays_maintenance|is_customs_union|subject_type|check_acceptance_for_will_propose|transfer_pact|reverse_pact|will_break|is_about_to_auto_break|should_auto_break|should_invalidate|requires_approval|can_use_obligations|mapmode|special_selection|special_selection|textured_emblem|technology_cost|era|capital_province|graphical_culture|ai_is_valid|is_valid|unlocking_production_methods|building_modifiers|ai_selection|production_methods|entry|notification_type|ideologies|pop_potential|enable|transfer_of_power|fixed_price|tradeable|category|war_goal|requires_interest_marker|mirror_war_goal|selectable_in_lens|modifier|valid|cost|male_common_first_names|female_common_first_names|common_last_names|male_noble_first_names|female_noble_first_names|noble_last_names|male_regal_first_names|female_regal_first_names|regal_last_names|valid_for_country|available_for_interest_group|can_enact|religious_acceptance_rule|tariff_modifier_very_low|tariff_modifier_low|tariff_modifier_medium|tariff_modifier_high|tariff_modifier_very_high|cultural_acceptance_rule|build_from_investment_pool|tax_modifier_very_low|tax_modifier_low|tax_modifier_medium|tax_modifier_high|tax_modifier_very_high|unlocking_laws|disallowing_laws|possible_political_movements|institution_modifier|recruits_combat_unit|has_max_level|canal|terrain_manipulator|should_auto_expand|city_type|levels_per_mesh|buildable|expandable|downsizeable|unique|locator|production_method_groups|unlocking_technologies|required_construction|character_modifier|command_modifier|country_modifier|interest_group_modifier|state_type|building_type|production_method|is_general|is_admiral|use_culture_states|required_num_states|birth_date|tag|origin|ai_chance|weight_multiplier|coastal|technology|popup|highlighted_option|localization_key|first_valid|random_valid|can_deactivate|should_be_pinned_by_default|inheritable|progressbar|invalid|is_shown_when_inactive|trigger|limit|complete|ig_leader|owned_provinces|traits|potential|law|is_shown|possible|cultures|coa|subject_canton|coa_with_overlord_canton|colored_emblem|sub|fallback)\b
+    - match: \b(member|violates_sovereignty|theme_provider|repeat_sound_effect|pause_game|force_pause_game|finish_gamestate_tutorial|shown_in_encyclopedia|gui_transition|trigger_transition|save_progress_in_gamestate|start_automatically|can_target_with_transfer_wargoal|higher_autonomy_subject_type_alternatives|lower_autonomy_subject_type_alternatives|same_autonomy_subject_type_alternatives|can_offer_to_become_in_sway_offers|default_bad|default_green|double_sided_bad|double_sided_gold|blocking_identity|primary_for_identity|unlocking_identity|is_slave|can_always_hire|paid_private_wage|appeasement_factors_pro|is_always_usable|appeasement_factors_anti|available_for_all_countries|required_dlc_feature|show_interaction_text_on_click|valid_sway_wargoals_against_overlord|affected_by_regime_change|transferable|can_revolution_inherit|is_loading_tip|uses_plural_naming|use_for_flavored_companies|heritage|political_lobby_creation|ai_country_goal_recalculation|is_two_sided_pact|infamy_affects_maintenance|show_in_outliner|show_in_lens|income_transfer_to_pops|allow_discriminated|second_country_gets_income_transfer|income_transfer_based_on_second_country|uses_random_approval|requirement_to_maintain|ai_usage|is_major_formation|is_basic_order_type|recruits_combat_units|cannot_switch_owner|show_requirements|ignores_productivity_when_hiring|is_shown_in_outliner|owns_other_buildings|stance|is_agitator|historical|new_leader_on_reform_government|use_overlord_prefix|is_main_tag_only|uses_dynamic_naming|flavored_company|dlc|ai_order_type|map_interaction|allows_advance|causes_general_travel|military_type|generates_residences|ignore_stateregion_max_level|clear_collision_mesh_area|is_colonizable|is_unrecognized|uses_prestige|has_events|has_military|has_economy|has_politics|enforce_subject_rank_check|is_named_from_capital|join_violator|created_terrain|terrain_mask|preferred_terrain|diplomatic_action|gives_prestige_to_overlord|subservient_to_overlord|can_start_own_diplomatic_plays|breaks_if_subject_not_protected|join_overlord_wars|overlord_must_be_higher_rank|overlord_must_be_same_country_type|use_for_release_country|allow_change_country_flag|use_overlord_map_color|use_overlord_ruler|is_default|has_dynamic_texture|unemployment|final_subgoal|blocking_subgoals_none_of|objective_subgoals|recommended_tags|recommended_game_rules|blocking_subgoals_not_all|objective_subgoals|recommended_tags|recommended_game_rules|unlocking_subgoals_all|unlocking_subgoals_any|is_exclusive|is_repeatable|neutral|boolean|good|character_ideology|add_infamy_for_starting_initiator_wargoals|add_infamy_for_starting_target_wargoals|is_epic|subject_relation|annex_on_country_formation|is_breaking_hostile|is_target_breaking_hostile|actor_requires_approval_to_break|counts_for_tech_spread|show_confirmation_box|is_hostile|required_techs_for_colonization|disabling_technologies|city|port|farm|mine|naval_exit_id|impassable|subsistence_building|arable_resources|capped_resources|resource|naval_exit_iddynamic_country_name|language_accepted|cooldown|clear_size_area|inheritable_construction|is_military|is_subsistence|hires_unemployed_only|subsidized|stateregion_max_level|created_by_trade_routes|land_usage|always_possible|capped_by_resources|economy_of_scale|auto_place_buildings|discoverable_resource|depletable_resource|pays_taxes|fired_pops_become_radical|can_use_slaves|timed_modifiers|fail|valid_country_types|general_modifier|admiral_modifier|role|earliest_usage_date|latest_usage_date|filter|dna|enable_switch_sides|allow_negotiated_peace|initiator_can_add_war_goals|target_can_add_war_goals|is_alliance|additional_involvement_trigger|show_effect_in_tooltip|recipient_gets_income_transfer|income_transfer_based_on_recipient|check_acceptance_for_will_break|will_propose|actor_can_break|target_can_break|should_notify_third_parties|target_requires_approval_to_break|has_junior_participant|recipient_pays_maintenance|is_customs_union|subject_type|check_acceptance_for_will_propose|transfer_pact|reverse_pact|will_break|is_about_to_auto_break|should_auto_break|should_invalidate|requires_approval|can_use_obligations|mapmode|special_selection|special_selection|textured_emblem|technology_cost|era|capital_province|graphical_culture|ai_is_valid|is_valid|unlocking_production_methods|building_modifiers|ai_selection|production_methods|entry|notification_type|ideologies|pop_potential|enable|transfer_of_power|fixed_price|tradeable|category|war_goal|requires_interest_marker|mirror_war_goal|selectable_in_lens|modifier|valid|cost|male_common_first_names|female_common_first_names|common_last_names|male_noble_first_names|female_noble_first_names|noble_last_names|male_regal_first_names|female_regal_first_names|regal_last_names|valid_for_country|available_for_interest_group|can_enact|religious_acceptance_rule|tariff_modifier_very_low|tariff_modifier_low|tariff_modifier_medium|tariff_modifier_high|tariff_modifier_very_high|cultural_acceptance_rule|build_from_investment_pool|tax_modifier_very_low|tax_modifier_low|tax_modifier_medium|tax_modifier_high|tax_modifier_very_high|unlocking_laws|disallowing_laws|possible_political_movements|institution_modifier|recruits_combat_unit|has_max_level|canal|terrain_manipulator|should_auto_expand|city_type|levels_per_mesh|buildable|expandable|downsizeable|unique|locator|production_method_groups|unlocking_technologies|required_construction|character_modifier|command_modifier|country_modifier|interest_group_modifier|state_type|building_type|production_method|is_general|is_admiral|use_culture_states|required_num_states|birth_date|tag|origin|ai_chance|weight_multiplier|coastal|technology|popup|highlighted_option|localization_key|first_valid|random_valid|can_deactivate|should_be_pinned_by_default|inheritable|progressbar|invalid|is_shown_when_inactive|trigger|limit|complete|ig_leader|owned_provinces|traits|potential|law|is_shown|possible|cultures|coa|subject_canton|coa_with_overlord_canton|colored_emblem|sub|fallback)\b
       scope: string.trigger
     # Scripted Triggers that also have a hover doc entry
     - match: \b(MFE_has_building)\b
       scope: string.trigger
     # Scopes
-    - match: \b(default_lesson_step_delay|delay|autonomy_level|start_value|min_value|max_value|levels|mandate_progress|colors|working_adult_ratio|max_supply_share|min_supply_share|duration_to_show|max_height|index|ai_acceptance_max|max_influence_spending_fraction|relations_improvement_min|required_states_fraction|ai_unification_support_score|ai_nationalization_desire|min_productivity_to_hire|min_hiring_rate|max_hiring_rate|economy_of_scale_ai_factor|foreign_investment_ai_factor|hq|hq_region|indicator_position_angle|indicator_position_angle_for_enemy|manpower_max|needed_experience|admiral_preparation_days|experience|political_strength|centerpiece_mesh_weight|construction_points|economic_contribution|ai_subsidies_weight|script_context|max_manpower|icon_index|diplo_pact_cost|prestige_average_threshold|prestige_relative_threshold|infamy_aggressor_scaling|infamy_target_scaling|violator|actor|risk|debug_color|pollution_mask_strength|devastation_mask_strength|convoy_contribution|pollution_generation|education_access|start_quality_of_life|wage_weight|literacy_target|consumption_mult|dependent_wage|political_engagement_base|unemployment_wealth|political_engagement_literacy_factor|unemployment_wealth|num_decimals|threshold|base_enactment_days|enactment_approval_mult|progressive_movement_chance|regressive_movement_chance|progressiveness|min_approval|max_approval|pop_weight|hiring_rate|proportionality_limit|infrastructure_usage_per_level|cash_reserves_max|throughput_scaled|opinion|decay|tile_size|nr_of_tiles|multiplier|is_decaying|consumption_tax_cost|convoy_cost_multiplier|traded_quantity|accept_break_score|attitude|income_transfer|ai|relations_progress_per_day|relations_improvement_max|propose_score|propose_break_score|use_obligation_chance|owe_obligation_chance|accept_score|junior_accept_score|who|country|target_state|target_country|color4|color5|map_color|mask|saved_scopes|ai_value|unscaled|workforce_scaled|level_scaled|max_weight|min_weight|obsession_chance|trade_route_revenue_multiplier|convoy_shipping_multiplier|prestige_factor|count|join_weight|show_in_list|leader_weight|leader_ideology|pop_support|residence_points_per_level|enable_air_connection|override_centerpiece_mesh|lens|replace|min_raise_to_hire|severity|direction|holder|reserves|secret_goal|states|provinces|setting|color1|current_value|goal_add_value|female|noble|color2|size|color3|color|priority|overlord_canton_offset|overlord_canton_scale|instance|scale|position|offset|parent|suffix)\b
+    - match: \b(max_density|steam_id|default_lesson_step_delay|delay|autonomy_level|start_value|min_value|max_value|levels|mandate_progress|colors|working_adult_ratio|max_supply_share|min_supply_share|duration_to_show|max_height|index|ai_acceptance_max|max_influence_spending_fraction|relations_improvement_min|required_states_fraction|ai_unification_support_score|ai_nationalization_desire|min_productivity_to_hire|min_hiring_rate|max_hiring_rate|economy_of_scale_ai_factor|foreign_investment_ai_factor|hq|hq_region|indicator_position_angle|indicator_position_angle_for_enemy|manpower_max|needed_experience|admiral_preparation_days|experience|political_strength|centerpiece_mesh_weight|construction_points|economic_contribution|ai_subsidies_weight|script_context|max_manpower|icon_index|diplo_pact_cost|prestige_average_threshold|prestige_relative_threshold|infamy_aggressor_scaling|infamy_target_scaling|violator|actor|risk|debug_color|pollution_mask_strength|devastation_mask_strength|convoy_contribution|pollution_generation|education_access|start_quality_of_life|wage_weight|literacy_target|consumption_mult|dependent_wage|political_engagement_base|unemployment_wealth|political_engagement_literacy_factor|unemployment_wealth|num_decimals|threshold|base_enactment_days|enactment_approval_mult|progressive_movement_chance|regressive_movement_chance|progressiveness|min_approval|max_approval|pop_weight|hiring_rate|proportionality_limit|infrastructure_usage_per_level|cash_reserves_max|throughput_scaled|opinion|decay|tile_size|nr_of_tiles|multiplier|is_decaying|consumption_tax_cost|convoy_cost_multiplier|traded_quantity|accept_break_score|attitude|income_transfer|ai|relations_progress_per_day|relations_improvement_max|propose_score|propose_break_score|use_obligation_chance|owe_obligation_chance|accept_score|junior_accept_score|who|country|target_state|target_country|color4|color5|map_color|mask|saved_scopes|ai_value|unscaled|workforce_scaled|level_scaled|max_weight|min_weight|obsession_chance|trade_route_revenue_multiplier|convoy_shipping_multiplier|prestige_factor|count|join_weight|show_in_list|leader_weight|leader_ideology|pop_support|residence_points_per_level|enable_air_connection|override_centerpiece_mesh|lens|replace|min_raise_to_hire|severity|direction|holder|reserves|secret_goal|states|provinces|setting|color1|current_value|goal_add_value|female|noble|color2|size|color3|color|priority|overlord_canton_offset|overlord_canton_scale|instance|scale|position|offset|parent|suffix)\b
       scope: storage.type.scope
     # Other Stuff
     - match: \b(events|random_events|R G B)\b

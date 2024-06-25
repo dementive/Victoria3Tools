@@ -1,11 +1,14 @@
 import re
 from typing import Dict
 
+def make_minihtml(string):
+    return string.replace("<=", "&le;").replace(">=", "&ge;").replace("<", "&lt;").replace(">", "&gt;")
+
 def parse_markdown_logs(log_content, header_length="##"):
     # Requirements: 
     # 1. Make sure there are 2 \n characters before the first log entry
     # 2. Remove all the extra stuff like headers and footers
-    parsed_string = re.sub(r"\*\*(.*?)\*\*", "<b>\\1</b>", log_content.replace(f"\n\n{header_length} ", "ฌ").replace("\n", "<br>").replace("Traits: <, <=, =, !=, >, >=","Traits: &lt;, &le;, =, !=, &gt;, &ge;").replace("<triggers>", "triggers").replace("<effects>", "effects"))
+    parsed_string = re.sub(r"\*\*(.*?)\*\*", "<b>\\1</b>", make_minihtml(log_content.replace(f"\n\n{header_length} ", "ฌ")).replace("\n", "<br>").replace("<triggers>", "triggers").replace("<effects>", "effects"))
     parsed_string = parsed_string.split("ฌ")
 
     parsed_dict = dict()
@@ -68,7 +71,7 @@ def get_modifiers(input_string):
     out_dict = dict()
     for i in parsed_data:
         if i.description:
-            out_dict[i.key] = i.description
+            out_dict[i.key] = make_minihtml(i.description)
 
     return out_dict
 

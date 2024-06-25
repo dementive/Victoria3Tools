@@ -47,7 +47,7 @@ There are a ton of plugin features that trigger from the `on_hover` of the main 
 
 1. Make a new GameObject class in v3_objects.py
 
-2. Load the game object into the plugin by updating the create_game_objects function in [event_listener.py](https://github.com/dementive/Victoria3Tools/blob/main/src/event_listener.py)
+2. Load the game object into the plugin by updating the create_all_game_objects function in [event_listener.py](https://github.com/dementive/Victoria3Tools/blob/main/src/event_listener.py)
 
 3. In [game_object_manager.py](https://github.com/dementive/Victoria3Tools/blob/main/src/game_object_manager.py) create a new attribute in the GameObjectManager
 
@@ -55,11 +55,7 @@ There are a ton of plugin features that trigger from the `on_hover` of the main 
 
 5. Update the hover_objects list in [event_listener.py](https://github.com/dementive/Victoria3Tools/blob/main/src/event_listener.py)
 
-6. If the game object needs autocomplete:
-	1. Add it to the auto_complete_fields dict in [autocomplete.py](https://github.com/dementive/Victoria3Tools/blob/main/src/autocomplete.py). 
-	2. Update the completion_flag_pairs and simple_completion_pattern_flag_pairs lists in [game_data.py](https://github.com/dementive/Victoria3Tools/blob/main/src/game_data.py)
-
-7. If the game object is a scope update the simple_completion_scope_pattern_flag_pairs list in [game_data.py](https://github.com/dementive/Victoria3Tools/blob/main/src/game_data.py)
+6. Update all the data at the bottom of game_data.py if it needs autocomplete or hover features.
 
 8. Uncomment the print_load_balanced_game_object_creation function in [event_listener.py](https://github.com/dementive/Victoria3Tools/blob/main/src/event_listener.py) and copy the output into the create_game_objects function. This automatically balances the load when loading all the game objects so the threading is as efficient as possible (you only need to do this step if several new objects were added).
 
