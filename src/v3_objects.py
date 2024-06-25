@@ -137,9 +137,9 @@ class Law(GameObjectBase):
 class Modifier(GameObjectBase):
     def __init__(self):
         super().__init__(
-            v3_mod_files, v3_files_path, ignored_files=["00_static_modifiers.txt"]
+            v3_mod_files, v3_files_path, ignored_files=["00_code_static_modifiers.txt"]
         )
-        self.get_data(f"common{os.sep}modifiers")
+        self.get_data(f"common{os.sep}static_modifiers")
 
 
 class Party(GameObjectBase):
@@ -265,7 +265,7 @@ class DiscriminationTrait(GameObjectBase):
 class ModifierType(GameObjectBase):
     def __init__(self):
         super().__init__(v3_mod_files, v3_files_path)
-        self.get_data(f"common{os.sep}modifier_types")
+        self.get_data(f"common{os.sep}modifier_type_definitions")
 
 
 class CombatUnitGroup(GameObjectBase):

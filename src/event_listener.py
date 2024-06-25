@@ -393,6 +393,7 @@ class VictoriaEventListener(
             and self.settings.get("DocsHoverEnabled") is True
         ):
             if view.match_selector(point, "keyword.effect"):
+                self.game_data.game_effects.update(self.game_data.CustomEffectsList)
                 self.show_hover_docs(
                     view,
                     point,
@@ -400,8 +401,7 @@ class VictoriaEventListener(
                     self.game_data.game_effects,
                     self.settings,
                 )
-
-            if view.match_selector(point, "string.trigger"):
+            elif view.match_selector(point, "string.trigger"):
                 self.game_data.game_triggers.update(self.game_data.CustomTriggersList)
                 self.show_hover_docs(
                     view,
@@ -410,14 +410,21 @@ class VictoriaEventListener(
                     self.game_data.game_triggers,
                     self.settings,
                 )
-
-            if view.match_selector(point, "storage.type.scope"):
+            elif view.match_selector(point, "storage.type.scope"):
                 self.game_data.game_scopes.update(self.game_data.CustomScopesList)
                 self.show_hover_docs(
                     view,
                     point,
                     "storage.type.scope",
                     self.game_data.game_scopes,
+                    self.settings,
+                )
+            elif view.match_selector(point, "string.modifier.type"):
+                self.show_hover_docs(
+                    view,
+                    point,
+                    "string.modifier.type",
+                    self.game_data.game_modifiers,
                     self.settings,
                 )
 
