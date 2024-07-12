@@ -72,7 +72,7 @@ class VicExecuteTigerCommand(JominiExecuteTigerCommand, sublime_plugin.WindowCom
         )
 
 
-class RunTigerCommand(JominiRunTigerCommand, sublime_plugin.WindowCommand):
+class VicRunTigerCommand(JominiRunTigerCommand, sublime_plugin.WindowCommand):
     def __init__(self, window):
         self.window = window
         super().__init__(
